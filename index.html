@@ -7,29 +7,24 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;font-size:14px}
-/* TOP BAR */
 #bar{background:#1a3a5c;padding:0 16px;height:54px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;border-bottom:3px solid #2a6090}
 #logo{display:flex;flex-direction:column;flex:1}
 #logo span:first-child{color:#fff;font-size:16px;font-weight:900;letter-spacing:2px}
 #logo span:last-child{color:#7ab3d4;font-size:9px;letter-spacing:3px;text-transform:uppercase}
 .tb{background:none;border:1px solid #2a6090;color:#7ab3d4;padding:6px 12px;font-size:11px;text-transform:uppercase;cursor:pointer;letter-spacing:1px;border-radius:3px}
 .tb.r{background:#2a6090;border-color:#2a6090;color:#fff;font-weight:600}
-/* LAYOUT */
 #wrap{display:block;width:100%}
 #nav{display:inline-block;vertical-align:top;width:190px;background:#0f2840;min-height:calc(100vh - 54px)}
 #main{display:inline-block;vertical-align:top;width:calc(100% - 194px);padding:20px;background:#f5f5f5;min-height:calc(100vh - 54px)}
-/* NAV */
 .ng{padding:12px 0 4px}
 .ngl{font-size:9px;color:#3a6080;letter-spacing:2px;text-transform:uppercase;padding:0 14px 5px;display:block}
 .nb{display:block;width:100%;background:none;border:none;border-left:3px solid transparent;padding:10px 14px;text-align:left;color:#7ab3d4;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:rgba(42,96,144,.3)}
 .nb.on{color:#fff;border-left-color:#2a6090;background:rgba(42,96,144,.25)}
 .nb:active{background:rgba(255,255,255,.05)}
-/* CONTENT */
 .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e0e0e0;gap:10px;flex-wrap:wrap}
 .pt{font-size:20px;font-weight:900;color:#1a3a5c;letter-spacing:1px}
 .abtn{background:#1a3a5c;border:none;color:#fff;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;border-radius:3px;letter-spacing:1px}
 .abtn:active{background:#2a6090}
-/* CARDS */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .card{background:#fff;border:1px solid #e0e0e0;border-left:3px solid #2a6090;border-radius:4px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .chd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px;gap:6px}
@@ -42,19 +37,18 @@ body{background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,
 .cv{color:#333;word-break:break-word}
 .bdg{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px}
 .bg{background:#e8f5e9;color:#2e7d32}.bo{background:#fff3e0;color:#e65100}.br{background:#fdecea;color:#c62828}.bx{background:#f5f5f5;color:#666}
-/* STATS */
 .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:20px}
 .sc{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .sn{font-size:32px;font-weight:900;color:#1a3a5c}
 .sl{font-size:9px;color:#999;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
 .ntc{background:#e8f0f8;border-left:3px solid #2a6090;padding:10px 14px;font-size:12px;color:#1a3a5c;margin-bottom:14px;border-radius:0 4px 4px 0}
 .ntcr{background:#fdecea;border-left:3px solid #c0392b;padding:10px 14px;font-size:12px;color:#7a1a1a;margin-bottom:14px;border-radius:0 4px 4px 0}
+.ntcg{background:#e8f5e9;border-left:3px solid #27ae60;padding:10px 14px;font-size:12px;color:#1a5c2a;margin-bottom:14px;border-radius:0 4px 4px 0}
 .sbar{position:relative;margin-bottom:12px}
 .sbar input{width:100%;background:#fff;border:1px solid #ddd;color:#222;padding:9px 12px 9px 32px;font-size:13px;outline:none;border-radius:4px}
 .sbar input:focus{border-color:#2a6090;box-shadow:0 0 0 2px rgba(42,96,144,.15)}
 .sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#aaa;pointer-events:none}
 .empty{text-align:center;padding:32px;color:#bbb;border:2px dashed #e0e0e0;border-radius:6px;font-size:13px;background:#fff}
-/* MODAL */
 #ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:16px}
 #ov.show{display:flex}
 #mod{background:#fff;border-radius:8px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -66,19 +60,72 @@ input:focus,textarea:focus,select:focus{border-color:#2a6090;background:#fff;box
 textarea{resize:vertical;min-height:65px}
 select option{background:#fff}
 .ma{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid #eee}
-/* SETTINGS */
 .sf{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:18px;max-width:460px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .dz{border:2px solid #fdecea;border-radius:6px;padding:14px;max-width:460px;background:#fffbfb}
 .dzt{font-size:10px;color:#c0392b;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;font-weight:700}
 .sec-lbl{font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:16px;font-weight:600}
-/* WELCOME BANNER */
-.welcome{background:linear-gradient(135deg,#1a3a5c,#0f2840);color:#fff;border-radius:8px;padding:20px 24px;margin-bottom:20px}
+/* WELCOME */
+.welcome{background:linear-gradient(135deg,#1a3a5c,#0f2840);color:#fff;border-radius:8px;padding:20px 24px;margin-bottom:16px}
 .welcome h2{font-size:18px;margin-bottom:6px;letter-spacing:1px}
 .welcome p{font-size:12px;color:#7ab3d4;line-height:1.6}
+/* ONBOARDING */
+.onb{background:#fff;border:1px solid #c8dff0;border-radius:8px;padding:20px 24px;margin-bottom:16px}
+.onb-title{font-size:13px;font-weight:700;color:#1a3a5c;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.onb-steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.onb-step{background:#f0f6fc;border-radius:6px;padding:12px;text-align:center;cursor:pointer;border:2px solid transparent}
+.onb-step.done{background:#e8f5e9;border-color:#27ae60}
+.onb-step.done .onb-icon{color:#27ae60}
+.onb-icon{font-size:22px;margin-bottom:6px}
+.onb-label{font-size:11px;font-weight:700;color:#1a3a5c;margin-bottom:2px}
+.onb-sub{font-size:10px;color:#999}
+/* PROGRESS */
+.progress-wrap{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:16px 20px;margin-bottom:16px}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progress-title{font-size:12px;font-weight:700;color:#1a3a5c;letter-spacing:1px;text-transform:uppercase}
+.progress-pct{font-size:20px;font-weight:900;color:#1a3a5c}
+.progress-bar{background:#e0e0e0;border-radius:10px;height:8px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#2a6090,#7ab3d4);height:100%;border-radius:10px;transition:width .5s}
+.progress-modules{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.pm{width:12px;height:12px;border-radius:3px;background:#e0e0e0}
+.pm.done{background:#27ae60}
+.pm.partial{background:#e67e22}
+/* BACKUP REMINDER */
+.backup-warn{background:#fff8e8;border:1px solid #f0c040;border-radius:6px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.backup-warn p{font-size:12px;color:#7a5500;margin:0}
+.backup-warn button{background:#e67e22;border:none;color:#fff;padding:5px 12px;font-size:11px;font-weight:700;border-radius:3px;cursor:pointer;white-space:nowrap}
+/* FOOTER NAV */
+.legal-footer{padding:16px 14px;border-top:1px solid #1a3a5c;margin-top:auto}
+.legal-footer a{display:block;font-size:10px;color:#3a6080;text-decoration:none;padding:3px 0;letter-spacing:1px}
+.legal-footer a:hover{color:#7ab3d4}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#2a6090;border-radius:2px}
-/* PRINT */
-@media print{#bar,#nav,#ov,.abtn,.tb,.ib,.sbar{display:none!important}#main{width:100%!important;padding:16px}}
-/* PASSWORD SCREEN */
+/* WELCOME MODAL */
+#wov{display:none;position:fixed;inset:0;background:rgba(10,21,32,.92);z-index:9998;align-items:center;justify-content:center;padding:20px}
+#wov.show{display:flex}
+#wmod{background:#fff;border-radius:12px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.wslide{display:none;padding:36px 32px 28px}
+.wslide.on{display:block}
+.wslide-icon{font-size:48px;text-align:center;margin-bottom:16px}
+.wslide h2{font-size:20px;font-weight:900;color:#1a3a5c;margin-bottom:10px;text-align:center}
+.wslide p{font-size:14px;color:#666;line-height:1.7;text-align:center;margin-bottom:24px}
+.wdots{display:flex;justify-content:center;gap:6px;margin-bottom:20px}
+.wdot{width:8px;height:8px;border-radius:50%;background:#e0e0e0}
+.wdot.on{background:#2a6090}
+.wbtns{display:flex;gap:10px;justify-content:center}
+.wbtn{background:#1a3a5c;border:none;color:#fff;padding:11px 28px;font-size:14px;font-weight:700;border-radius:4px;cursor:pointer;letter-spacing:1px}
+.wbtn.sec{background:none;border:1px solid #ddd;color:#999;font-weight:400}
+/* TOOLTIP */
+.tip-wrap{position:relative;display:inline-block;margin-left:6px;vertical-align:middle}
+.tip-btn{background:none;border:none;color:#2a6090;font-size:14px;cursor:pointer;padding:0 4px;line-height:1}
+.tip-box{display:none;position:absolute;left:0;top:24px;background:#1a3a5c;color:#e8f0f8;font-size:12px;line-height:1.6;padding:10px 14px;border-radius:6px;width:260px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.tip-box.show{display:block}
+.tip-box::before{content:'';position:absolute;top:-6px;left:10px;border:6px solid transparent;border-bottom-color:#1a3a5c;border-top:none}
+/* MODULE HELP */
+.mod-help{background:#f0f6fc;border:1px solid #c8dff0;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#1a3a5c;line-height:1.6}
+.mod-help strong{display:block;margin-bottom:4px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#2a6090}
+/* HELP BTN IN NAV */
+.help-btn{display:block;width:calc(100% - 28px);margin:8px 14px 4px;background:rgba(42,96,144,.15);border:1px solid #2a6090;color:#7ab3d4;padding:7px 10px;font-size:11px;text-align:center;cursor:pointer;border-radius:3px;letter-spacing:1px}
+
+@media print{#bar,#nav,#ov,.abtn,.tb,.ib,.sbar,.onb,.progress-wrap,.backup-warn{display:none!important}#main{width:100%!important;padding:16px}}
 #pwscreen{display:none;position:fixed;inset:0;background:#0f2840;z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px}
 </style>
 </head>
@@ -99,6 +146,43 @@ select option{background:#fff}
     </button>
     <div id="pwErr" style="color:#e74c3c;font-size:12px;margin-top:10px;display:none">Falscher Zugangscode</div>
     <div style="color:#2a4a6c;font-size:10px;margin-top:24px;letter-spacing:1px">Standard-Code: betrieb2024</div>
+  </div>
+</div>
+
+
+<!-- WELCOME MODAL -->
+<div id="wov">
+  <div id="wmod">
+    <div class="wslide on" id="ws0">
+      <div class="wslide-icon">&#128196;</div>
+      <h2>Willkommen beim Betriebspass</h2>
+      <p>Ihr digitales Betriebshandbuch &ndash; alle wichtigen Informationen Ihres Betriebs sicher an einem Ort. F&uuml;r den Fall der F&auml;lle.</p>
+      <div class="wdots"><div class="wdot on"></div><div class="wdot"></div><div class="wdot"></div></div>
+      <div class="wbtns">
+        <button class="wbtn sec" onclick="closeWelcome()">Überspringen</button>
+        <button class="wbtn" onclick="nextSlide(1)">Weiter &rarr;</button>
+      </div>
+    </div>
+    <div class="wslide" id="ws1">
+      <div class="wslide-icon">&#9881;</div>
+      <h2>So funktioniert es</h2>
+      <p><strong>1.</strong> Starten Sie mit den <strong>Einstellungen</strong> &ndash; tragen Sie Ihren Betriebsnamen ein.<br><br><strong>2.</strong> Bef&uuml;llen Sie die <strong>12 Module</strong> Schritt f&uuml;r Schritt.<br><br><strong>3.</strong> Exportieren Sie regelm&auml;&szlig;ig ein <strong>Backup</strong> auf USB oder Cloud.</p>
+      <div class="wdots"><div class="wdot"></div><div class="wdot on"></div><div class="wdot"></div></div>
+      <div class="wbtns">
+        <button class="wbtn sec" onclick="nextSlide(0)">&larr; Zurück</button>
+        <button class="wbtn" onclick="nextSlide(2)">Weiter &rarr;</button>
+      </div>
+    </div>
+    <div class="wslide" id="ws2">
+      <div class="wslide-icon">&#128272;</div>
+      <h2>Ihre Daten geh&ouml;ren Ihnen</h2>
+      <p>Alle Daten bleiben <strong>lokal auf Ihrem Ger&auml;t</strong>. Nichts wird an Server &uuml;bertragen. Nur Sie &ndash; und die Personen denen Sie Zugang geben &ndash; k&ouml;nnen Ihren Betriebspass sehen.</p>
+      <div class="wdots"><div class="wdot"></div><div class="wdot"></div><div class="wdot on"></div></div>
+      <div class="wbtns">
+        <button class="wbtn sec" onclick="nextSlide(1)">&larr; Zurück</button>
+        <button class="wbtn" onclick="closeWelcome()">Los geht&apos;s &#10003;</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -145,6 +229,12 @@ select option{background:#fff}
     <span class="ngl">System</span>
     <button class="nb" data-p="einstellungen">&#9881; Einstellungen</button>
   </div>
+  <button class="help-btn" onclick="showWelcome()">&#63; Hilfe &amp; Einf&uuml;hrung</button>
+  <div class="legal-footer">
+    <a href="rechtliches.html" target="_blank">&#9432; Impressum</a>
+    <a href="rechtliches.html" target="_blank">&#128274; Datenschutz</a>
+    <a href="rechtliches.html" target="_blank">&#128196; AGB</a>
+  </div>
 </div>
 <div id="main"></div>
 </div>
@@ -163,14 +253,72 @@ select option{background:#fff}
 </div>
 
 <script>
+
+
+// ── WELCOME MODAL ──────────────────────────────────────────────
+var WELCOME_KEY='bp_welcome_done';
+function showWelcome(){
+  document.getElementById('wov').classList.add('show');
+  nextSlide(0);
+}
+function closeWelcome(){
+  document.getElementById('wov').classList.remove('show');
+  localStorage.setItem(WELCOME_KEY,'done');
+}
+function nextSlide(n){
+  var slides=document.querySelectorAll('.wslide');
+  for(var i=0;i<slides.length;i++)slides[i].classList.remove('on');
+  document.getElementById('ws'+n).classList.add('on');
+}
+function checkFirstRun(){
+  if(!localStorage.getItem(WELCOME_KEY)){
+    setTimeout(showWelcome, 400);
+  }
+}
+
+// ── FIELD PLACEHOLDERS ──────────────────────────────────────────────
+var PH={
+  auftraege:{titel:'z.B. Fahrzeuglackierung BMW E39 Kunde Müller',kunde:'z.B. Hans Müller / Müller GmbH',preis:'z.B. 2500',bezahlt:'z.B. 500 (Anzahlung)',stunden:'z.B. 12'},
+  kunden:{name:'z.B. Hans Müller oder Müller Bau GmbH',telefon:'z.B. 0171 1234567',email:'z.B. mueller@example.de'},
+  lieferanten:{name:'z.B. Lackier-Bedarf Schmidt GmbH',telefon:'z.B. 0711 987654',webseite:'z.B. www.schmidt-lacke.de'},
+  inventar:{bezeichnung:'z.B. Kompressor Atlas Copco oder Ford Transit 2019',standort:'z.B. Werkstatt hinten links, Regal 3',wert:'z.B. 3500',seriennummer:'z.B. SN-2019-AC-4471'},
+  finanzen:{bezeichnung:'z.B. Geschäftskonto Volksbank',institut:'z.B. Volksbank Esslingen',iban:'z.B. letzte 4 Ziffern: ...4471',kontostand:'z.B. 8500 (Stand 01.06.2026)',zugangInfo:'z.B. Zugangsdaten in 1Password unter "Volksbank" – KEIN Klartext!',offeneForderungen:'z.B. 3200 (Rechnung Müller noch offen)',offeneVerbindlichkeiten:'z.B. 1800 (Lieferant Schmidt)'},
+  vertraege:{bezeichnung:'z.B. Mietvertrag Werkstatt',vertragspartner:'z.B. Hausverwaltung Mayer GmbH',laufzeit:'z.B. 31.12.2027 oder unbefristet',kuendigung:'z.B. 3 Monate zum Quartalsende',betrag:'z.B. 1200 monatlich',ansprechpartner:'z.B. Frau Mayer, 0711 445566',dokument:'z.B. Ordner Rot "Verträge", Schublade 2'},
+  versicherungen:{bezeichnung:'z.B. Betriebshaftpflicht Allianz',gesellschaft:'z.B. Allianz Versicherung AG',policennummer:'z.B. AV-2019-774433',ansprechpartner:'z.B. Maklerin Petra Schön',telefon:'z.B. 0172 9988776',beitrag:'z.B. 480 jährlich',dokument:'z.B. Ordner Blau "Versicherungen"',kuendigung:'z.B. 31.12.2026'},
+  zugaenge:{bezeichnung:'z.B. E-Mail Geschäftlich oder Online-Banking',url:'z.B. www.volksbank-esslingen.de',benutzername:'z.B. u.riedel@example.de',passwortHinweis:'z.B. In 1Password unter "Banken" – KEIN Klartext!'},
+  kontakte:{name:'z.B. Steuerberater Thomas Bauer',firma:'z.B. Steuerkanzlei Bauer & Partner',telefon:'z.B. 0711 334455',email:'z.B. bauer@steuerkanzlei.de',adresse:'z.B. Hauptstraße 12, 73249 Wernau'},
+  rechtliches:{bezeichnung:'z.B. Gewerbeanmeldung oder Testament',nummer:'z.B. 59374/14373',behoerde:'z.B. Finanzamt Esslingen',gueltigkeit:'z.B. unbefristet',standort:'z.B. Ordner Grün Schreibtisch oder Tresor'},
+  wissen:{titel:'z.B. Wo liegt der Ersatzschlüssel',inhalt:'z.B. Ersatzschlüssel hängt an der Pinnwand hinter der Tür, gelber Anhänger',kontext:'z.B. Ohne diesen Schlüssel kein Zugang zum Lagerraum'},
+  notizen:{titel:'z.B. Brief an meine Familie',inhalt:'z.B. Liebe Familie, im Notfall bitte zuerst meinen Steuerberater Thomas Bauer anrufen (0711 334455)...'}
+};
+
+// ── MODULE HELP TEXTS ──────────────────────────────────────────────
+var MH={
+  auftraege:{t:'Was gehört hier rein?',b:'Alle laufenden und kürzlich abgeschlossenen Aufträge. Was wurde vereinbart, welcher Preis, was ist bereits bezahlt, wie weit sind die Arbeiten. Im Notfall weiß Ihr Vertreter sofort was offen ist.'},
+  kunden:{t:'Was gehört hier rein?',b:'Alle Kunden mit denen Sie aktuell arbeiten. Inkl. besondere Abmachungen, Zahlungsverhalten und offene Dinge. Besonders wichtig: VIP-Kunden und laufende Projekte.'},
+  lieferanten:{t:'Was gehört hier rein?',b:'Ihre wichtigsten Lieferanten – vor allem die ohne die der Betrieb nicht läuft. Kontaktdaten, was Sie beziehen, besondere Konditionen und laufende Bestellungen.'},
+  inventar:{t:'Was gehört hier rein?',b:'Alle wichtigen Gegenstände: Maschinen, Werkzeuge, Fahrzeuge, IT. Besonders wichtig: Was gehört dem Kunden und muss zurückgegeben werden? Was ist geleast oder gemietet?'},
+  finanzen:{t:'Was gehört hier rein?',b:'Alle Bankkonten und Finanzkonten. Keine vollständigen Zugangsdaten – aber: welche Bank, IBAN (letzte 4 Ziffern), ungefährer Stand, offene Forderungen und Verbindlichkeiten.'},
+  vertraege:{t:'Was gehört hier rein?',b:'Alle laufenden Verträge: Mietvertrag, Leasing, Wartungsverträge. Wichtig: Kündigungsfristen und Laufzeiten – damit im Notfall nichts unkontrolliert weiterläuft.'},
+  versicherungen:{t:'Was gehört hier rein?',b:'Alle Versicherungen mit Policennummer und Ansprechpartner. Im Schadensfall oder Todesfall ist das die erste Anlaufstelle für Hinterbliebene.'},
+  zugaenge:{t:'Was gehört hier rein?',b:'Wichtige digitale Konten mit Hinweis auf den Passwort-Manager. KEIN Klartext-Passwort eintragen! Nur: wo sind die Passwörter gespeichert und wer hat im Notfall Zugang?'},
+  kontakte:{t:'Was gehört hier rein?',b:'Alle Personen die im Notfall kontaktiert werden müssen: Steuerberater, Anwalt, Hausbank, Schlüsselkunden. Markieren Sie wer „Zuerst anrufen“ ist – diese Person koordiniert alles.'},
+  rechtliches:{t:'Was gehört hier rein?',b:'Alle wichtigen Dokumente mit Standortangabe der Originale. Nicht den Inhalt eintragen – nur wo die Dokumente liegen: z.B. "Ordner Rot, Schreibtisch oben links".'},
+  wissen:{t:'Was gehört hier rein?',b:'Das was nur Sie wissen und verloren gehen würde: Wo liegt der Ersatzschlüssel? Welcher Lieferant hat Sonderkonditionen? Wie funktioniert die Heizungsanlage? Alles was ein Vertreter wissen müsste.'},
+  notizen:{t:'Was gehört hier rein?',b:'Persönliche Notizen und vor allem: Ein Brief an Ihre Hinterbliebenen. Was sollen sie zuerst tun? Wen anrufen? Was ist dringend? Dieser Brief ist das Herzstück des Betriebspasses.'}
+};
+
 var PW_KEY='bp_pw';
 var DEFAULT_PW='betrieb2024';
+var EXPORT_KEY='bp_last_export';
+var FIRST_RUN_KEY='bp_first_run';
 var cPage='dashboard';
 var cSec=null;
 var eId=null;
 var db={settings:{},auftraege:[],kunden:[],lieferanten:[],inventar:[],finanzen:[],vertraege:[],versicherungen:[],zugaenge:[],kontakte:[],rechtliches:[],wissen:[],notizen:[]};
 
-// ── FIELD DEFINITIONS ──────────────────────────────────────────────
+var SECS=['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','zugaenge','kontakte','rechtliches','wissen','notizen'];
+
 var F={
   auftraege:{t:'Auftrag',f:[
     {k:'titel',l:'Auftragsbezeichnung',r:1},
@@ -299,12 +447,79 @@ var F={
   ]}
 };
 
-// ── HELPERS ──────────────────────────────────────────────
+var LABELS={
+  dashboard:'Dashboard',auftraege:'Auftr\u00E4ge',kunden:'Kunden',lieferanten:'Lieferanten',
+  inventar:'Inventar',finanzen:'Finanzen & Konten',vertraege:'Vertr\u00E4ge',
+  versicherungen:'Versicherungen',zugaenge:'Digitale Zug\u00E4nge',kontakte:'Wichtige Kontakte',
+  rechtliches:'Rechtliches',wissen:'Wissen & Prozesse',notizen:'Notizen & Brief',einstellungen:'Einstellungen'
+};
+
 function h(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function ct(s,x){var m={auftraege:x.titel,kunden:x.name,lieferanten:x.name,inventar:x.bezeichnung,finanzen:x.bezeichnung,vertraege:x.bezeichnung,versicherungen:x.bezeichnung,zugaenge:x.bezeichnung,kontakte:x.name,rechtliches:x.bezeichnung,wissen:x.titel,notizen:x.titel};return m[s]||'?'}
 function lsSave(){try{localStorage.setItem('bp_data',JSON.stringify(db))}catch(e){}}
 function lsLoad(){try{var d=localStorage.getItem('bp_data');if(d)db=JSON.parse(d)}catch(e){}}
 function fmt(v){if(!v)return '';if(v.match&&v.match(/^\d{4}-\d{2}-\d{2}$/)){var p=v.split('-');return p[2]+'.'+p[1]+'.'+p[0]}return v}
+
+// ── PROGRESS ──────────────────────────────────────────────
+function calcProgress(){
+  var filled=0;
+  for(var i=0;i<SECS.length;i++){if((db[SECS[i]]||[]).length>0)filled++;}
+  return {filled:filled,total:SECS.length,pct:Math.round(filled/SECS.length*100)};
+}
+
+function progressHtml(){
+  var p=calcProgress();
+  var dots='';
+  for(var i=0;i<SECS.length;i++){
+    var has=(db[SECS[i]]||[]).length>0;
+    dots+='<div class="pm'+(has?' done':'')+'" title="'+h(LABELS[SECS[i]])+'"></div>';
+  }
+  return '<div class="progress-wrap">'
+    +'<div class="progress-header"><span class="progress-title">Vollst\u00E4ndigkeit</span><span class="progress-pct">'+p.pct+'%</span></div>'
+    +'<div class="progress-bar"><div class="progress-fill" style="width:'+p.pct+'%"></div></div>'
+    +'<div class="progress-modules">'+dots+'</div>'
+    +(p.filled<SECS.length?'<p style="font-size:11px;color:#999;margin-top:8px">'+p.filled+' von '+p.total+' Modulen bef\u00FCllt \u2013 <a href="#" onclick="go(\'einstellungen\');return false" style="color:#2a6090">Einstellungen</a> als n\u00E4chstes empfohlen.</p>':'<p style="font-size:11px;color:#27ae60;margin-top:8px">&#10003; Alle Module bef\u00FCllt \u2013 Ihr Betriebspass ist vollst\u00E4ndig!</p>')
+    +'</div>';
+}
+
+// ── BACKUP REMINDER ──────────────────────────────────────────────
+function backupReminderHtml(){
+  var last=localStorage.getItem(EXPORT_KEY);
+  if(!last)return '<div class="backup-warn"><p>&#128190; <strong>Kein Backup vorhanden.</strong> Exportieren Sie Ihre Daten regelmäßig als Sicherung.</p><button onclick="expData()">Jetzt exportieren</button></div>';
+  var days=Math.floor((Date.now()-parseInt(last))/(1000*60*60*24));
+  if(days>=14)return '<div class="backup-warn"><p>&#9888; <strong>Letzter Export vor '+days+' Tagen.</strong> Ein aktuelles Backup wird empfohlen.</p><button onclick="expData()">Jetzt exportieren</button></div>';
+  return '<div class="ntcg">&#10003; Letzter Export vor '+days+' Tag'+(days===1?'':'en')+'. Ihre Daten sind gesichert.</div>';
+}
+
+// ── ONBOARDING ──────────────────────────────────────────────
+function onboardingHtml(){
+  var isFirst=!localStorage.getItem(FIRST_RUN_KEY);
+  var s=db.settings||{};
+  var hasSettings=!!(s.firma||s.inhaber);
+  var totalEntries=0;
+  for(var i=0;i<SECS.length;i++)totalEntries+=(db[SECS[i]]||[]).length;
+  if(!isFirst&&totalEntries>5)return '';
+  var steps=[
+    {p:'einstellungen',icon:'&#9881;',label:'1. Einstellungen',sub:'Firmenname & Kontakt',done:hasSettings},
+    {p:'auftraege',icon:'&#128203;',label:'2. Aufträge',sub:'Offene Aufträge erfassen',done:(db.auftraege||[]).length>0},
+    {p:'kunden',icon:'&#128101;',label:'3. Kunden',sub:'Kundendaten eintragen',done:(db.kunden||[]).length>0},
+    {p:'finanzen',icon:'&#128181;',label:'4. Finanzen',sub:'Bankkonten dokumentieren',done:(db.finanzen||[]).length>0},
+    {p:'zugaenge',icon:'&#128272;',label:'5. Zugänge',sub:'Digitale Zugänge sichern',done:(db.zugaenge||[]).length>0},
+    {p:'notizen',icon:'&#128221;',label:'6. Brief',sub:'Brief an Hinterbliebene',done:(db.notizen||[]).length>0},
+  ];
+  var html='<div class="onb"><div class="onb-title"><span>&#128278; Erste Schritte – So starten Sie</span><button class="tb" onclick="dismissOnboarding()" style="font-size:10px;padding:3px 8px">Ausblenden</button></div><div class="onb-steps">';
+  for(var i=0;i<steps.length;i++){
+    var st=steps[i];
+    html+='<div class="onb-step'+(st.done?' done':'')+'" onclick="go(\''+st.p+'\')">'
+      +'<div class="onb-icon">'+(st.done?'&#10003;':st.icon)+'</div>'
+      +'<div class="onb-label">'+st.label+'</div>'
+      +'<div class="onb-sub">'+st.sub+'</div>'
+      +'</div>';
+  }
+  html+='</div></div>';
+  return html;
+}
+function dismissOnboarding(){localStorage.setItem(FIRST_RUN_KEY,'done');go('dashboard');}
 
 // ── CARDS ──────────────────────────────────────────────
 function rCards(name,q){
@@ -314,27 +529,19 @@ function rCards(name,q){
   var out='';var cnt=0;
   for(var i=0;i<a.length;i++){
     var x=a[i];
-    if(ql){
-      var hay=JSON.stringify(x).toLowerCase();
-      if(hay.indexOf(ql)<0)continue;
-    }
+    if(ql){var hay=JSON.stringify(x).toLowerCase();if(hay.indexOf(ql)<0)continue;}
     cnt++;
     var rows='';
     for(var j=0;j<cfg.f.length;j++){
-      var f=cfg.f[j];
-      var v=x[f.k];
-      if(!v)continue;
-      var bdg='';
+      var f=cfg.f[j];var v=x[f.k];if(!v)continue;
       if(f.tp==='sel'){
         var cls='bx';
         if(v==='Offen'||v==='Hoch'||v==='Kritisch'||v==='Kritisch \u2013 sofort wissen'||v==='Zuerst anrufen'||v==='Unverzichtbar')cls='br';
         else if(v==='In Arbeit'||v==='Wichtig'||v==='VIP'||v==='Aktiv')cls='bo';
         else if(v==='Abgeschlossen'||v==='Normal'||v==='Optional')cls='bg';
-        bdg='<span class="bdg '+cls+'">'+h(v)+'</span>';
-        rows+='<div class="cf"><span class="cl">'+h(f.l)+'</span><span class="cv">'+bdg+'</span></div>';
+        rows+='<div class="cf"><span class="cl">'+h(f.l)+'</span><span class="cv"><span class="bdg '+cls+'">'+h(v)+'</span></span></div>';
       } else {
-        var disp=fmt(v);
-        if(disp.length>120)disp=disp.substring(0,120)+'...';
+        var disp=fmt(v);if(disp.length>120)disp=disp.substring(0,120)+'...';
         rows+='<div class="cf"><span class="cl">'+h(f.l)+'</span><span class="cv">'+h(disp)+'</span></div>';
       }
     }
@@ -345,17 +552,9 @@ function rCards(name,q){
 }
 
 // ── NAVIGATION ──────────────────────────────────────────────
-var LABELS={
-  dashboard:'Dashboard',auftraege:'Auftr\u00E4ge',kunden:'Kunden',lieferanten:'Lieferanten',
-  inventar:'Inventar',finanzen:'Finanzen & Konten',vertraege:'Vertr\u00E4ge',
-  versicherungen:'Versicherungen',zugaenge:'Digitale Zug\u00E4nge',kontakte:'Wichtige Kontakte',
-  rechtliches:'Rechtliches',wissen:'Wissen & Prozesse',notizen:'Notizen & Brief',einstellungen:'Einstellungen'
-};
-
 function go(name){
   cPage=name;
   var M=document.getElementById('main');
-  // nav highlight
   var nbs=document.querySelectorAll('.nb');
   for(var i=0;i<nbs.length;i++){nbs[i].classList.remove('on');if(nbs[i].getAttribute('data-p')===name)nbs[i].classList.add('on')}
   var lbl=LABELS[name]||name;
@@ -363,11 +562,11 @@ function go(name){
 
   if(name==='dashboard'){
     var total=0;
-    var secs=['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','zugaenge','kontakte','rechtliches','wissen','notizen'];
     var stats='<div class="stats">';
-    for(var i=0;i<secs.length;i++){var c=(db[secs[i]]||[]).length;total+=c;stats+='<div class="sc"><div class="sn">'+c+'</div><div class="sl">'+h(LABELS[secs[i]])+'</div></div>'}
+    for(var i=0;i<SECS.length;i++){var c=(db[SECS[i]]||[]).length;total+=c;stats+='<div class="sc"><div class="sn">'+c+'</div><div class="sl">'+h(LABELS[SECS[i]])+'</div></div>';}
     stats+='</div>';
-    // offene Auftraege
+    var s=db.settings||{};
+    var wname=s.inhaber?s.inhaber:(s.firma?s.firma:'');
     var au=db.auftraege||[];
     var offHtml='<div class="sec-lbl">Offene Auftr\u00E4ge</div>';
     var hasOff=false;
@@ -383,11 +582,11 @@ function go(name){
       }
     }
     if(!hasOff)offHtml+='<div class="empty">Keine offenen Auftr\u00E4ge</div>';
-
-    var s=db.settings||{};
-    var welcomeName=s.inhaber?s.inhaber:(s.firma?s.firma:'');
     M.innerHTML=ph
-      +'<div class="welcome"><h2>'+( welcomeName ? 'Betriebspass von '+h(welcomeName) : 'Willkommen beim Betriebspass' )+'</h2><p>Ihr digitales Betriebshandbuch &ndash; alle wichtigen Informationen f&uuml;r den Notfall strukturiert an einem Ort.<br>Insgesamt <strong>'+total+' Eintr&auml;ge</strong> erfasst.</p></div>'
+      +'<div class="welcome"><h2>'+(wname?'Betriebspass von '+h(wname):'Willkommen beim Betriebspass')+'</h2><p>Ihr digitales Betriebshandbuch \u2013 alle wichtigen Informationen f\u00FCr den Notfall strukturiert an einem Ort.<br>Insgesamt <strong>'+total+' Eintr\u00E4ge</strong> erfasst.</p></div>'
+      +onboardingHtml()
+      +progressHtml()
+      +backupReminderHtml()
       +stats+offHtml;
     return;
   }
@@ -406,17 +605,17 @@ function go(name){
       +'<div class="fr"><label class="fl">Anwalt Kontakt</label><input type="text" id="s7" value="'+h(s.anwalt||'')+'"></div>'
       +'<div class="fr"><label class="fl">Anweisung an Hinterbliebene (Kurzfassung)</label><textarea id="s8" rows="4">'+h(s.anweisung||'')+'</textarea></div>'
       +'<button class="abtn" style="margin-top:8px" data-a="svs">Speichern</button></div>'
-      +'<div class="sf" style="margin-top:14px;max-width:460px"><div style="font-size:11px;color:#1a3a5c;font-weight:700;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;">Zugangscode &auml;ndern</div>'
+      +'<div class="sf" style="margin-top:14px;max-width:460px"><div style="font-size:11px;color:#1a3a5c;font-weight:700;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;">Zugangscode \u00e4ndern</div>'
       +'<div class="fr"><label class="fl">Neuer Code</label><input type="password" id="pw1" placeholder="Neuer Zugangscode"></div>'
       +'<div class="fr"><label class="fl">Wiederholen</label><input type="password" id="pw2" placeholder="Code wiederholen"></div>'
-      +'<button class="abtn" data-a="chpw">Code &auml;ndern</button></div>'
-      +'<div class="dz" style="margin-top:14px;max-width:460px"><div class="dzt">&#9888; Gefahrenzone</div><p style="color:#999;font-size:12px;margin-bottom:10px;">Alle Daten unwiderruflich l&ouml;schen.</p><button class="tb" style="border-color:#c0392b;color:#c0392b" data-a="clr">Alle Daten l&ouml;schen</button></div>';
+      +'<button class="abtn" data-a="chpw">Code \u00e4ndern</button></div>'
+      +'<div class="dz" style="margin-top:14px;max-width:460px"><div class="dzt">&#9888; Gefahrenzone</div><p style="color:#999;font-size:12px;margin-bottom:10px;">Alle Daten unwiderruflich l\u00F6schen.</p><button class="tb" style="border-color:#c0392b;color:#c0392b" data-a="clr">Alle Daten l\u00F6schen</button></div>';
     return;
   }
 
   if(!F[name]){M.innerHTML='<p style="color:#999;padding:16px">Nicht gefunden.</p>';return;}
-  var warn=name==='zugaenge'?'<div class="ntcr">&#128272; Sensible Daten &ndash; nur f&uuml;r Bevollm&auml;chtigte. Keine Klartextpassw&ouml;rter &ndash; Verweise auf Passwort-Manager verwenden.</div>':'';
-  M.innerHTML=ph+warn+'<div class="sbar"><span class="sico">&#128269;</span><input type="text" id="sb" placeholder="Suchen..."></div><div id="cl">'+rCards(name,'')+'</div>';
+  var warn=name==='zugaenge'?'<div class="ntcr">&#128272; Sensible Daten \u2013 nur f\u00FCr Bevollm\u00E4chtigte. Keine Klartextpassw\u00F6rter \u2013 Verweise auf Passwort-Manager verwenden.</div>':'';
+  M.innerHTML=ph+mhelp+warn+'<div class="sbar"><span class="sico">&#128269;</span><input type="text" id="sb" placeholder="Suchen..."></div><div id="cl">'+rCards(name,'')+'</div>';
 }
 
 // ── MODAL ──────────────────────────────────────────────
@@ -424,13 +623,13 @@ function oMod(s,id){
   var cfg=F[s];if(!cfg)return;
   cSec=s;eId=id||null;
   var x={};
-  if(id){var a=db[s]||[];for(var i=0;i<a.length;i++){if(a[i].id===id){x=a[i];break}}}
+  if(id){var a=db[s]||[];for(var i=0;i<a.length;i++){if(a[i].id===id){x=a[i];break;}}}
   document.getElementById('mtitle').textContent=id?cfg.t+' bearbeiten':cfg.t+' erfassen';
   var o='';
   for(var i=0;i<cfg.f.length;i++){
     var f=cfg.f[i];var v=x[f.k]||'';var inp;
     if(f.tp==='ta')inp='<textarea id="fi'+i+'" rows="3">'+h(v)+'</textarea>';
-    else if(f.tp==='sel'){var opts='<option value="">&ndash; w&auml;hlen &ndash;</option>';for(var j=0;j<f.o.length;j++)opts+='<option'+(f.o[j]===v?' selected':'')+'>'+h(f.o[j])+'</option>';inp='<select id="fi'+i+'">'+opts+'</select>';}
+    else if(f.tp==='sel'){var opts='<option value="">\u2013 w\u00e4hlen \u2013</option>';for(var j=0;j<f.o.length;j++)opts+='<option'+(f.o[j]===v?' selected':'')+'>'+h(f.o[j])+'</option>';inp='<select id="fi'+i+'">'+opts+'</select>';}
     else if(f.tp==='date')inp='<input type="date" id="fi'+i+'" value="'+h(v)+'">';
     else inp='<input type="text" id="fi'+i+'" value="'+h(v)+'" placeholder="'+h(f.l)+'">';
     o+='<div class="fr"><label class="fl">'+h(f.l)+(f.r?' <span style="color:#c0392b">*</span>':'')+'</label>'+inp+'</div>';
@@ -464,7 +663,9 @@ function svSet(){
   if(!db.settings)db.settings={};
   var ks=['firma','inhaber','branche','adresse','telefon','email','stb','anwalt','anweisung'];
   for(var i=0;i<ks.length;i++){var el=document.getElementById('s'+i);if(el)db.settings[ks[i]]=el.value;}
-  lsSave();alert('Einstellungen gespeichert!');go('dashboard');
+  lsSave();alert('Einstellungen gespeichert!');
+  localStorage.setItem(FIRST_RUN_KEY,'done');
+  go('dashboard');
 }
 
 // ── EXPORT / IMPORT ──────────────────────────────────────────────
@@ -477,6 +678,8 @@ function expData(){
     a.href=u;a.download='betriebspass_'+new Date().toISOString().slice(0,10)+'.json';
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(function(){URL.revokeObjectURL(u);},1000);
+    localStorage.setItem(EXPORT_KEY,String(Date.now()));
+    go('dashboard');
   }catch(ex){prompt('JSON kopieren und als .json speichern:',json);}
 }
 function impData(ev){
@@ -501,7 +704,7 @@ function checkPw(){
   if(input.value===stored){
     document.getElementById('pwscreen').style.display='none';
     document.getElementById('appWrap').style.display='block';
-    lsLoad();go('dashboard');
+    lsLoad();go('dashboard');checkFirstRun();
   } else {
     document.getElementById('pwErr').style.display='block';
     input.value='';input.focus();
@@ -530,7 +733,7 @@ document.getElementById('main').addEventListener('click',function(ev){
       else if(a==='clr'){
         if(confirm('Wirklich alle Daten l\u00F6schen?')){
           db={settings:{},auftraege:[],kunden:[],lieferanten:[],inventar:[],finanzen:[],vertraege:[],versicherungen:[],zugaenge:[],kontakte:[],rechtliches:[],wissen:[],notizen:[]};
-          lsSave();go('dashboard');
+          lsSave();localStorage.removeItem(FIRST_RUN_KEY);go('dashboard');
         }
       }
       return;

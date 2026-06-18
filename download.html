@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Betriebspass – Ihr Download</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#0f2840;color:#e8e8e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;font-size:15px;line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+
+nav{background:#0a1e30;padding:0 24px;height:56px;display:flex;align-items:center;border-bottom:2px solid #2a6090}
+.nav-brand{color:#fff;font-size:18px;font-weight:900;letter-spacing:2px}
+.nav-brand span{color:#7ab3d4;font-size:10px;display:block;letter-spacing:3px;font-weight:400;text-transform:uppercase;margin-top:-2px}
+
+.hero{text-align:center;padding:56px 24px 40px;flex:1}
+.success-icon{font-size:64px;margin-bottom:20px;animation:pop .4s ease-out}
+@keyframes pop{0%{transform:scale(0.5);opacity:0}80%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.hero h1{font-size:clamp(22px,4vw,32px);color:#fff;font-weight:900;margin-bottom:10px}
+.hero .sub{font-size:16px;color:#7ab3d4;max-width:480px;margin:0 auto 36px}
+
+.download-box{background:#1a3a5c;border:2px solid #2a6090;border-radius:12px;max-width:480px;margin:0 auto 32px;padding:32px;text-align:center}
+.download-box h2{font-size:18px;color:#fff;margin-bottom:8px}
+.download-box p{font-size:13px;color:#7ab3d4;margin-bottom:24px;line-height:1.6}
+.dl-btn{display:block;background:#fff;color:#1a3a5c;border:none;padding:16px 32px;font-size:16px;font-weight:900;cursor:pointer;border-radius:6px;text-decoration:none;letter-spacing:1px;margin-bottom:12px;transition:background .2s}
+.dl-btn:hover{background:#e8f0f8}
+.dl-note{font-size:11px;color:#3a6080;letter-spacing:1px}
+
+.steps{max-width:480px;margin:0 auto 40px;text-align:left}
+.steps h3{font-size:14px;font-weight:700;color:#7ab3d4;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;text-align:center}
+.step-item{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;background:#1a3a5c;border-radius:8px;padding:14px 16px}
+.step-num{background:#2a6090;color:#fff;font-size:13px;font-weight:900;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-text h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+.step-text p{font-size:12px;color:#7ab3d4;line-height:1.5}
+.step-text code{background:#0f2840;color:#7ab3d4;padding:2px 6px;border-radius:3px;font-size:11px;letter-spacing:1px}
+
+.info-grid{max-width:480px;margin:0 auto 40px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.info-card{background:#1a3a5c;border-radius:8px;padding:16px;text-align:center}
+.info-card .ic-icon{font-size:24px;margin-bottom:6px}
+.info-card h4{font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
+.info-card p{font-size:11px;color:#7ab3d4;line-height:1.5}
+
+.support-box{max-width:480px;margin:0 auto 40px;background:#0a1e30;border:1px solid #1a3a5c;border-radius:8px;padding:20px 24px;text-align:center}
+.support-box p{font-size:13px;color:#7ab3d4;margin-bottom:10px}
+.support-box a{color:#7ab3d4;text-decoration:none;border-bottom:1px solid #2a6090}
+
+footer{background:#0a1e30;padding:20px 24px;text-align:center;border-top:1px solid #1a3a5c}
+footer p{font-size:12px;color:#3a6080}
+footer a{color:#3a6080;text-decoration:none}
+
+@media(max-width:500px){
+  .info-grid{grid-template-columns:1fr}
+  .download-box,.steps,.info-grid,.support-box{margin-left:16px;margin-right:16px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Betriebspass<span>Ihr digitales Betriebshandbuch</span></div>
+</nav>
+
+<div class="hero">
+  <div class="success-icon">&#10003;</div>
+  <h1>Vielen Dank für Ihren Kauf!</h1>
+  <p class="sub">Ihr Betriebspass ist bereit. Laden Sie ihn jetzt herunter und starten Sie sofort.</p>
+
+  <!-- DOWNLOAD BOX -->
+  <div class="download-box">
+    <h2>&#128196; Ihr Betriebspass</h2>
+    <p>Einmalige Zahlung bestätigt. Klicken Sie auf den Button um Ihren Betriebspass herunterzuladen.</p>
+    <a href="index.html" download="Betriebspass.html" class="dl-btn">&#11015; Betriebspass herunterladen</a>
+    <div class="dl-note">HTML-Datei · Öffnet in jedem Browser · Keine Installation nötig</div>
+  </div>
+
+  <!-- ERSTE SCHRITTE -->
+  <div class="steps">
+    <h3>So geht es weiter</h3>
+
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <h4>Datei speichern</h4>
+        <p>Speichern Sie die heruntergeladene Datei <code>Betriebspass.html</code> an einem sicheren Ort – z.B. auf Ihrem Desktop oder in einem Ordner "Wichtige Dokumente".</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <h4>Im Browser öffnen</h4>
+        <p>Doppelklick auf die Datei – sie öffnet sich automatisch in Safari, Chrome oder Firefox. Kein Internet nötig, keine Installation.</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <h4>Zugangscode ändern</h4>
+        <p>Standard-Code beim ersten Start: <code>betrieb2024</code><br>Bitte sofort unter Einstellungen → Zugangscode ändern auf Ihren persönlichen Code.</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <h4>Mit Einstellungen beginnen</h4>
+        <p>Tragen Sie als erstes Ihren Firmennamen und Ihre Kontaktdaten ein. Das Onboarding führt Sie Schritt für Schritt durch alle 12 Module.</p>
+      </div>
+    </div>
+
+    <div class="step-item">
+      <div class="step-num">5</div>
+      <div class="step-num" style="background:#27ae60">&#128190;</div>
+      <div class="step-text">
+        <h4>Regelmäßig exportieren</h4>
+        <p>Nutzen Sie den Export-Button regelmäßig um ein Backup zu erstellen. Speichern Sie das Backup auf einem USB-Stick oder in Ihrer Cloud.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO CARDS -->
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="ic-icon">&#128272;</div>
+      <h4>Ihre Daten sind sicher</h4>
+      <p>Alles bleibt lokal auf Ihrem Gerät. Wir haben keinen Zugriff auf Ihre Betriebsdaten.</p>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">&#128190;</div>
+      <h4>Rechnung per E-Mail</h4>
+      <p>Ihre Kaufbestätigung und Rechnung erhalten Sie in Kürze per E-Mail von Stripe.</p>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">&#128338;</div>
+      <h4>Kein Abo</h4>
+      <p>Einmalige Zahlung. Keine weiteren Kosten, keine Kündigung nötig.</p>
+    </div>
+    <div class="info-card">
+      <div class="ic-icon">&#128187;</div>
+      <h4>Überall nutzbar</h4>
+      <p>iPhone, iPad, Mac, Windows PC – läuft auf jedem Gerät mit Browser.</p>
+    </div>
+  </div>
+
+  <!-- SUPPORT -->
+  <div class="support-box">
+    <p>Fragen oder Probleme? Wir helfen gerne.</p>
+    <a href="mailto:info@riedel-classics.de">info@riedel-classics.de</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>betriebspass.de &nbsp;·&nbsp; <a href="rechtliches.html">Impressum</a> &nbsp;·&nbsp; <a href="rechtliches.html">Datenschutz</a> &nbsp;·&nbsp; <a href="rechtliches.html">AGB</a></p>
+  <p style="margin-top:6px">&copy; 2026 Betriebspass &nbsp;·&nbsp; Uwe Riedel &nbsp;·&nbsp; 73249 Wernau</p>
+</footer>
+
+</body>
+</html>
