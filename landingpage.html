@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Betriebspass – Was passiert mit Ihrem Betrieb wenn Sie morgen ausfallen?</title>
+<meta name="description" content="Der Betriebspass ist das digitale Betriebshandbuch für Einzelunternehmer und Kleinstbetriebe. Einmal anlegen, immer aktuell halten. €29 einmalig.">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#fff;color:#222;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;font-size:16px;line-height:1.7}
+
+/* NAV */
+nav{background:#0f2840;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:2px solid #2a6090}
+.nav-brand{color:#fff;font-size:18px;font-weight:900;letter-spacing:2px}
+.nav-brand span{color:#7ab3d4;font-size:10px;display:block;letter-spacing:3px;font-weight:400;text-transform:uppercase;margin-top:-2px}
+.nav-cta{background:#2a6090;border:none;color:#fff;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;border-radius:3px;letter-spacing:1px;text-decoration:none;display:inline-block}
+.nav-cta:hover{background:#3a7ab0}
+
+/* HERO */
+.hero{background:linear-gradient(160deg,#0f2840 0%,#1a3a5c 60%,#0f2840 100%);padding:72px 24px 64px;text-align:center}
+.hero-eyebrow{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#7ab3d4;margin-bottom:20px}
+.hero h1{font-size:clamp(26px,5vw,44px);color:#fff;font-weight:900;line-height:1.15;margin-bottom:20px;max-width:700px;margin-left:auto;margin-right:auto}
+.hero h1 em{color:#7ab3d4;font-style:normal}
+.hero-sub{font-size:17px;color:#a0c0d8;max-width:520px;margin:0 auto 36px;line-height:1.7}
+.hero-cta{background:#fff;color:#1a3a5c;border:none;padding:16px 40px;font-size:16px;font-weight:900;cursor:pointer;border-radius:4px;letter-spacing:1px;display:inline-block;text-decoration:none;margin-bottom:12px}
+.hero-cta:hover{background:#e8f0f8}
+.hero-note{font-size:12px;color:#5a8aaa;letter-spacing:1px}
+
+/* STORY */
+.story{max-width:700px;margin:0 auto;padding:64px 24px}
+.story-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#2a6090;margin-bottom:12px;font-weight:700}
+.story h2{font-size:26px;font-weight:900;color:#1a3a5c;margin-bottom:24px;line-height:1.3}
+.story p{color:#444;margin-bottom:20px;font-size:16px;line-height:1.8}
+.story blockquote{border-left:3px solid #2a6090;padding:16px 24px;margin:28px 0;background:#f0f6fc;border-radius:0 4px 4px 0}
+.story blockquote p{color:#1a3a5c;font-style:italic;font-size:17px;margin:0;line-height:1.6}
+.story strong{color:#1a3a5c}
+
+/* PAIN SECTION */
+.pain{background:#f8f8f8;padding:56px 24px}
+.pain-inner{max-width:800px;margin:0 auto}
+.section-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#2a6090;margin-bottom:12px;font-weight:700;text-align:center}
+.pain h2{font-size:26px;font-weight:900;color:#1a3a5c;margin-bottom:32px;text-align:center}
+.pain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.pain-card{background:#fff;border:1px solid #e0e0e0;border-left:3px solid #2a6090;padding:18px 20px;border-radius:0 4px 4px 0}
+.pain-card h4{font-size:14px;font-weight:700;color:#1a3a5c;margin-bottom:6px}
+.pain-card p{font-size:13px;color:#666;line-height:1.6}
+
+/* SOLUTION */
+.solution{max-width:800px;margin:0 auto;padding:64px 24px}
+.solution h2{font-size:26px;font-weight:900;color:#1a3a5c;margin-bottom:8px}
+.solution-sub{font-size:16px;color:#666;margin-bottom:36px}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:36px}
+.module-card{background:#f0f6fc;border:1px solid #c8dff0;padding:14px 16px;border-radius:4px}
+.module-card .num{font-size:11px;color:#7ab3d4;font-weight:700;letter-spacing:1px;margin-bottom:4px}
+.module-card h4{font-size:13px;font-weight:700;color:#1a3a5c;margin-bottom:4px}
+.module-card p{font-size:12px;color:#666;line-height:1.5}
+
+/* HOW */
+.how{background:#0f2840;padding:56px 24px}
+.how-inner{max-width:700px;margin:0 auto;text-align:center}
+.how h2{font-size:26px;font-weight:900;color:#fff;margin-bottom:36px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px;margin-bottom:36px}
+.step{text-align:center}
+.step-num{width:44px;height:44px;background:#2a6090;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:18px;font-weight:900;color:#fff}
+.step h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
+.step p{font-size:12px;color:#7ab3d4;line-height:1.5}
+.step-arrow{display:flex;align-items:center;justify-content:center;color:#2a6090;font-size:24px;padding-top:12px}
+
+/* PRICING */
+.pricing{max-width:500px;margin:0 auto;padding:64px 24px;text-align:center}
+.pricing h2{font-size:26px;font-weight:900;color:#1a3a5c;margin-bottom:8px}
+.pricing-sub{color:#666;margin-bottom:32px}
+.price-box{background:#0f2840;border:2px solid #2a6090;border-radius:8px;padding:36px;margin-bottom:24px}
+.price-tag{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#7ab3d4;margin-bottom:12px}
+.price-amount{font-size:56px;font-weight:900;color:#fff;line-height:1}
+.price-unit{font-size:16px;color:#7ab3d4;margin-bottom:20px}
+.price-features{list-style:none;margin-bottom:28px;text-align:left}
+.price-features li{font-size:14px;color:#a0c0d8;padding:6px 0;border-bottom:1px solid #1a3a5c;display:flex;gap:8px}
+.price-features li:last-child{border:none}
+.price-features li:before{content:'✓';color:#2a6090;font-weight:700;flex-shrink:0}
+.buy-btn{background:#fff;color:#1a3a5c;border:none;padding:16px 48px;font-size:16px;font-weight:900;cursor:pointer;border-radius:4px;width:100%;letter-spacing:1px;display:block;text-decoration:none}
+.buy-btn:hover{background:#e8f0f8}
+.price-guarantee{font-size:12px;color:#666;margin-top:16px}
+
+/* FOR WHO */
+.forwho{background:#f8f8f8;padding:56px 24px}
+.forwho-inner{max-width:700px;margin:0 auto}
+.forwho h2{font-size:26px;font-weight:900;color:#1a3a5c;margin-bottom:28px;text-align:center}
+.forwho-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.forwho-item{background:#fff;border:1px solid #e0e0e0;padding:14px 18px;border-radius:4px;font-size:14px;color:#444;display:flex;gap:10px;align-items:flex-start}
+.forwho-item:before{content:'→';color:#2a6090;font-weight:700;flex-shrink:0;margin-top:1px}
+
+/* QUOTE FINAL */
+.quote-final{max-width:600px;margin:0 auto;padding:56px 24px;text-align:center}
+.quote-final blockquote{font-size:20px;font-style:italic;color:#1a3a5c;line-height:1.6;margin-bottom:12px}
+.quote-final cite{font-size:13px;color:#999}
+
+/* CTA FINAL */
+.cta-final{background:#1a3a5c;padding:56px 24px;text-align:center}
+.cta-final h2{font-size:26px;font-weight:900;color:#fff;margin-bottom:12px}
+.cta-final p{color:#7ab3d4;margin-bottom:28px;font-size:16px}
+.cta-final a{background:#fff;color:#1a3a5c;border:none;padding:16px 48px;font-size:16px;font-weight:900;cursor:pointer;border-radius:4px;letter-spacing:1px;text-decoration:none;display:inline-block}
+.cta-final a:hover{background:#e8f0f8}
+
+/* FOOTER */
+footer{background:#0f2840;padding:24px;text-align:center}
+footer p{font-size:12px;color:#3a6080}
+footer a{color:#3a6080;text-decoration:none}
+
+@media(max-width:600px){
+  .hero{padding:48px 16px 40px}
+  .steps{grid-template-columns:1fr}
+  .step-arrow{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Betriebspass<span>Ihr digitales Betriebshandbuch</span></div>
+  <a href="index.html?demo=1" class="nav-cta" style="background:none;border:1px solid #2a6090;margin-right:8px">Demo testen</a>
+  <a href="index.html" class="nav-cta">Jetzt sichern – €39</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Für Einzelunternehmer & Kleinstbetriebe</div>
+  <h1>Was passiert mit Ihrem Betrieb<br>wenn Sie morgen <em>nicht mehr können</em>?</h1>
+  <p class="hero-sub">Nicht irgendwann. Morgen. Die meisten Einzelunternehmer haben keine Antwort darauf. Der Betriebspass ist die Antwort.</p>
+  <a href="index.html?demo=1" class="hero-cta" style="background:transparent;border:2px solid #fff;color:#fff;margin-right:12px">Kostenlos testen</a>
+  <a href="index.html" class="hero-cta">Jetzt sichern – €39</a>
+  <div class="hero-note">€39 einmalig · Kein Abo · Demo kostenlos verfügbar</div>
+</section>
+
+<!-- STORY -->
+<section class="story">
+  <div class="story-label">Warum der Betriebspass existiert</div>
+  <h2>Eine Geschichte die zu viele kennen – aber verdrängen</h2>
+
+  <p>Es gibt Unternehmer die ihr Handwerk nicht wegen der Marge betreiben. Sondern wegen des Moments wenn der Kunde die fertige Arbeit sieht und nichts mehr sagen muss. Das WOW, das Staunen, die Anerkennung – das ist der eigentliche Lohn.</p>
+
+  <p>Einer dieser Unternehmer erlebte wie die schwere Erkrankung eines Familienmitglieds seinen Alltag von einem Tag auf den anderen veränderte. Arzttermine, Krankenhäuser, Reha – und plötzlich die Erkenntnis:</p>
+
+  <blockquote>
+    <p>„Alles hängt an mir. Meine Aufträge, meine Kunden, meine Abmachungen, meine Zugänge, mein Wissen. Wenn ich ausfalle – was dann? Meine Angehörigen wären hilflos."</p>
+  </blockquote>
+
+  <p>Die Antwort war unbequem: <strong>Dann wären seine Angehörigen allein damit.</strong> Ohne Überblick. Ohne Orientierung. In einer ohnehin schweren Situation.</p>
+
+  <p>Er wollte das ändern. Nicht aus Pessimismus – sondern aus Verantwortung. Daraus entstand der Betriebspass.</p>
+</section>
+
+<!-- PAIN -->
+<section class="pain">
+  <div class="pain-inner">
+    <div class="section-label">Das Problem</div>
+    <h2>Was wären Ihre Angehörigen ohne Sie?</h2>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <h4>Offene Aufträge</h4>
+        <p>Welche Kunden warten? Was wurde vereinbart? Was ist bereits bezahlt? Niemand weiß es außer Ihnen.</p>
+      </div>
+      <div class="pain-card">
+        <h4>Bankkonten & Finanzen</h4>
+        <p>Wo liegt das Geld? Welche Verbindlichkeiten laufen? Welche Rechnungen müssen bezahlt werden?</p>
+      </div>
+      <div class="pain-card">
+        <h4>Verträge & Versicherungen</h4>
+        <p>Welche Verträge laufen? Was muss gekündigt werden? Wo sind die Policen? Wer ist der Ansprechpartner?</p>
+      </div>
+      <div class="pain-card">
+        <h4>Digitale Zugänge</h4>
+        <p>E-Mail, Banking, Cloud, Social Media – ohne die richtigen Zugänge ist alles gesperrt.</p>
+      </div>
+      <div class="pain-card">
+        <h4>Ihr Wissen</h4>
+        <p>Das was nur Sie wissen. Wo liegt was. Wie läuft was. Geheimtipps bei Lieferanten. Alles verloren.</p>
+      </div>
+      <div class="pain-card">
+        <h4>Wer wen anrufen soll</h4>
+        <p>Steuerberater, Anwalt, Hausbank, Schlüsselkunden – niemand weiß wen man zuerst erreichen muss.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="solution">
+  <div class="section-label">Die Lösung</div>
+  <h2>Der Betriebspass</h2>
+  <p class="solution-sub">Alle geschäftskritischen Informationen strukturiert an einem Ort – für den Fall dass Sie nicht mehr können. Einmal anlegen, regelmäßig aktuell halten.</p>
+
+  <div class="module-grid">
+    <div class="module-card">
+      <div class="num">01</div>
+      <h4>Aufträge</h4>
+      <p>Offen, vereinbart, bezahlt, nächste Schritte</p>
+    </div>
+    <div class="module-card">
+      <div class="num">02</div>
+      <h4>Kunden</h4>
+      <p>Kontakte, Abmachungen, Prioritäten</p>
+    </div>
+    <div class="module-card">
+      <div class="num">03</div>
+      <h4>Lieferanten</h4>
+      <p>Kontakte, Konditionen, laufende Bestellungen</p>
+    </div>
+    <div class="module-card">
+      <div class="num">04</div>
+      <h4>Inventar</h4>
+      <p>Was gehört wem, wo liegt was</p>
+    </div>
+    <div class="module-card">
+      <div class="num">05</div>
+      <h4>Finanzen & Konten</h4>
+      <p>Bankkonten, Forderungen, Verbindlichkeiten</p>
+    </div>
+    <div class="module-card">
+      <div class="num">06</div>
+      <h4>Verträge</h4>
+      <p>Laufzeiten, Kündigungsfristen, Ansprechpartner</p>
+    </div>
+    <div class="module-card">
+      <div class="num">07</div>
+      <h4>Versicherungen</h4>
+      <p>Policen, Leistungen, Kontakte</p>
+    </div>
+    <div class="module-card">
+      <div class="num">08</div>
+      <h4>Digitale Zugänge</h4>
+      <p>Hinweise auf Passwort-Manager, wichtige Dienste</p>
+    </div>
+    <div class="module-card">
+      <div class="num">09</div>
+      <h4>Wichtige Kontakte</h4>
+      <p>Steuerberater, Anwalt, Hausbank, Notfallkontakte</p>
+    </div>
+    <div class="module-card">
+      <div class="num">10</div>
+      <h4>Rechtliches</h4>
+      <p>Gewerbeanmeldung, Vollmachten, Dokumente</p>
+    </div>
+    <div class="module-card">
+      <div class="num">11</div>
+      <h4>Wissen & Prozesse</h4>
+      <p>Was nur Sie wissen – endlich aufgeschrieben</p>
+    </div>
+    <div class="module-card">
+      <div class="num">12</div>
+      <h4>Notizen & Brief</h4>
+      <p>Anweisung an Hinterbliebene in Ihren Worten</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="how-inner">
+    <div class="section-label" style="color:#7ab3d4">So einfach funktioniert es</div>
+    <h2>In drei Schritten bereit</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Kaufen & öffnen</h4>
+        <p>Einmalige Zahlung, sofortiger Download. Kein Login, keine Installation – öffnet im Browser.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Befüllen</h4>
+        <p>Schritt für Schritt alle 12 Module ausfüllen. Mit den kritischsten Bereichen beginnen.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Aktuell halten</h4>
+        <p>Kurze wöchentliche Updates. Export-Funktion für regelmäßige Backups auf USB oder Cloud.</p>
+      </div>
+    </div>
+    <p style="color:#7ab3d4;font-size:14px">Kein Abo. Keine Cloud-Pflicht. Ihre Daten bleiben auf Ihrem Gerät.</p>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="kaufen">
+  <div class="section-label">Investition</div>
+  <h2>Einmal zahlen. Für immer bereit.</h2>
+  <p class="pricing-sub">Kein Abo. Kein monatlicher Aufwand. Einmal sichern – immer verfügbar.</p>
+
+  <div class="price-box">
+    <div class="price-tag">Betriebspass · Einmalzahlung</div>
+    <div class="price-amount">€39</div>
+    <div class="price-unit">einmalig · inkl. MwSt.</div>
+    <ul class="price-features">
+      <li>Alle 13 Dokumentations-Module</li>
+      <li>Dokument-Upload (PDF, Bilder) pro Eintrag</li>
+      <li>Sicherer Cloud-Speicher – immer verfügbar</li>
+      <li>Passwortschutz & Notfallbericht (druckbar)</li>
+      <li>Für alle Branchen geeignet</li>
+      <li>Einmal kaufen – dauerhaft nutzen</li>
+    </ul>
+    <a href="index.html" class="buy-btn">Jetzt Betriebspass sichern →</a>
+  </div>
+  <p style="margin-bottom:16px"><a href="index.html?demo=1" style="color:#2a6090;font-size:14px">Erst kostenlos testen →</a></p>
+  <p class="price-guarantee">Sofortiger Zugang nach Zahlung · Keine Kündigung nötig · Einmalig</p>
+</section>
+
+<!-- FOR WHO -->
+<section class="forwho">
+  <div class="forwho-inner">
+    <div class="section-label">Für wen?</div>
+    <h2>Für jeden der seinen Betrieb alleine trägt</h2>
+    <div class="forwho-list">
+      <div class="forwho-item">Handwerker & Handwerksbetriebe</div>
+      <div class="forwho-item">Selbstständige Dienstleister</div>
+      <div class="forwho-item">Fotografen, Grafiker, Kreative</div>
+      <div class="forwho-item">Gastronomen & Einzelhändler</div>
+      <div class="forwho-item">Freiberufler & Berater</div>
+      <div class="forwho-item">Kleine Familienbetriebe</div>
+      <div class="forwho-item">Ärzte & Therapeuten in Einzelpraxis</div>
+      <div class="forwho-item">Jeden der es immer schon aufschreiben wollte</div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE FINAL -->
+<section class="quote-final">
+  <blockquote>„Nach mir die Sintflut" – diese Haltung hat kaum einer. Aber man schiebt es vor sich her. Der Betriebspass macht es einfach, es nicht mehr aufzuschieben.</blockquote>
+  <cite>— Der Gedanke der hinter dem Betriebspass steckt</cite>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <h2>Ihr Betrieb verdient einen Plan B.</h2>
+  <p>Einmal anlegen. Immer aktuell halten. €39 einmalig.</p>
+  <a href="index.html" style="margin-right:12px">Jetzt kaufen – €39 →</a>
+  <a href="index.html?demo=1" style="background:transparent;border:2px solid #fff;color:#fff">Demo testen</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>betriebspass.de &nbsp;·&nbsp; <a href="rechtliches.html">Impressum</a> &nbsp;·&nbsp; <a href="rechtliches.html">Datenschutz</a> &nbsp;·&nbsp; <a href="mailto:info@riedel-classics.de">Kontakt</a></p>
+  <p style="margin-top:8px">© 2026 Betriebspass · Alle Rechte vorbehalten</p>
+</footer>
+
+</body>
+</html>
