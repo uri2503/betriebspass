@@ -3,10 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Betriebspass – Ihr digitales Betriebshandbuch</title>
+<title>Betriebspass – Digitales Betriebshandbuch</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;font-size:14px}
+
+/* ── AUTH / PAYWALL SCREENS ── */
+.screen-center{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f2840 0%,#1a3a5c 100%);padding:20px}
+.auth-box{background:#fff;border-radius:12px;padding:36px 32px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.auth-logo{text-align:center;margin-bottom:24px}
+.auth-logo .mark{width:52px;height:52px;background:#1a3a5c;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:22px}
+.auth-logo h1{font-size:20px;font-weight:900;color:#1a3a5c;letter-spacing:1px}
+.auth-logo p{font-size:11px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.auth-tabs{display:flex;border-bottom:2px solid #eee;margin-bottom:24px}
+.auth-tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;color:#999;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+.auth-tab.on{color:#1a3a5c;border-bottom-color:#2a6090}
+.fr{margin-bottom:14px}
+.fl{display:block;font-size:10px;color:#999;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+input[type=text],input[type=email],input[type=password],input[type=date],textarea,select{width:100%;background:#f8f8f8;border:1px solid #ddd;color:#222;font-size:13px;padding:10px 12px;outline:none;border-radius:6px;font-family:inherit;-webkit-appearance:none}
+input:focus,textarea:focus,select:focus{border-color:#2a6090;background:#fff;box-shadow:0 0 0 2px rgba(42,96,144,.15)}
+textarea{resize:vertical;min-height:65px}
+select option{background:#fff}
+.btn-primary{width:100%;background:#1a3a5c;border:none;color:#fff;padding:12px;font-size:14px;font-weight:700;border-radius:6px;cursor:pointer;letter-spacing:1px;margin-top:4px;transition:background .2s}
+.btn-primary:hover{background:#2a6090}
+.btn-primary:disabled{background:#aaa;cursor:not-allowed}
+.btn-secondary{width:100%;background:none;border:1px solid #ddd;color:#666;padding:10px;font-size:13px;border-radius:6px;cursor:pointer;margin-top:8px}
+.auth-msg{font-size:12px;text-align:center;margin-top:12px;min-height:18px}
+.auth-msg.err{color:#c0392b}
+.auth-msg.ok{color:#27ae60}
+
+/* ── PAYWALL ── */
+.pay-box{background:#fff;border-radius:12px;padding:40px 36px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.pay-box .mark{font-size:48px;margin-bottom:16px}
+.pay-box h2{font-size:22px;font-weight:900;color:#1a3a5c;margin-bottom:8px}
+.pay-box .sub{font-size:13px;color:#666;margin-bottom:24px;line-height:1.6}
+.pay-features{text-align:left;background:#f0f6fc;border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.pay-features li{font-size:13px;color:#1a3a5c;padding:4px 0;list-style:none;display:flex;gap:8px}
+.pay-features li::before{content:'✓';color:#27ae60;font-weight:700;flex-shrink:0}
+.pay-price{font-size:36px;font-weight:900;color:#1a3a5c;margin-bottom:4px}
+.pay-price span{font-size:14px;font-weight:400;color:#999}
+.pay-hint{font-size:11px;color:#999;margin-bottom:20px}
+.btn-pay{background:#c0392b;border:none;color:#fff;padding:14px 32px;font-size:15px;font-weight:700;border-radius:6px;cursor:pointer;width:100%;letter-spacing:1px;transition:background .2s}
+.btn-pay:hover{background:#a93226}
+.btn-pay:disabled{background:#aaa;cursor:not-allowed}
+.pay-logout{font-size:11px;color:#999;margin-top:12px;cursor:pointer;text-decoration:underline;display:inline-block}
+
+/* ── APP ── */
+#s-app{display:none}
 #bar{background:#1a3a5c;padding:0 16px;height:54px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;border-bottom:3px solid #2a6090}
 #logo{display:flex;flex-direction:column;flex:1}
 #logo span:first-child{color:#fff;font-size:16px;font-weight:900;letter-spacing:2px}
@@ -18,9 +62,8 @@ body{background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,
 #main{display:inline-block;vertical-align:top;width:calc(100% - 194px);padding:20px;background:#f5f5f5;min-height:calc(100vh - 54px)}
 .ng{padding:12px 0 4px}
 .ngl{font-size:9px;color:#3a6080;letter-spacing:2px;text-transform:uppercase;padding:0 14px 5px;display:block}
-.nb{display:block;width:100%;background:none;border:none;border-left:3px solid transparent;padding:10px 14px;text-align:left;color:#7ab3d4;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:rgba(42,96,144,.3)}
+.nb{display:block;width:100%;background:none;border:none;border-left:3px solid transparent;padding:10px 14px;text-align:left;color:#7ab3d4;font-size:13px;cursor:pointer}
 .nb.on{color:#fff;border-left-color:#2a6090;background:rgba(42,96,144,.25)}
-.nb:active{background:rgba(255,255,255,.05)}
 .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e0e0e0;gap:10px;flex-wrap:wrap}
 .pt{font-size:20px;font-weight:900;color:#1a3a5c;letter-spacing:1px}
 .abtn{background:#1a3a5c;border:none;color:#fff;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;border-radius:3px;letter-spacing:1px}
@@ -37,731 +80,940 @@ body{background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,
 .cv{color:#333;word-break:break-word}
 .bdg{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px}
 .bg{background:#e8f5e9;color:#2e7d32}.bo{background:#fff3e0;color:#e65100}.br{background:#fdecea;color:#c62828}.bx{background:#f5f5f5;color:#666}
+.doc-chip{display:inline-flex;align-items:center;gap:4px;background:#e8f0f8;border:1px solid #c8dff0;border-radius:10px;padding:2px 8px;font-size:10px;color:#1a3a5c;margin-top:6px;cursor:pointer}
+.doc-chip:hover{background:#d0e4f8}
 .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:20px}
 .sc{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .sn{font-size:32px;font-weight:900;color:#1a3a5c}
 .sl{font-size:9px;color:#999;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
 .ntc{background:#e8f0f8;border-left:3px solid #2a6090;padding:10px 14px;font-size:12px;color:#1a3a5c;margin-bottom:14px;border-radius:0 4px 4px 0}
-.ntcr{background:#fdecea;border-left:3px solid #c0392b;padding:10px 14px;font-size:12px;color:#7a1a1a;margin-bottom:14px;border-radius:0 4px 4px 0}
-.ntcg{background:#e8f5e9;border-left:3px solid #27ae60;padding:10px 14px;font-size:12px;color:#1a5c2a;margin-bottom:14px;border-radius:0 4px 4px 0}
 .sbar{position:relative;margin-bottom:12px}
 .sbar input{width:100%;background:#fff;border:1px solid #ddd;color:#222;padding:9px 12px 9px 32px;font-size:13px;outline:none;border-radius:4px}
 .sbar input:focus{border-color:#2a6090;box-shadow:0 0 0 2px rgba(42,96,144,.15)}
 .sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#aaa;pointer-events:none}
 .empty{text-align:center;padding:32px;color:#bbb;border:2px dashed #e0e0e0;border-radius:6px;font-size:13px;background:#fff}
+.loading{text-align:center;padding:32px;color:#999;font-size:13px}
+
+/* ── MODAL ── */
 #ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:16px}
 #ov.show{display:flex}
-#mod{background:#fff;border-radius:8px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+#mod{background:#fff;border-radius:8px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
 .mt{font-size:17px;font-weight:900;color:#1a3a5c;margin-bottom:16px}
 .fr{margin-bottom:11px}
 .fl{display:block;font-size:10px;color:#999;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;font-weight:600}
-input[type=text],input[type=date],textarea,select{width:100%;background:#f8f8f8;border:1px solid #ddd;color:#222;font-size:13px;padding:9px 11px;outline:none;border-radius:4px;font-family:inherit;-webkit-appearance:none}
-input:focus,textarea:focus,select:focus{border-color:#2a6090;background:#fff;box-shadow:0 0 0 2px rgba(42,96,144,.15)}
-textarea{resize:vertical;min-height:65px}
-select option{background:#fff}
 .ma{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid #eee}
-.sf{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:18px;max-width:460px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.dz{border:2px solid #fdecea;border-radius:6px;padding:14px;max-width:460px;background:#fffbfb}
+.mbtn{background:#1a3a5c;border:none;color:#fff;padding:9px 20px;font-size:13px;font-weight:700;border-radius:4px;cursor:pointer}
+.mbtn:disabled{background:#aaa;cursor:not-allowed}
+.mbtn.sec{background:none;border:1px solid #ddd;color:#666;font-weight:400}
+
+/* ── DOKUMENTE ── */
+.doc-section{border-top:1px solid #eee;margin-top:16px;padding-top:14px}
+.doc-section-title{font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.doc-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.doc-item{display:flex;align-items:center;gap:8px;background:#f8f8f8;border:1px solid #eee;border-radius:4px;padding:8px 10px}
+.doc-item-name{flex:1;font-size:12px;color:#222;word-break:break-word}
+.doc-item-size{font-size:10px;color:#999;flex-shrink:0}
+.doc-dl{background:none;border:none;color:#2a6090;font-size:12px;cursor:pointer;padding:2px 6px;border-radius:3px}
+.doc-dl:hover{background:#e8f0f8}
+.doc-rm{background:none;border:none;color:#c0392b;font-size:14px;cursor:pointer;padding:2px 4px;border-radius:3px}
+.doc-rm:hover{background:#fdecea}
+.doc-upload{position:relative;display:inline-block}
+.doc-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.doc-upload-btn{background:none;border:1px dashed #2a6090;color:#2a6090;padding:7px 14px;font-size:12px;border-radius:4px;cursor:pointer}
+.doc-upload-btn:hover{background:#e8f0f8}
+.doc-msg{font-size:11px;color:#999;margin-top:6px;font-style:italic}
+
+/* ── SETTINGS ── */
+.sf{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:18px;max-width:480px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.dz{border:2px solid #fdecea;border-radius:6px;padding:14px;max-width:480px;background:#fffbfb;margin-bottom:16px}
 .dzt{font-size:10px;color:#c0392b;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;font-weight:700}
 .sec-lbl{font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:16px;font-weight:600}
-/* WELCOME */
+
+/* ── WELCOME ── */
 .welcome{background:linear-gradient(135deg,#1a3a5c,#0f2840);color:#fff;border-radius:8px;padding:20px 24px;margin-bottom:16px}
 .welcome h2{font-size:18px;margin-bottom:6px;letter-spacing:1px}
 .welcome p{font-size:12px;color:#7ab3d4;line-height:1.6}
-/* ONBOARDING */
-.onb{background:#fff;border:1px solid #c8dff0;border-radius:8px;padding:20px 24px;margin-bottom:16px}
-.onb-title{font-size:13px;font-weight:700;color:#1a3a5c;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-.onb-steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-.onb-step{background:#f0f6fc;border-radius:6px;padding:12px;text-align:center;cursor:pointer;border:2px solid transparent}
-.onb-step.done{background:#e8f5e9;border-color:#27ae60}
-.onb-step.done .onb-icon{color:#27ae60}
-.onb-icon{font-size:22px;margin-bottom:6px}
-.onb-label{font-size:11px;font-weight:700;color:#1a3a5c;margin-bottom:2px}
-.onb-sub{font-size:10px;color:#999}
-/* PROGRESS */
-.progress-wrap{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:16px 20px;margin-bottom:16px}
-.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.progress-title{font-size:12px;font-weight:700;color:#1a3a5c;letter-spacing:1px;text-transform:uppercase}
-.progress-pct{font-size:20px;font-weight:900;color:#1a3a5c}
-.progress-bar{background:#e0e0e0;border-radius:10px;height:8px;overflow:hidden}
-.progress-fill{background:linear-gradient(90deg,#2a6090,#7ab3d4);height:100%;border-radius:10px;transition:width .5s}
-.progress-modules{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
-.pm{width:12px;height:12px;border-radius:3px;background:#e0e0e0}
-.pm.done{background:#27ae60}
-.pm.partial{background:#e67e22}
-/* BACKUP REMINDER */
-.backup-warn{background:#fff8e8;border:1px solid #f0c040;border-radius:6px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.backup-warn p{font-size:12px;color:#7a5500;margin:0}
-.backup-warn button{background:#e67e22;border:none;color:#fff;padding:5px 12px;font-size:11px;font-weight:700;border-radius:3px;cursor:pointer;white-space:nowrap}
-/* FOOTER NAV */
+
+/* ── FOOTER NAV ── */
 .legal-footer{padding:16px 14px;border-top:1px solid #1a3a5c;margin-top:auto}
 .legal-footer a{display:block;font-size:10px;color:#3a6080;text-decoration:none;padding:3px 0;letter-spacing:1px}
-.legal-footer a:hover{color:#7ab3d4}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#2a6090;border-radius:2px}
-/* WELCOME MODAL */
-#wov{display:none;position:fixed;inset:0;background:rgba(10,21,32,.92);z-index:9998;align-items:center;justify-content:center;padding:20px}
-#wov.show{display:flex}
-#wmod{background:#fff;border-radius:12px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
-.wslide{display:none;padding:36px 32px 28px}
-.wslide.on{display:block}
-.wslide-icon{font-size:48px;text-align:center;margin-bottom:16px}
-.wslide h2{font-size:20px;font-weight:900;color:#1a3a5c;margin-bottom:10px;text-align:center}
-.wslide p{font-size:14px;color:#666;line-height:1.7;text-align:center;margin-bottom:24px}
-.wdots{display:flex;justify-content:center;gap:6px;margin-bottom:20px}
-.wdot{width:8px;height:8px;border-radius:50%;background:#e0e0e0}
-.wdot.on{background:#2a6090}
-.wbtns{display:flex;gap:10px;justify-content:center}
-.wbtn{background:#1a3a5c;border:none;color:#fff;padding:11px 28px;font-size:14px;font-weight:700;border-radius:4px;cursor:pointer;letter-spacing:1px}
-.wbtn.sec{background:none;border:1px solid #ddd;color:#999;font-weight:400}
-/* TOOLTIP */
-.tip-wrap{position:relative;display:inline-block;margin-left:6px;vertical-align:middle}
-.tip-btn{background:none;border:none;color:#2a6090;font-size:14px;cursor:pointer;padding:0 4px;line-height:1}
-.tip-box{display:none;position:absolute;left:0;top:24px;background:#1a3a5c;color:#e8f0f8;font-size:12px;line-height:1.6;padding:10px 14px;border-radius:6px;width:260px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.2)}
-.tip-box.show{display:block}
-.tip-box::before{content:'';position:absolute;top:-6px;left:10px;border:6px solid transparent;border-bottom-color:#1a3a5c;border-top:none}
-/* MODULE HELP */
-.mod-help{background:#f0f6fc;border:1px solid #c8dff0;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#1a3a5c;line-height:1.6}
-.mod-help strong{display:block;margin-bottom:4px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#2a6090}
-/* HELP BTN IN NAV */
-.help-btn{display:block;width:calc(100% - 28px);margin:8px 14px 4px;background:rgba(42,96,144,.15);border:1px solid #2a6090;color:#7ab3d4;padding:7px 10px;font-size:11px;text-align:center;cursor:pointer;border-radius:3px;letter-spacing:1px}
 
-@media print{#bar,#nav,#ov,.abtn,.tb,.ib,.sbar,.onb,.progress-wrap,.backup-warn{display:none!important}#main{width:100%!important;padding:16px}}
-#pwscreen{display:none;position:fixed;inset:0;background:#0f2840;z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#2a6090;border-radius:2px}
+@media print{#bar,#nav,#ov,.abtn,.tb,.ib,.sbar{display:none!important}#main{width:100%!important;padding:16px}}
 </style>
 </head>
 <body>
 
-<!-- PASSWORD SCREEN -->
-<div id="pwscreen" style="display:flex">
-  <div style="text-align:center">
-    <div style="color:#2a6090;font-size:11px;letter-spacing:4px;text-transform:uppercase;margin-bottom:8px">Ihr digitales Betriebshandbuch</div>
-    <div style="color:#fff;font-size:28px;font-weight:900;letter-spacing:4px;margin-bottom:4px">BETRIEBSPASS</div>
-    <div style="color:#3a6080;font-size:11px;letter-spacing:2px;margin-bottom:32px">betriebspass.de</div>
-    <input type="password" id="pwInput" placeholder="Zugangscode eingeben"
-      style="background:#1a3a5c;border:2px solid #2a6090;color:#fff;padding:13px 20px;font-size:16px;width:280px;border-radius:4px;outline:none;text-align:center;display:block;margin:0 auto 12px"
-      onkeydown="if(event.key==='Enter')checkPw()">
-    <button onclick="checkPw()"
-      style="background:#2a6090;border:none;color:#fff;padding:11px 40px;font-size:14px;font-weight:700;border-radius:4px;cursor:pointer;letter-spacing:2px;display:block;margin:0 auto">
-      ZUGANG
-    </button>
-    <div id="pwErr" style="color:#e74c3c;font-size:12px;margin-top:10px;display:none">Falscher Zugangscode</div>
-    <div style="color:#2a4a6c;font-size:10px;margin-top:24px;letter-spacing:1px">Standard-Code: betrieb2024</div>
-  </div>
-</div>
-
-
-<!-- WELCOME MODAL -->
-<div id="wov">
-  <div id="wmod">
-    <div class="wslide on" id="ws0">
-      <div class="wslide-icon">&#128196;</div>
-      <h2>Willkommen beim Betriebspass</h2>
-      <p>Ihr digitales Betriebshandbuch &ndash; alle wichtigen Informationen Ihres Betriebs sicher an einem Ort. F&uuml;r den Fall der F&auml;lle.</p>
-      <div class="wdots"><div class="wdot on"></div><div class="wdot"></div><div class="wdot"></div></div>
-      <div class="wbtns">
-        <button class="wbtn sec" onclick="closeWelcome()">Überspringen</button>
-        <button class="wbtn" onclick="nextSlide(1)">Weiter &rarr;</button>
-      </div>
+<!-- ══ AUTH SCREEN ════════════════════════════════════════════════ -->
+<div id="s-auth" class="screen-center">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="mark">🗂️</div>
+      <h1>BETRIEBSPASS</h1>
+      <p>Digitales Betriebshandbuch</p>
     </div>
-    <div class="wslide" id="ws1">
-      <div class="wslide-icon">&#9881;</div>
-      <h2>So funktioniert es</h2>
-      <p><strong>1.</strong> Starten Sie mit den <strong>Einstellungen</strong> &ndash; tragen Sie Ihren Betriebsnamen ein.<br><br><strong>2.</strong> Bef&uuml;llen Sie die <strong>12 Module</strong> Schritt f&uuml;r Schritt.<br><br><strong>3.</strong> Exportieren Sie regelm&auml;&szlig;ig ein <strong>Backup</strong> auf USB oder Cloud.</p>
-      <div class="wdots"><div class="wdot"></div><div class="wdot on"></div><div class="wdot"></div></div>
-      <div class="wbtns">
-        <button class="wbtn sec" onclick="nextSlide(0)">&larr; Zurück</button>
-        <button class="wbtn" onclick="nextSlide(2)">Weiter &rarr;</button>
-      </div>
+    <div class="auth-tabs">
+      <div class="auth-tab on" id="tab-login" onclick="showAuthTab('login')">Anmelden</div>
+      <div class="auth-tab" id="tab-signup" onclick="showAuthTab('signup')">Registrieren</div>
     </div>
-    <div class="wslide" id="ws2">
-      <div class="wslide-icon">&#128272;</div>
-      <h2>Ihre Daten geh&ouml;ren Ihnen</h2>
-      <p>Alle Daten bleiben <strong>lokal auf Ihrem Ger&auml;t</strong>. Nichts wird an Server &uuml;bertragen. Nur Sie &ndash; und die Personen denen Sie Zugang geben &ndash; k&ouml;nnen Ihren Betriebspass sehen.</p>
-      <div class="wdots"><div class="wdot"></div><div class="wdot"></div><div class="wdot on"></div></div>
-      <div class="wbtns">
-        <button class="wbtn sec" onclick="nextSlide(1)">&larr; Zurück</button>
-        <button class="wbtn" onclick="closeWelcome()">Los geht&apos;s &#10003;</button>
-      </div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div class="fr"><label class="fl">E-Mail</label><input type="email" id="li-email" placeholder="name@firma.de"></div>
+      <div class="fr"><label class="fl">Passwort</label><input type="password" id="li-pw" placeholder="••••••••"></div>
+      <button class="btn-primary" onclick="doLogin()">Anmelden</button>
+      <div class="auth-msg" id="li-msg"></div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="form-signup" style="display:none">
+      <div class="fr"><label class="fl">E-Mail</label><input type="email" id="su-email" placeholder="name@firma.de"></div>
+      <div class="fr"><label class="fl">Passwort (min. 8 Zeichen)</label><input type="password" id="su-pw" placeholder="••••••••"></div>
+      <div class="fr"><label class="fl">Passwort wiederholen</label><input type="password" id="su-pw2" placeholder="••••••••"></div>
+      <button class="btn-primary" onclick="doSignup()">Konto erstellen</button>
+      <div class="auth-msg" id="su-msg"></div>
     </div>
   </div>
 </div>
 
-<!-- APP -->
-<div id="appWrap" style="display:none">
-<div id="bar">
-  <div id="logo"><span>Betriebspass</span><span>Digitales Betriebshandbuch</span></div>
-  <button class="tb" id="bExp">&#128190; Export</button>
-  <label class="tb" style="cursor:pointer">&#128194; Import<input type="file" id="bFile" accept=".json" style="display:none"></label>
-  <button class="tb" id="bPrint">&#128438; Drucken</button>
-  <button class="tb r" id="bNew">+ Neu</button>
-</div>
-<div id="wrap">
-<div id="nav">
-  <div class="ng">
-    <span class="ngl">Übersicht</span>
-    <button class="nb" data-p="dashboard">&#128200; Dashboard</button>
+<!-- ══ PAYWALL SCREEN ═════════════════════════════════════════════ -->
+<div id="s-pay" class="screen-center" style="display:none">
+  <div class="pay-box">
+    <div class="mark">🗂️</div>
+    <h2>Betriebspass Basic</h2>
+    <p class="sub">Alle wichtigen Betriebsinformationen sicher an einem Ort – Verträge, Zugänge, Versicherungen, Kontakte und Dokumente.</p>
+    <ul class="pay-features">
+      <li>13 Datenmodule (Verträge, Versicherungen, Zugänge, Kontakte &amp; mehr)</li>
+      <li>Dokument-Upload (PDF, Bilder) pro Eintrag</li>
+      <li>Sicherer Cloud-Speicher – immer verfügbar</li>
+      <li>Einmalzahlung – keine laufenden Kosten</li>
+    </ul>
+    <div class="pay-price">39,– € <span>einmalig</span></div>
+    <div class="pay-hint">inkl. MwSt. · Sofortiger Zugang nach Zahlung</div>
+    <button class="btn-pay" id="btn-pay" onclick="doCheckout()">Jetzt kaufen – 39 €</button>
+    <div class="auth-msg" id="pay-msg"></div>
+    <span class="pay-logout" onclick="doLogout()">Abmelden</span>
   </div>
-  <div class="ng">
-    <span class="ngl">Betrieb</span>
-    <button class="nb" data-p="auftraege">&#128203; Aufträge</button>
-    <button class="nb" data-p="kunden">&#128101; Kunden</button>
-    <button class="nb" data-p="lieferanten">&#128666; Lieferanten</button>
-    <button class="nb" data-p="inventar">&#128230; Inventar</button>
-  </div>
-  <div class="ng">
-    <span class="ngl">Finanzen</span>
-    <button class="nb" data-p="finanzen">&#128181; Finanzen & Konten</button>
-    <button class="nb" data-p="vertraege">&#128196; Verträge</button>
-    <button class="nb" data-p="versicherungen">&#128737; Versicherungen</button>
-  </div>
-  <div class="ng">
-    <span class="ngl">Zugang & Recht</span>
-    <button class="nb" data-p="zugaenge">&#128272; Digitale Zugänge</button>
-    <button class="nb" data-p="kontakte">&#128222; Wichtige Kontakte</button>
-    <button class="nb" data-p="rechtliches">&#9878; Rechtliches</button>
-  </div>
-  <div class="ng">
-    <span class="ngl">Wissen</span>
-    <button class="nb" data-p="wissen">&#128161; Wissen & Prozesse</button>
-    <button class="nb" data-p="notizen">&#128221; Notizen & Brief</button>
-  </div>
-  <div class="ng">
-    <span class="ngl">System</span>
-    <button class="nb" data-p="einstellungen">&#9881; Einstellungen</button>
-  </div>
-  <button class="help-btn" onclick="showWelcome()">&#63; Hilfe &amp; Einf&uuml;hrung</button>
-  <div class="legal-footer">
-    <a href="rechtliches.html" target="_blank">&#9432; Impressum</a>
-    <a href="rechtliches.html" target="_blank">&#128274; Datenschutz</a>
-    <a href="rechtliches.html" target="_blank">&#128196; AGB</a>
-  </div>
-</div>
-<div id="main"></div>
-</div>
 </div>
 
-<!-- MODAL -->
+<!-- ══ APP ════════════════════════════════════════════════════════ -->
+<div id="s-app">
+  <div id="bar">
+    <div id="logo">
+      <span>BETRIEBSPASS</span>
+      <span>Digitales Betriebshandbuch</span>
+    </div>
+    <button class="tb" onclick="oMod(cPage,null)" id="bNew">+ Neu</button>
+    <button class="tb" onclick="window.print()">Drucken</button>
+    <button class="tb" onclick="doLogout()">Abmelden</button>
+  </div>
+
+  <div id="wrap">
+    <div id="nav">
+      <div class="ng">
+        <span class="ngl">Übersicht</span>
+        <button class="nb on" data-p="dashboard">📊 Dashboard</button>
+      </div>
+      <div class="ng">
+        <span class="ngl">Betrieb</span>
+        <button class="nb" data-p="auftraege">🔧 Aufträge</button>
+        <button class="nb" data-p="kunden">🏠 Kunden</button>
+        <button class="nb" data-p="lieferanten">🚚 Lieferanten</button>
+        <button class="nb" data-p="inventar">⚙️ Inventar</button>
+      </div>
+      <div class="ng">
+        <span class="ngl">Finanzen &amp; Recht</span>
+        <button class="nb" data-p="finanzen">🏦 Bank &amp; Finanzen</button>
+        <button class="nb" data-p="vertraege">📄 Verträge</button>
+        <button class="nb" data-p="versicherungen">🛡️ Versicherungen</button>
+        <button class="nb" data-p="rechtliches">⚖️ Rechtliches</button>
+      </div>
+      <div class="ng">
+        <span class="ngl">Zugang &amp; Wissen</span>
+        <button class="nb" data-p="zugaenge">🔐 Zugänge</button>
+        <button class="nb" data-p="kontakte">👤 Kontakte</button>
+        <button class="nb" data-p="wissen">💡 Betriebswissen</button>
+        <button class="nb" data-p="notizen">📝 Notizen</button>
+      </div>
+      <div class="ng">
+        <span class="ngl">Konto</span>
+        <button class="nb" data-p="einstellungen">⚙ Einstellungen</button>
+      </div>
+      <div class="legal-footer">
+        <a href="datenschutz.html" target="_blank">Datenschutz</a>
+        <a href="impressum.html" target="_blank">Impressum</a>
+      </div>
+    </div>
+
+    <div id="main"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL ══════════════════════════════════════════════════════ -->
 <div id="ov">
   <div id="mod">
-    <div class="mt" id="mtitle"></div>
-    <div id="mbody"></div>
+    <div class="mt" id="mod-title">Eintrag</div>
+    <div id="mod-fields"></div>
+    <div id="mod-docs" class="doc-section" style="display:none">
+      <div class="doc-section-title">Dokumente &amp; Anhänge</div>
+      <div class="doc-list" id="doc-list"></div>
+      <div class="doc-upload">
+        <button class="doc-upload-btn">📎 Dokument / Bild hinzufügen</button>
+        <input type="file" id="doc-input" accept=".pdf,.jpg,.jpeg,.png,.webp,.heic" onchange="uploadDoc(this)">
+      </div>
+      <div class="doc-msg" id="doc-msg"></div>
+    </div>
     <div class="ma">
-      <button class="tb" id="bCan">Abbrechen</button>
-      <button class="abtn" id="bSav">Speichern</button>
+      <button class="mbtn sec" onclick="cModal()">Abbrechen</button>
+      <button class="mbtn" id="bSav" onclick="sEnt()">Speichern</button>
     </div>
   </div>
 </div>
 
 <script>
+// ── KONFIGURATION ─────────────────────────────────────────────────────
+var SUPA_URL      = 'https://ysqzdqazcgyuzdorauiq.supabase.co';
+var SUPA_KEY      = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+var CHECKOUT_URL  = SUPA_URL + '/functions/v1/betriebspass-checkout';
+var VERIFY_URL    = SUPA_URL + '/functions/v1/betriebspass-verify';
+var BUCKET        = 'betriebspass-docs';
 
+// ── ZUSTAND ───────────────────────────────────────────────────────────
+var SB            = supabase.createClient(SUPA_URL, SUPA_KEY);
+var currentUser   = null;
+var userPlan      = 'free';
+var userSettings  = {};
+var cPage         = 'dashboard';
+var cModal        = null;   // {mode:'add'|'edit', modul, id}
+var modEntries    = {};     // Cache: {modul:[entries]}
 
-// ── WELCOME MODAL ──────────────────────────────────────────────
-var WELCOME_KEY='bp_welcome_done';
-function showWelcome(){
-  document.getElementById('wov').classList.add('show');
-  nextSlide(0);
-}
-function closeWelcome(){
-  document.getElementById('wov').classList.remove('show');
-  localStorage.setItem(WELCOME_KEY,'done');
-}
-function nextSlide(n){
-  var slides=document.querySelectorAll('.wslide');
-  for(var i=0;i<slides.length;i++)slides[i].classList.remove('on');
-  document.getElementById('ws'+n).classList.add('on');
-}
-function checkFirstRun(){
-  if(!localStorage.getItem(WELCOME_KEY)){
-    setTimeout(showWelcome, 400);
-  }
-}
-
-// ── FIELD PLACEHOLDERS ──────────────────────────────────────────────
-var PH={
-  auftraege:{titel:'z.B. Fahrzeuglackierung BMW E39 Kunde Müller',kunde:'z.B. Hans Müller / Müller GmbH',preis:'z.B. 2500',bezahlt:'z.B. 500 (Anzahlung)',stunden:'z.B. 12'},
-  kunden:{name:'z.B. Hans Müller oder Müller Bau GmbH',telefon:'z.B. 0171 1234567',email:'z.B. mueller@example.de'},
-  lieferanten:{name:'z.B. Lackier-Bedarf Schmidt GmbH',telefon:'z.B. 0711 987654',webseite:'z.B. www.schmidt-lacke.de'},
-  inventar:{bezeichnung:'z.B. Kompressor Atlas Copco oder Ford Transit 2019',standort:'z.B. Werkstatt hinten links, Regal 3',wert:'z.B. 3500',seriennummer:'z.B. SN-2019-AC-4471'},
-  finanzen:{bezeichnung:'z.B. Geschäftskonto Volksbank',institut:'z.B. Volksbank Esslingen',iban:'z.B. letzte 4 Ziffern: ...4471',kontostand:'z.B. 8500 (Stand 01.06.2026)',zugangInfo:'z.B. Zugangsdaten in 1Password unter "Volksbank" – KEIN Klartext!',offeneForderungen:'z.B. 3200 (Rechnung Müller noch offen)',offeneVerbindlichkeiten:'z.B. 1800 (Lieferant Schmidt)'},
-  vertraege:{bezeichnung:'z.B. Mietvertrag Werkstatt',vertragspartner:'z.B. Hausverwaltung Mayer GmbH',laufzeit:'z.B. 31.12.2027 oder unbefristet',kuendigung:'z.B. 3 Monate zum Quartalsende',betrag:'z.B. 1200 monatlich',ansprechpartner:'z.B. Frau Mayer, 0711 445566',dokument:'z.B. Ordner Rot "Verträge", Schublade 2'},
-  versicherungen:{bezeichnung:'z.B. Betriebshaftpflicht Allianz',gesellschaft:'z.B. Allianz Versicherung AG',policennummer:'z.B. AV-2019-774433',ansprechpartner:'z.B. Maklerin Petra Schön',telefon:'z.B. 0172 9988776',beitrag:'z.B. 480 jährlich',dokument:'z.B. Ordner Blau "Versicherungen"',kuendigung:'z.B. 31.12.2026'},
-  zugaenge:{bezeichnung:'z.B. E-Mail Geschäftlich oder Online-Banking',url:'z.B. www.volksbank-esslingen.de',benutzername:'z.B. u.riedel@example.de',passwortHinweis:'z.B. In 1Password unter "Banken" – KEIN Klartext!'},
-  kontakte:{name:'z.B. Steuerberater Thomas Bauer',firma:'z.B. Steuerkanzlei Bauer & Partner',telefon:'z.B. 0711 334455',email:'z.B. bauer@steuerkanzlei.de',adresse:'z.B. Hauptstraße 12, 73249 Wernau'},
-  rechtliches:{bezeichnung:'z.B. Gewerbeanmeldung oder Testament',nummer:'z.B. 59374/14373',behoerde:'z.B. Finanzamt Esslingen',gueltigkeit:'z.B. unbefristet',standort:'z.B. Ordner Grün Schreibtisch oder Tresor'},
-  wissen:{titel:'z.B. Wo liegt der Ersatzschlüssel',inhalt:'z.B. Ersatzschlüssel hängt an der Pinnwand hinter der Tür, gelber Anhänger',kontext:'z.B. Ohne diesen Schlüssel kein Zugang zum Lagerraum'},
-  notizen:{titel:'z.B. Brief an meine Familie',inhalt:'z.B. Liebe Familie, im Notfall bitte zuerst meinen Steuerberater Thomas Bauer anrufen (0711 334455)...'}
-};
-
-// ── MODULE HELP TEXTS ──────────────────────────────────────────────
-var MH={
-  auftraege:{t:'Was gehört hier rein?',b:'Alle laufenden und kürzlich abgeschlossenen Aufträge. Was wurde vereinbart, welcher Preis, was ist bereits bezahlt, wie weit sind die Arbeiten. Im Notfall weiß Ihr Vertreter sofort was offen ist.'},
-  kunden:{t:'Was gehört hier rein?',b:'Alle Kunden mit denen Sie aktuell arbeiten. Inkl. besondere Abmachungen, Zahlungsverhalten und offene Dinge. Besonders wichtig: VIP-Kunden und laufende Projekte.'},
-  lieferanten:{t:'Was gehört hier rein?',b:'Ihre wichtigsten Lieferanten – vor allem die ohne die der Betrieb nicht läuft. Kontaktdaten, was Sie beziehen, besondere Konditionen und laufende Bestellungen.'},
-  inventar:{t:'Was gehört hier rein?',b:'Alle wichtigen Gegenstände: Maschinen, Werkzeuge, Fahrzeuge, IT. Besonders wichtig: Was gehört dem Kunden und muss zurückgegeben werden? Was ist geleast oder gemietet?'},
-  finanzen:{t:'Was gehört hier rein?',b:'Alle Bankkonten und Finanzkonten. Keine vollständigen Zugangsdaten – aber: welche Bank, IBAN (letzte 4 Ziffern), ungefährer Stand, offene Forderungen und Verbindlichkeiten.'},
-  vertraege:{t:'Was gehört hier rein?',b:'Alle laufenden Verträge: Mietvertrag, Leasing, Wartungsverträge. Wichtig: Kündigungsfristen und Laufzeiten – damit im Notfall nichts unkontrolliert weiterläuft.'},
-  versicherungen:{t:'Was gehört hier rein?',b:'Alle Versicherungen mit Policennummer und Ansprechpartner. Im Schadensfall oder Todesfall ist das die erste Anlaufstelle für Hinterbliebene.'},
-  zugaenge:{t:'Was gehört hier rein?',b:'Wichtige digitale Konten mit Hinweis auf den Passwort-Manager. KEIN Klartext-Passwort eintragen! Nur: wo sind die Passwörter gespeichert und wer hat im Notfall Zugang?'},
-  kontakte:{t:'Was gehört hier rein?',b:'Alle Personen die im Notfall kontaktiert werden müssen: Steuerberater, Anwalt, Hausbank, Schlüsselkunden. Markieren Sie wer „Zuerst anrufen“ ist – diese Person koordiniert alles.'},
-  rechtliches:{t:'Was gehört hier rein?',b:'Alle wichtigen Dokumente mit Standortangabe der Originale. Nicht den Inhalt eintragen – nur wo die Dokumente liegen: z.B. "Ordner Rot, Schreibtisch oben links".'},
-  wissen:{t:'Was gehört hier rein?',b:'Das was nur Sie wissen und verloren gehen würde: Wo liegt der Ersatzschlüssel? Welcher Lieferant hat Sonderkonditionen? Wie funktioniert die Heizungsanlage? Alles was ein Vertreter wissen müsste.'},
-  notizen:{t:'Was gehört hier rein?',b:'Persönliche Notizen und vor allem: Ein Brief an Ihre Hinterbliebenen. Was sollen sie zuerst tun? Wen anrufen? Was ist dringend? Dieser Brief ist das Herzstück des Betriebspasses.'}
-};
-
-var PW_KEY='bp_pw';
-var DEFAULT_PW='betrieb2024';
-var EXPORT_KEY='bp_last_export';
-var FIRST_RUN_KEY='bp_first_run';
-var cPage='dashboard';
-var cSec=null;
-var eId=null;
-var db={settings:{},auftraege:[],kunden:[],lieferanten:[],inventar:[],finanzen:[],vertraege:[],versicherungen:[],zugaenge:[],kontakte:[],rechtliches:[],wissen:[],notizen:[]};
-
-var SECS=['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','zugaenge','kontakte','rechtliches','wissen','notizen'];
-
-var F={
-  auftraege:{t:'Auftrag',f:[
-    {k:'titel',l:'Auftragsbezeichnung',r:1},
-    {k:'kunde',l:'Kunde / Auftraggeber'},
-    {k:'status',l:'Status',tp:'sel',o:['Offen','In Arbeit','Pausiert','Abgeschlossen','Storniert']},
-    {k:'beginn',l:'Beginn',tp:'date'},
-    {k:'abgabe',l:'Geplante Abgabe',tp:'date'},
-    {k:'preis',l:'Vereinbarter Preis (EUR)'},
-    {k:'bezahlt',l:'Bereits bezahlt (EUR)'},
-    {k:'beschreibung',l:'Was wurde vereinbart',tp:'ta'},
-    {k:'stand',l:'Aktueller Stand der Arbeit',tp:'ta'},
-    {k:'naechste',l:'Nächste Schritte',tp:'ta'},
-    {k:'materialien',l:'Materialien / Teile',tp:'ta'},
-    {k:'stunden',l:'Arbeitsstunden gesamt'},
-    {k:'prioritaet',l:'Priorität',tp:'sel',o:['Hoch','Normal','Niedrig']}
-  ]},
-  kunden:{t:'Kunde',f:[
-    {k:'name',l:'Name / Firma',r:1},
-    {k:'ansprechpartner',l:'Ansprechpartner'},
-    {k:'telefon',l:'Telefon'},
-    {k:'email',l:'E-Mail'},
-    {k:'adresse',l:'Adresse',tp:'ta'},
-    {k:'abmachungen',l:'Besondere Abmachungen / Konditionen',tp:'ta'},
-    {k:'status',l:'Kundenstatus',tp:'sel',o:['Aktiv','Inaktiv','VIP','Einmalig']},
-    {k:'offeneAuftraege',l:'Offene Aufträge / Hinweise',tp:'ta'},
-    {k:'zahlungsverhalten',l:'Zahlungsverhalten / Notizen',tp:'ta'}
-  ]},
-  lieferanten:{t:'Lieferant',f:[
-    {k:'name',l:'Firma / Name',r:1},
-    {k:'ansprechpartner',l:'Ansprechpartner'},
-    {k:'telefon',l:'Telefon'},
-    {k:'email',l:'E-Mail'},
-    {k:'webseite',l:'Webseite'},
-    {k:'produkte',l:'Liefert was?',tp:'ta'},
-    {k:'konditionen',l:'Konditionen / Rabatte',tp:'ta'},
-    {k:'laufendeBestellungen',l:'Laufende Bestellungen',tp:'ta'},
-    {k:'prioritaet',l:'Wichtigkeit',tp:'sel',o:['Unverzichtbar','Wichtig','Optional']}
-  ]},
-  inventar:{t:'Inventar',f:[
-    {k:'bezeichnung',l:'Bezeichnung',r:1},
-    {k:'kategorie',l:'Kategorie',tp:'sel',o:['Maschine / Werkzeug','Fahrzeug','IT / Elektronik','Möbel / Einrichtung','Material / Vorrat','Sonstiges']},
-    {k:'standort',l:'Standort / Wo genau?'},
-    {k:'eigentuemer',l:'Eigentümer',tp:'sel',o:['Betrieb','Kunde','Leasing / Miete','Privat']},
-    {k:'wert',l:'Geschätzter Wert (EUR)'},
-    {k:'seriennummer',l:'Seriennummer / Identifikation'},
-    {k:'zustand',l:'Zustand',tp:'sel',o:['Sehr gut','Gut','Gebraucht','Reparaturbedürftig']},
-    {k:'notizen',l:'Notizen / Besonderheiten',tp:'ta'}
-  ]},
-  finanzen:{t:'Finanz-Eintrag',f:[
-    {k:'bezeichnung',l:'Bezeichnung',r:1},
-    {k:'typ',l:'Typ',tp:'sel',o:['Bankkonto','Sparkonto','Kreditkarte','Kasse','Kreditlinie','Sonstiges']},
-    {k:'institut',l:'Bank / Institut'},
-    {k:'iban',l:'IBAN (letzten 4 Ziffern oder verschlüsselt)'},
-    {k:'kontostand',l:'Aktueller Stand (EUR)'},
-    {k:'zugangInfo',l:'Zugang / Online-Banking Hinweis'},
-    {k:'offeneForderungen',l:'Offene Forderungen (EUR)'},
-    {k:'offeneVerbindlichkeiten',l:'Offene Verbindlichkeiten (EUR)'},
-    {k:'notizen',l:'Notizen / Besonderheiten',tp:'ta'}
-  ]},
-  vertraege:{t:'Vertrag',f:[
-    {k:'bezeichnung',l:'Vertragsbezeichnung',r:1},
-    {k:'vertragspartner',l:'Vertragspartner'},
-    {k:'typ',l:'Vertragstyp',tp:'sel',o:['Mietvertrag','Leasingvertrag','Wartungsvertrag','Liefervertrag','Rahmenvertrag','Arbeitsvertrag','Sonstiges']},
-    {k:'beginn',l:'Vertragsbeginn',tp:'date'},
-    {k:'laufzeit',l:'Laufzeit / Ende'},
+// ── MODUL-DEFINITIONEN ────────────────────────────────────────────────
+var F = {
+  vertraege:{label:'Verträge',icon:'📄',f:[
+    {k:'titel',l:'Vertragsbezeichnung',r:true},
+    {k:'partner',l:'Vertragspartner',r:true},
+    {k:'beginn',l:'Laufzeit ab',t:'date'},
+    {k:'ende',l:'Laufzeit bis',t:'date'},
     {k:'kuendigung',l:'Kündigungsfrist'},
-    {k:'betrag',l:'Monatlicher / jährlicher Betrag (EUR)'},
-    {k:'ansprechpartner',l:'Ansprechpartner / Telefon'},
-    {k:'dokument',l:'Dokument liegt wo?'},
-    {k:'notizen',l:'Wichtige Klauseln / Notizen',tp:'ta'}
+    {k:'betrag',l:'Betrag/Jahr (€)'},
+    {k:'status',l:'Status',s:['aktiv','ausgelaufen','gekündigt']},
+    {k:'notiz',l:'Notiz',a:true}
   ]},
-  versicherungen:{t:'Versicherung',f:[
-    {k:'bezeichnung',l:'Versicherungsbezeichnung',r:1},
-    {k:'gesellschaft',l:'Versicherungsgesellschaft'},
-    {k:'typ',l:'Typ',tp:'sel',o:['Betriebshaftpflicht','Berufsunfähigkeit','Lebensversicherung','Krankenversicherung','KFZ-Versicherung','Gebäude','Inventar','Rechtsschutz','Sonstiges']},
-    {k:'policennummer',l:'Policennummer'},
-    {k:'ansprechpartner',l:'Ansprechpartner / Makler'},
+  versicherungen:{label:'Versicherungen',icon:'🛡️',f:[
+    {k:'art',l:'Versicherungsart',r:true},
+    {k:'gesellschaft',l:'Gesellschaft',r:true},
+    {k:'nr',l:'Versicherungsnummer'},
+    {k:'ansprechpartner',l:'Ansprechpartner'},
     {k:'telefon',l:'Telefon'},
-    {k:'beitrag',l:'Beitrag (EUR / Periode)'},
-    {k:'leistung',l:'Was ist versichert / Leistungsumfang',tp:'ta'},
-    {k:'dokument',l:'Police liegt wo?'},
-    {k:'kuendigung',l:'Nächste Kündigungsmöglichkeit'}
+    {k:'jahresbeitrag',l:'Jahresbeitrag (€)'},
+    {k:'kuendigung',l:'Kündigungsfrist'},
+    {k:'notiz',l:'Notiz',a:true}
   ]},
-  zugaenge:{t:'Digitaler Zugang',f:[
-    {k:'bezeichnung',l:'Dienst / Plattform',r:1},
-    {k:'typ',l:'Typ',tp:'sel',o:['E-Mail','Cloud / Datei','Banking','Shop / Plattform','Social Media','Software / SaaS','Domain / Hosting','Sonstiges']},
-    {k:'url',l:'URL / Website'},
-    {k:'benutzername',l:'Benutzername / E-Mail'},
-    {k:'passwortHinweis',l:'Passwort-Hinweis (KEIN Klartext – Verweis auf Passwort-Manager)'},
-    {k:'zweck',l:'Wofür wird es genutzt?',tp:'ta'},
-    {k:'wichtigkeit',l:'Wichtigkeit',tp:'sel',o:['Kritisch','Wichtig','Optional']},
-    {k:'notizen',l:'Weitere Hinweise',tp:'ta'}
+  zugaenge:{label:'Zugänge & Passwörter',icon:'🔐',f:[
+    {k:'bezeichnung',l:'Bezeichnung',r:true},
+    {k:'url',l:'URL / System'},
+    {k:'benutzername',l:'Benutzername'},
+    {k:'passwort',l:'Passwort / PIN'},
+    {k:'kontakt',l:'Support-Kontakt'},
+    {k:'notiz',l:'Notiz',a:true}
   ]},
-  kontakte:{t:'Wichtiger Kontakt',f:[
-    {k:'name',l:'Name',r:1},
-    {k:'funktion',l:'Funktion / Rolle',tp:'sel',o:['Steuerberater','Anwalt','Hausbank','Notar','Arzt','Behörde','Geschäftspartner','Notfallkontakt privat','Sonstiges']},
-    {k:'firma',l:'Firma / Organisation'},
+  kontakte:{label:'Wichtige Kontakte',icon:'👤',f:[
+    {k:'name',l:'Name',r:true},
+    {k:'funktion',l:'Funktion/Rolle',r:true},
     {k:'telefon',l:'Telefon'},
     {k:'email',l:'E-Mail'},
     {k:'adresse',l:'Adresse'},
-    {k:'prioritaet',l:'Priorität im Notfall',tp:'sel',o:['Zuerst anrufen','Wichtig','Informieren']},
-    {k:'notizen',l:'Besondere Hinweise / Vollmachten',tp:'ta'}
+    {k:'notiz',l:'Notiz',a:true}
   ]},
-  rechtliches:{t:'Rechtliches Dokument',f:[
-    {k:'bezeichnung',l:'Bezeichnung',r:1},
-    {k:'typ',l:'Typ',tp:'sel',o:['Gewerbeanmeldung','Handelsregistereintrag','Steuernummer / USt-IdNr.','Testament','Vollmacht','Gesellschaftsvertrag','Lizenz / Genehmigung','Sonstiges']},
-    {k:'nummer',l:'Nummer / Referenz'},
-    {k:'behoerde',l:'Ausstellende Behörde / Institution'},
-    {k:'ausstellungsdatum',l:'Ausstellungsdatum',tp:'date'},
-    {k:'gueltigkeit',l:'Gültig bis / unbefristet'},
-    {k:'standort',l:'Original liegt wo?'},
-    {k:'notizen',l:'Wichtige Hinweise',tp:'ta'}
+  auftraege:{label:'Laufende Aufträge',icon:'🔧',f:[
+    {k:'bezeichnung',l:'Auftragsbezeichnung',r:true},
+    {k:'kunde',l:'Kunde'},
+    {k:'status',l:'Status',s:['offen','in Bearbeitung','abgeschlossen','storniert']},
+    {k:'faellig',l:'Fällig am',t:'date'},
+    {k:'wert',l:'Auftragswert (€)'},
+    {k:'notiz',l:'Notiz',a:true}
   ]},
-  wissen:{t:'Wissen / Prozess',f:[
-    {k:'titel',l:'Titel',r:1},
-    {k:'kategorie',l:'Kategorie',tp:'sel',o:['Technisches Wissen','Ablauf / Prozess','Standort / Wo liegt was','Codes / Kombinationen','Lieferanten-Geheimtipp','Kundenwissen','Sonstiges']},
-    {k:'prioritaet',l:'Priorität',tp:'sel',o:['Kritisch – sofort wissen','Wichtig','Nützlich']},
-    {k:'inhalt',l:'Was muss man wissen?',tp:'ta',r:1},
-    {k:'kontext',l:'Warum ist das wichtig?',tp:'ta'}
+  kunden:{label:'Kundenliste',icon:'🏠',f:[
+    {k:'name',l:'Name / Firma',r:true},
+    {k:'telefon',l:'Telefon'},
+    {k:'email',l:'E-Mail'},
+    {k:'adresse',l:'Adresse'},
+    {k:'notiz',l:'Notiz',a:true}
   ]},
-  notizen:{t:'Notiz / Brief',f:[
-    {k:'titel',l:'Titel',r:1},
-    {k:'kategorie',l:'Kategorie',tp:'sel',o:['Brief an Hinterbliebene','Wichtiger Hinweis','Anweisung im Notfall','Persönliche Nachricht','Sonstiges']},
-    {k:'prioritaet',l:'Priorität',tp:'sel',o:['Kritisch','Wichtig','Normal']},
-    {k:'inhalt',l:'Inhalt',tp:'ta',r:1}
+  lieferanten:{label:'Lieferanten',icon:'🚚',f:[
+    {k:'name',l:'Lieferant',r:true},
+    {k:'produkte',l:'Produkte / Leistungen'},
+    {k:'ansprechpartner',l:'Ansprechpartner'},
+    {k:'telefon',l:'Telefon'},
+    {k:'email',l:'E-Mail'},
+    {k:'konditionen',l:'Konditionen / Zahlungsziel'},
+    {k:'notiz',l:'Notiz',a:true}
+  ]},
+  inventar:{label:'Inventar / Maschinen',icon:'⚙️',f:[
+    {k:'bezeichnung',l:'Bezeichnung',r:true},
+    {k:'seriennr',l:'Seriennummer'},
+    {k:'kaufdatum',l:'Kaufdatum',t:'date'},
+    {k:'wert',l:'Kaufwert (€)'},
+    {k:'wartung',l:'Nächste Wartung',t:'date'},
+    {k:'standort',l:'Standort'},
+    {k:'notiz',l:'Notiz',a:true}
+  ]},
+  finanzen:{label:'Bank & Finanzen',icon:'🏦',f:[
+    {k:'bezeichnung',l:'Bezeichnung',r:true},
+    {k:'bank',l:'Bank / Institut'},
+    {k:'iban',l:'IBAN'},
+    {k:'vollmacht',l:'Kontovollmacht'},
+    {k:'kreditlimit',l:'Kreditlimit (€)'},
+    {k:'notiz',l:'Notiz',a:true}
+  ]},
+  rechtliches:{label:'Rechtliches',icon:'⚖️',f:[
+    {k:'thema',l:'Thema',r:true},
+    {k:'anwalt',l:'Anwalt / Kanzlei'},
+    {k:'aktenzeichen',l:'Aktenzeichen'},
+    {k:'status',l:'Status',s:['laufend','abgeschlossen','ruhend']},
+    {k:'frist',l:'Frist',t:'date'},
+    {k:'notiz',l:'Notiz',a:true}
+  ]},
+  wissen:{label:'Betriebswissen',icon:'💡',f:[
+    {k:'titel',l:'Titel',r:true},
+    {k:'kategorie',l:'Kategorie'},
+    {k:'inhalt',l:'Inhalt',a:true,r:true}
+  ]},
+  notizen:{label:'Notizen',icon:'📝',f:[
+    {k:'titel',l:'Titel',r:true},
+    {k:'inhalt',l:'Inhalt',a:true}
   ]}
 };
 
-var LABELS={
-  dashboard:'Dashboard',auftraege:'Auftr\u00E4ge',kunden:'Kunden',lieferanten:'Lieferanten',
-  inventar:'Inventar',finanzen:'Finanzen & Konten',vertraege:'Vertr\u00E4ge',
-  versicherungen:'Versicherungen',zugaenge:'Digitale Zug\u00E4nge',kontakte:'Wichtige Kontakte',
-  rechtliches:'Rechtliches',wissen:'Wissen & Prozesse',notizen:'Notizen & Brief',einstellungen:'Einstellungen'
-};
+var MODS = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
 
-function h(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function ct(s,x){var m={auftraege:x.titel,kunden:x.name,lieferanten:x.name,inventar:x.bezeichnung,finanzen:x.bezeichnung,vertraege:x.bezeichnung,versicherungen:x.bezeichnung,zugaenge:x.bezeichnung,kontakte:x.name,rechtliches:x.bezeichnung,wissen:x.titel,notizen:x.titel};return m[s]||'?'}
-function lsSave(){try{localStorage.setItem('bp_data',JSON.stringify(db))}catch(e){}}
-function lsLoad(){try{var d=localStorage.getItem('bp_data');if(d)db=JSON.parse(d)}catch(e){}}
-function fmt(v){if(!v)return '';if(v.match&&v.match(/^\d{4}-\d{2}-\d{2}$/)){var p=v.split('-');return p[2]+'.'+p[1]+'.'+p[0]}return v}
-
-// ── PROGRESS ──────────────────────────────────────────────
-function calcProgress(){
-  var filled=0;
-  for(var i=0;i<SECS.length;i++){if((db[SECS[i]]||[]).length>0)filled++;}
-  return {filled:filled,total:SECS.length,pct:Math.round(filled/SECS.length*100)};
+// ── AUTH ──────────────────────────────────────────────────────────────
+function showAuthTab(tab) {
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('tab-login').className = 'auth-tab' + (tab === 'login' ? ' on' : '');
+  document.getElementById('tab-signup').className = 'auth-tab' + (tab === 'signup' ? ' on' : '');
 }
 
-function progressHtml(){
-  var p=calcProgress();
-  var dots='';
-  for(var i=0;i<SECS.length;i++){
-    var has=(db[SECS[i]]||[]).length>0;
-    dots+='<div class="pm'+(has?' done':'')+'" title="'+h(LABELS[SECS[i]])+'"></div>';
-  }
-  return '<div class="progress-wrap">'
-    +'<div class="progress-header"><span class="progress-title">Vollst\u00E4ndigkeit</span><span class="progress-pct">'+p.pct+'%</span></div>'
-    +'<div class="progress-bar"><div class="progress-fill" style="width:'+p.pct+'%"></div></div>'
-    +'<div class="progress-modules">'+dots+'</div>'
-    +(p.filled<SECS.length?'<p style="font-size:11px;color:#999;margin-top:8px">'+p.filled+' von '+p.total+' Modulen bef\u00FCllt \u2013 <a href="#" onclick="go(\'einstellungen\');return false" style="color:#2a6090">Einstellungen</a> als n\u00E4chstes empfohlen.</p>':'<p style="font-size:11px;color:#27ae60;margin-top:8px">&#10003; Alle Module bef\u00FCllt \u2013 Ihr Betriebspass ist vollst\u00E4ndig!</p>')
-    +'</div>';
+function setAuthMsg(id, msg, isErr) {
+  var el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'auth-msg' + (isErr ? ' err' : ' ok');
 }
 
-// ── BACKUP REMINDER ──────────────────────────────────────────────
-function backupReminderHtml(){
-  var last=localStorage.getItem(EXPORT_KEY);
-  if(!last)return '<div class="backup-warn"><p>&#128190; <strong>Kein Backup vorhanden.</strong> Exportieren Sie Ihre Daten regelmäßig als Sicherung.</p><button onclick="expData()">Jetzt exportieren</button></div>';
-  var days=Math.floor((Date.now()-parseInt(last))/(1000*60*60*24));
-  if(days>=14)return '<div class="backup-warn"><p>&#9888; <strong>Letzter Export vor '+days+' Tagen.</strong> Ein aktuelles Backup wird empfohlen.</p><button onclick="expData()">Jetzt exportieren</button></div>';
-  return '<div class="ntcg">&#10003; Letzter Export vor '+days+' Tag'+(days===1?'':'en')+'. Ihre Daten sind gesichert.</div>';
+function doLogin() {
+  var email = document.getElementById('li-email').value.trim();
+  var pw    = document.getElementById('li-pw').value;
+  if (!email || !pw) { setAuthMsg('li-msg', 'Bitte alle Felder ausfüllen.', true); return; }
+  setAuthMsg('li-msg', 'Wird angemeldet…', false);
+  SB.auth.signInWithPassword({email: email, password: pw}).then(function(res) {
+    if (res.error) { setAuthMsg('li-msg', res.error.message, true); return; }
+    afterAuth(res.data.user);
+  });
 }
 
-// ── ONBOARDING ──────────────────────────────────────────────
-function onboardingHtml(){
-  var isFirst=!localStorage.getItem(FIRST_RUN_KEY);
-  var s=db.settings||{};
-  var hasSettings=!!(s.firma||s.inhaber);
-  var totalEntries=0;
-  for(var i=0;i<SECS.length;i++)totalEntries+=(db[SECS[i]]||[]).length;
-  if(!isFirst&&totalEntries>5)return '';
-  var steps=[
-    {p:'einstellungen',icon:'&#9881;',label:'1. Einstellungen',sub:'Firmenname & Kontakt',done:hasSettings},
-    {p:'auftraege',icon:'&#128203;',label:'2. Aufträge',sub:'Offene Aufträge erfassen',done:(db.auftraege||[]).length>0},
-    {p:'kunden',icon:'&#128101;',label:'3. Kunden',sub:'Kundendaten eintragen',done:(db.kunden||[]).length>0},
-    {p:'finanzen',icon:'&#128181;',label:'4. Finanzen',sub:'Bankkonten dokumentieren',done:(db.finanzen||[]).length>0},
-    {p:'zugaenge',icon:'&#128272;',label:'5. Zugänge',sub:'Digitale Zugänge sichern',done:(db.zugaenge||[]).length>0},
-    {p:'notizen',icon:'&#128221;',label:'6. Brief',sub:'Brief an Hinterbliebene',done:(db.notizen||[]).length>0},
-  ];
-  var html='<div class="onb"><div class="onb-title"><span>&#128278; Erste Schritte – So starten Sie</span><button class="tb" onclick="dismissOnboarding()" style="font-size:10px;padding:3px 8px">Ausblenden</button></div><div class="onb-steps">';
-  for(var i=0;i<steps.length;i++){
-    var st=steps[i];
-    html+='<div class="onb-step'+(st.done?' done':'')+'" onclick="go(\''+st.p+'\')">'
-      +'<div class="onb-icon">'+(st.done?'&#10003;':st.icon)+'</div>'
-      +'<div class="onb-label">'+st.label+'</div>'
-      +'<div class="onb-sub">'+st.sub+'</div>'
-      +'</div>';
-  }
-  html+='</div></div>';
-  return html;
-}
-function dismissOnboarding(){localStorage.setItem(FIRST_RUN_KEY,'done');go('dashboard');}
-
-// ── CARDS ──────────────────────────────────────────────
-function rCards(name,q){
-  var cfg=F[name];if(!cfg)return '';
-  var a=db[name]||[];
-  var ql=q?q.toLowerCase():'';
-  var out='';var cnt=0;
-  for(var i=0;i<a.length;i++){
-    var x=a[i];
-    if(ql){var hay=JSON.stringify(x).toLowerCase();if(hay.indexOf(ql)<0)continue;}
-    cnt++;
-    var rows='';
-    for(var j=0;j<cfg.f.length;j++){
-      var f=cfg.f[j];var v=x[f.k];if(!v)continue;
-      if(f.tp==='sel'){
-        var cls='bx';
-        if(v==='Offen'||v==='Hoch'||v==='Kritisch'||v==='Kritisch \u2013 sofort wissen'||v==='Zuerst anrufen'||v==='Unverzichtbar')cls='br';
-        else if(v==='In Arbeit'||v==='Wichtig'||v==='VIP'||v==='Aktiv')cls='bo';
-        else if(v==='Abgeschlossen'||v==='Normal'||v==='Optional')cls='bg';
-        rows+='<div class="cf"><span class="cl">'+h(f.l)+'</span><span class="cv"><span class="bdg '+cls+'">'+h(v)+'</span></span></div>';
-      } else {
-        var disp=fmt(v);if(disp.length>120)disp=disp.substring(0,120)+'...';
-        rows+='<div class="cf"><span class="cl">'+h(f.l)+'</span><span class="cv">'+h(disp)+'</span></div>';
-      }
+function doSignup() {
+  var email = document.getElementById('su-email').value.trim();
+  var pw    = document.getElementById('su-pw').value;
+  var pw2   = document.getElementById('su-pw2').value;
+  if (!email || !pw) { setAuthMsg('su-msg', 'Bitte alle Felder ausfüllen.', true); return; }
+  if (pw.length < 8) { setAuthMsg('su-msg', 'Passwort muss mind. 8 Zeichen haben.', true); return; }
+  if (pw !== pw2)    { setAuthMsg('su-msg', 'Passwörter stimmen nicht überein.', true); return; }
+  setAuthMsg('su-msg', 'Konto wird erstellt…', false);
+  SB.auth.signUp({email: email, password: pw}).then(function(res) {
+    if (res.error) { setAuthMsg('su-msg', res.error.message, true); return; }
+    if (res.data && res.data.user && res.data.user.identities && res.data.user.identities.length === 0) {
+      setAuthMsg('su-msg', 'Diese E-Mail ist bereits registriert.', true); return;
     }
-    out+='<div class="card"><div class="chd"><div class="ct">'+h(ct(name,x))+'</div><div class="ca"><button class="ib" data-a="ed" data-s="'+name+'" data-i="'+h(x.id)+'">&#9998;</button><button class="ib" data-a="dl" data-s="'+name+'" data-i="'+h(x.id)+'" style="color:#e74c3c">&#10005;</button></div></div>'+rows+'</div>';
-  }
-  if(!cnt)return '<div class="empty">Keine Eintr\u00E4ge vorhanden.<br><br><button class="abtn" data-a="add" data-s="'+name+'">+ Erster Eintrag</button></div>';
-  return '<div class="grid">'+out+'</div>';
+    setAuthMsg('su-msg', 'Konto erstellt! Bitte E-Mail bestätigen, dann anmelden.', false);
+  });
 }
 
-// ── NAVIGATION ──────────────────────────────────────────────
-function go(name){
-  cPage=name;
-  var M=document.getElementById('main');
-  var nbs=document.querySelectorAll('.nb');
-  for(var i=0;i<nbs.length;i++){nbs[i].classList.remove('on');if(nbs[i].getAttribute('data-p')===name)nbs[i].classList.add('on')}
-  var lbl=LABELS[name]||name;
-  var ph='<div class="ph"><div class="pt">'+h(lbl)+'</div>'+(name!=='dashboard'&&name!=='einstellungen'?'<button class="abtn" data-a="add" data-s="'+name+'">+ Neuer Eintrag</button>':'')+'</div>';
+function doLogout() {
+  SB.auth.signOut().then(function() {
+    currentUser = null;
+    userPlan = 'free';
+    showScreen('auth');
+  });
+}
 
-  if(name==='dashboard'){
-    var total=0;
-    var stats='<div class="stats">';
-    for(var i=0;i<SECS.length;i++){var c=(db[SECS[i]]||[]).length;total+=c;stats+='<div class="sc"><div class="sn">'+c+'</div><div class="sl">'+h(LABELS[SECS[i]])+'</div></div>';}
-    stats+='</div>';
-    var s=db.settings||{};
-    var wname=s.inhaber?s.inhaber:(s.firma?s.firma:'');
-    var au=db.auftraege||[];
-    var offHtml='<div class="sec-lbl">Offene Auftr\u00E4ge</div>';
-    var hasOff=false;
-    for(var qi=0;qi<au.length;qi++){
-      if(au[qi].status==='Offen'||au[qi].status==='In Arbeit'){
-        hasOff=true;
-        offHtml+='<div class="card" style="margin-bottom:8px"><div class="chd"><div class="ct">'+h(au[qi].titel||'')+'</div><button class="ib" data-a="ed" data-s="auftraege" data-i="'+h(au[qi].id)+'">&#9998;</button></div>';
-        if(au[qi].kunde)offHtml+='<div class="cf"><span class="cl">Kunde</span><span class="cv">'+h(au[qi].kunde)+'</span></div>';
-        if(au[qi].status)offHtml+='<div class="cf"><span class="cl">Status</span><span class="cv"><span class="bdg '+(au[qi].status==='Offen'?'br':'bo')+'">'+h(au[qi].status)+'</span></span></div>';
-        if(au[qi].abgabe)offHtml+='<div class="cf"><span class="cl">Abgabe</span><span class="cv">'+h(fmt(au[qi].abgabe))+'</span></div>';
-        if(au[qi].preis)offHtml+='<div class="cf"><span class="cl">Preis</span><span class="cv">'+h(au[qi].preis)+' EUR</span></div>';
-        offHtml+='</div>';
-      }
-    }
-    if(!hasOff)offHtml+='<div class="empty">Keine offenen Auftr\u00E4ge</div>';
-    M.innerHTML=ph
-      +'<div class="welcome"><h2>'+(wname?'Betriebspass von '+h(wname):'Willkommen beim Betriebspass')+'</h2><p>Ihr digitales Betriebshandbuch \u2013 alle wichtigen Informationen f\u00FCr den Notfall strukturiert an einem Ort.<br>Insgesamt <strong>'+total+' Eintr\u00E4ge</strong> erfasst.</p></div>'
-      +onboardingHtml()
-      +progressHtml()
-      +backupReminderHtml()
-      +stats+offHtml;
+function afterAuth(user) {
+  currentUser = user;
+  // Check payment return params first
+  var params = new URLSearchParams(window.location.search);
+  var sid     = params.get('session_id');
+  var bpUser  = params.get('bp_user');
+  var canceled = params.get('canceled');
+  window.history.replaceState(null, '', window.location.pathname);
+
+  if (canceled) {
+    showScreen('pay');
+    setAuthMsg('pay-msg', 'Zahlung abgebrochen. Du kannst jederzeit erneut kaufen.', true);
     return;
   }
 
-  if(name==='einstellungen'){
-    var s=db.settings||{};
-    M.innerHTML=ph
-      +'<div class="sf"><div style="font-size:11px;color:#1a3a5c;font-weight:700;letter-spacing:1px;margin-bottom:14px;text-transform:uppercase;">Betriebsdaten</div>'
-      +'<div class="fr"><label class="fl">Firmenname / Betrieb</label><input type="text" id="s0" value="'+h(s.firma||'')+'"></div>'
-      +'<div class="fr"><label class="fl">Inhaber</label><input type="text" id="s1" value="'+h(s.inhaber||'')+'"></div>'
-      +'<div class="fr"><label class="fl">Branche</label><input type="text" id="s2" value="'+h(s.branche||'')+'"></div>'
-      +'<div class="fr"><label class="fl">Adresse</label><textarea id="s3" rows="2">'+h(s.adresse||'')+'</textarea></div>'
-      +'<div class="fr"><label class="fl">Telefon</label><input type="text" id="s4" value="'+h(s.telefon||'')+'"></div>'
-      +'<div class="fr"><label class="fl">E-Mail</label><input type="text" id="s5" value="'+h(s.email||'')+'"></div>'
-      +'<div class="fr"><label class="fl">Steuerberater Kontakt</label><input type="text" id="s6" value="'+h(s.stb||'')+'"></div>'
-      +'<div class="fr"><label class="fl">Anwalt Kontakt</label><input type="text" id="s7" value="'+h(s.anwalt||'')+'"></div>'
-      +'<div class="fr"><label class="fl">Anweisung an Hinterbliebene (Kurzfassung)</label><textarea id="s8" rows="4">'+h(s.anweisung||'')+'</textarea></div>'
-      +'<button class="abtn" style="margin-top:8px" data-a="svs">Speichern</button></div>'
-      +'<div class="sf" style="margin-top:14px;max-width:460px"><div style="font-size:11px;color:#1a3a5c;font-weight:700;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;">Zugangscode \u00e4ndern</div>'
-      +'<div class="fr"><label class="fl">Neuer Code</label><input type="password" id="pw1" placeholder="Neuer Zugangscode"></div>'
-      +'<div class="fr"><label class="fl">Wiederholen</label><input type="password" id="pw2" placeholder="Code wiederholen"></div>'
-      +'<button class="abtn" data-a="chpw">Code \u00e4ndern</button></div>'
-      +'<div class="dz" style="margin-top:14px;max-width:460px"><div class="dzt">&#9888; Gefahrenzone</div><p style="color:#999;font-size:12px;margin-bottom:10px;">Alle Daten unwiderruflich l\u00F6schen.</p><button class="tb" style="border-color:#c0392b;color:#c0392b" data-a="clr">Alle Daten l\u00F6schen</button></div>';
+  if (sid && bpUser === user.id) {
+    verifyAndActivate(sid);
     return;
   }
 
-  if(!F[name]){M.innerHTML='<p style="color:#999;padding:16px">Nicht gefunden.</p>';return;}
-  var warn=name==='zugaenge'?'<div class="ntcr">&#128272; Sensible Daten \u2013 nur f\u00FCr Bevollm\u00E4chtigte. Keine Klartextpassw\u00F6rter \u2013 Verweise auf Passwort-Manager verwenden.</div>':'';
-  M.innerHTML=ph+mhelp+warn+'<div class="sbar"><span class="sico">&#128269;</span><input type="text" id="sb" placeholder="Suchen..."></div><div id="cl">'+rCards(name,'')+'</div>';
+  loadPlan(user.id);
 }
 
-// ── MODAL ──────────────────────────────────────────────
-function oMod(s,id){
-  var cfg=F[s];if(!cfg)return;
-  cSec=s;eId=id||null;
-  var x={};
-  if(id){var a=db[s]||[];for(var i=0;i<a.length;i++){if(a[i].id===id){x=a[i];break;}}}
-  document.getElementById('mtitle').textContent=id?cfg.t+' bearbeiten':cfg.t+' erfassen';
-  var o='';
-  for(var i=0;i<cfg.f.length;i++){
-    var f=cfg.f[i];var v=x[f.k]||'';var inp;
-    if(f.tp==='ta')inp='<textarea id="fi'+i+'" rows="3">'+h(v)+'</textarea>';
-    else if(f.tp==='sel'){var opts='<option value="">\u2013 w\u00e4hlen \u2013</option>';for(var j=0;j<f.o.length;j++)opts+='<option'+(f.o[j]===v?' selected':'')+'>'+h(f.o[j])+'</option>';inp='<select id="fi'+i+'">'+opts+'</select>';}
-    else if(f.tp==='date')inp='<input type="date" id="fi'+i+'" value="'+h(v)+'">';
-    else inp='<input type="text" id="fi'+i+'" value="'+h(v)+'" placeholder="'+h(f.l)+'">';
-    o+='<div class="fr"><label class="fl">'+h(f.l)+(f.r?' <span style="color:#c0392b">*</span>':'')+'</label>'+inp+'</div>';
-  }
-  document.getElementById('mbody').innerHTML=o;
-  document.getElementById('ov').classList.add('show');
-}
-function cMod(){document.getElementById('ov').classList.remove('show');cSec=null;eId=null;}
-function sEnt(){
-  if(!cSec)return;
-  var cfg=F[cSec];
-  var data={id:eId||String(Date.now()),_ts:new Date().toISOString()};
-  var ok=true;
-  for(var i=0;i<cfg.f.length;i++){
-    var f=cfg.f[i];var el=document.getElementById('fi'+i);
-    if(el){data[f.k]=el.value.trim();if(f.r&&!data[f.k]){el.style.borderColor='#c0392b';ok=false;}else el.style.borderColor='';}
-  }
-  if(!ok)return;
-  if(!db[cSec])db[cSec]=[];
-  if(eId){for(var i=0;i<db[cSec].length;i++){if(db[cSec][i].id===eId){db[cSec][i]=data;break;}}}
-  else db[cSec].push(data);
-  lsSave();cMod();go(cSec);
-}
-function dEnt(s,id){
-  if(!confirm('Eintrag l\u00F6schen?'))return;
-  var a=db[s]||[];var n=[];
-  for(var i=0;i<a.length;i++){if(a[i].id!==id)n.push(a[i]);}
-  db[s]=n;lsSave();go(s);
-}
-function svSet(){
-  if(!db.settings)db.settings={};
-  var ks=['firma','inhaber','branche','adresse','telefon','email','stb','anwalt','anweisung'];
-  for(var i=0;i<ks.length;i++){var el=document.getElementById('s'+i);if(el)db.settings[ks[i]]=el.value;}
-  lsSave();alert('Einstellungen gespeichert!');
-  localStorage.setItem(FIRST_RUN_KEY,'done');
-  go('dashboard');
+function verifyAndActivate(sid) {
+  var btn = document.getElementById('btn-pay');
+  if (btn) { btn.disabled = true; btn.textContent = 'Zahlung wird geprüft…'; }
+  showScreen('pay');
+  fetch(VERIFY_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({session_id: sid})
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.paid) {
+      userPlan = 'basic';
+      showApp();
+    } else {
+      setAuthMsg('pay-msg', 'Zahlung konnte nicht bestätigt werden.', true);
+      if (btn) { btn.disabled = false; btn.textContent = 'Jetzt kaufen – 39 €'; }
+    }
+  }).catch(function() {
+    setAuthMsg('pay-msg', 'Verbindungsfehler beim Prüfen der Zahlung.', true);
+    if (btn) { btn.disabled = false; btn.textContent = 'Jetzt kaufen – 39 €'; }
+  });
 }
 
-// ── EXPORT / IMPORT ──────────────────────────────────────────────
-function expData(){
-  var json=JSON.stringify(db,null,2);
-  try{
-    var b=new Blob([json],{type:'application/json'});
-    var u=URL.createObjectURL(b);
-    var a=document.createElement('a');
-    a.href=u;a.download='betriebspass_'+new Date().toISOString().slice(0,10)+'.json';
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
-    setTimeout(function(){URL.revokeObjectURL(u);},1000);
-    localStorage.setItem(EXPORT_KEY,String(Date.now()));
-    go('dashboard');
-  }catch(ex){prompt('JSON kopieren und als .json speichern:',json);}
+function loadPlan(uid) {
+  SB.from('betriebspass_accounts').select('plan').eq('id', uid).maybeSingle().then(function(res) {
+    if (res.data && (res.data.plan === 'basic' || res.data.plan === 'pro')) {
+      userPlan = res.data.plan;
+      showApp();
+    } else {
+      // Ensure account row exists
+      SB.from('betriebspass_accounts').upsert({id: uid, plan: 'free', updated_at: new Date().toISOString()}, {onConflict: 'id'}).then(function() {
+        showScreen('pay');
+      });
+    }
+  });
 }
-function impData(ev){
-  var f=ev.target.files[0];if(!f)return;
-  var r=new FileReader();
-  r.onload=function(e){
-    try{
-      var imp=JSON.parse(e.target.result);
-      if(confirm('Aktuelle Daten \u00FCberschreiben?')){
-        for(var k in imp){if(Object.prototype.hasOwnProperty.call(imp,k))db[k]=imp[k];}
-        lsSave();go('dashboard');alert('Import erfolgreich!');
+
+// ── STRIPE CHECKOUT ───────────────────────────────────────────────────
+function doCheckout() {
+  var btn = document.getElementById('btn-pay');
+  btn.disabled = true;
+  btn.textContent = 'Weiterleitung zu Stripe…';
+  setAuthMsg('pay-msg', '', false);
+  var baseUrl = window.location.origin + window.location.pathname;
+  fetch(CHECKOUT_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json', 'Authorization': 'Bearer ' + SUPA_KEY},
+    body: JSON.stringify({return_url: baseUrl, user_id: currentUser.id})
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.url) {
+      window.location.href = d.url;
+    } else {
+      setAuthMsg('pay-msg', 'Fehler: ' + (d.error || 'Unbekannter Fehler'), true);
+      btn.disabled = false;
+      btn.textContent = 'Jetzt kaufen – 39 €';
+    }
+  }).catch(function() {
+    setAuthMsg('pay-msg', 'Verbindungsfehler. Bitte erneut versuchen.', true);
+    btn.disabled = false;
+    btn.textContent = 'Jetzt kaufen – 39 €';
+  });
+}
+
+// ── SCREENS ───────────────────────────────────────────────────────────
+function showScreen(s) {
+  document.getElementById('s-auth').style.display = s === 'auth' ? 'flex' : 'none';
+  document.getElementById('s-pay').style.display  = s === 'pay'  ? 'flex' : 'none';
+  document.getElementById('s-app').style.display  = s === 'app'  ? 'block' : 'none';
+}
+
+function showApp() {
+  showScreen('app');
+  loadSettings(function() { go('dashboard'); });
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────
+function go(page) {
+  cPage = page;
+  var nbs = document.querySelectorAll('.nb');
+  for (var i = 0; i < nbs.length; i++) {
+    nbs[i].className = 'nb' + (nbs[i].getAttribute('data-p') === page ? ' on' : '');
+  }
+  var bNew = document.getElementById('bNew');
+  if (bNew) bNew.style.display = (page === 'dashboard' || page === 'einstellungen') ? 'none' : 'inline-block';
+
+  if (page === 'dashboard') { renderDashboard(); return; }
+  if (page === 'einstellungen') { renderSettings(); return; }
+  renderModulePage(page);
+}
+
+// ── EINSTELLUNGEN ─────────────────────────────────────────────────────
+function loadSettings(cb) {
+  if (!currentUser) { if (cb) cb(); return; }
+  SB.from('betriebspass_einstellungen').select('data').eq('user_id', currentUser.id).maybeSingle().then(function(res) {
+    if (res.data) userSettings = res.data.data || {};
+    if (cb) cb();
+  });
+}
+
+function saveSettings() {
+  var keys = ['firma','inhaber','branche','adresse','telefon','email','stb','anwalt','anweisung'];
+  for (var i = 0; i < keys.length; i++) {
+    var el = document.getElementById('s' + keys[i]);
+    if (el) userSettings[keys[i]] = el.value;
+  }
+  SB.from('betriebspass_einstellungen').upsert({
+    user_id: currentUser.id,
+    data: userSettings,
+    updated_at: new Date().toISOString()
+  }, {onConflict: 'user_id'}).then(function(res) {
+    if (res.error) { alert('Fehler beim Speichern: ' + res.error.message); return; }
+    var msg = document.getElementById('settings-msg');
+    if (msg) { msg.textContent = 'Gespeichert ✓'; setTimeout(function() { msg.textContent = ''; }, 2000); }
+  });
+}
+
+function renderSettings() {
+  var s = userSettings;
+  document.getElementById('main').innerHTML =
+    '<div class="ph"><div class="pt">⚙ Einstellungen</div></div>' +
+    '<div class="sf">' +
+      '<div class="sec-lbl">Betriebsdaten</div>' +
+      '<div class="fr"><label class="fl">Firmenname</label><input type="text" id="sfirma" value="' + esc(s.firma||'') + '"></div>' +
+      '<div class="fr"><label class="fl">Inhaber/in</label><input type="text" id="sinhaber" value="' + esc(s.inhaber||'') + '"></div>' +
+      '<div class="fr"><label class="fl">Branche</label><input type="text" id="sbranche" value="' + esc(s.branche||'') + '"></div>' +
+      '<div class="fr"><label class="fl">Adresse</label><input type="text" id="sadresse" value="' + esc(s.adresse||'') + '"></div>' +
+      '<div class="fr"><label class="fl">Telefon</label><input type="text" id="stelefon" value="' + esc(s.telefon||'') + '"></div>' +
+      '<div class="fr"><label class="fl">E-Mail</label><input type="text" id="semail" value="' + esc(s.email||'') + '"></div>' +
+      '<div class="sec-lbl">Externe Ansprechpartner</div>' +
+      '<div class="fr"><label class="fl">Steuerberater</label><input type="text" id="sstb" value="' + esc(s.stb||'') + '"></div>' +
+      '<div class="fr"><label class="fl">Anwalt / Kanzlei</label><input type="text" id="sanwalt" value="' + esc(s.anwalt||'') + '"></div>' +
+      '<div class="sec-lbl">Im Notfall</div>' +
+      '<div class="fr"><label class="fl">Besondere Anweisung</label><textarea id="sanweisung">' + esc(s.anweisung||'') + '</textarea></div>' +
+      '<button class="abtn" onclick="saveSettings()">Speichern</button>' +
+      '<span id="settings-msg" style="margin-left:10px;font-size:12px;color:#27ae60"></span>' +
+    '</div>' +
+    '<div class="dz">' +
+      '<div class="dzt">Konto</div>' +
+      '<p style="font-size:12px;color:#666;margin-bottom:10px">Angemeldet als: ' + esc(currentUser ? currentUser.email : '') + '</p>' +
+      '<button class="abtn" style="background:#c0392b" onclick="doLogout()">Abmelden</button>' +
+    '</div>';
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────
+function renderDashboard() {
+  var s = userSettings;
+  document.getElementById('main').innerHTML = '<div class="loading">Wird geladen…</div>';
+  // Load all counts
+  SB.from('betriebspass_eintraege').select('modul', {count:'exact',head:false}).eq('user_id', currentUser.id).then(function(res) {
+    var counts = {};
+    var total = 0;
+    if (res.data) {
+      for (var i = 0; i < res.data.length; i++) {
+        var m = res.data[i].modul;
+        counts[m] = (counts[m] || 0) + 1;
+        total++;
       }
-    }catch(err){alert('Fehler: '+err.message);}
-  };
-  r.readAsText(f);ev.target.value='';
+    }
+    var firmaName = s.firma || 'Ihr Betrieb';
+    var html = '<div class="welcome"><h2>🗂️ ' + esc(firmaName) + '</h2><p>Ihr digitaler Betriebspass – alle wichtigen Informationen sicher an einem Ort.</p></div>';
+    html += '<div class="stats">';
+    html += '<div class="sc"><div class="sn">' + total + '</div><div class="sl">Einträge gesamt</div></div>';
+    for (var i = 0; i < MODS.length; i++) {
+      var m = MODS[i];
+      var cfg = F[m];
+      html += '<div class="sc" style="cursor:pointer" onclick="go(\'' + m + '\')">';
+      html += '<div class="sn">' + (counts[m] || 0) + '</div>';
+      html += '<div class="sl">' + esc(cfg.label) + '</div></div>';
+    }
+    html += '</div>';
+    if (!s.firma) {
+      html += '<div class="ntc">💡 Tipp: Trage deine <b>Betriebsdaten</b> unter <a href="#" onclick="go(\'einstellungen\');return false;">Einstellungen</a> ein – sie erscheinen dann auf dem Dashboard und im Notfall-Überblick.</div>';
+    }
+    document.getElementById('main').innerHTML = html;
+  });
 }
 
-// ── PASSWORD ──────────────────────────────────────────────
-function checkPw(){
-  var input=document.getElementById('pwInput');
-  var stored=localStorage.getItem(PW_KEY)||DEFAULT_PW;
-  if(input.value===stored){
-    document.getElementById('pwscreen').style.display='none';
-    document.getElementById('appWrap').style.display='block';
-    lsLoad();go('dashboard');checkFirstRun();
+// ── MODUL-SEITE ───────────────────────────────────────────────────────
+function renderModulePage(modul) {
+  var cfg = F[modul];
+  if (!cfg) return;
+  document.getElementById('main').innerHTML =
+    '<div class="ph">' +
+      '<div class="pt">' + cfg.icon + ' ' + esc(cfg.label) + '</div>' +
+      '<button class="abtn" onclick="oMod(\'' + modul + '\',null)">+ Neu</button>' +
+    '</div>' +
+    '<div class="sbar"><span class="sico">🔍</span><input type="text" id="sb" placeholder="Suchen…" oninput="filterCards(this.value)"></div>' +
+    '<div class="grid" id="cl"><div class="loading">Wird geladen…</div></div>';
+
+  SB.from('betriebspass_eintraege').select('*').eq('user_id', currentUser.id).eq('modul', modul).order('created_at', {ascending: false}).then(function(res) {
+    modEntries[modul] = res.data || [];
+    renderCards(modul, '');
+  });
+}
+
+function filterCards(q) { renderCards(cPage, q); }
+
+function renderCards(modul, q) {
+  var cfg = F[modul];
+  var entries = modEntries[modul] || [];
+  var cl = document.getElementById('cl');
+  if (!cl) return;
+
+  var filtered = entries;
+  if (q) {
+    q = q.toLowerCase();
+    filtered = [];
+    for (var i = 0; i < entries.length; i++) {
+      var d = entries[i].data;
+      var match = false;
+      for (var k in d) {
+        if (d[k] && String(d[k]).toLowerCase().indexOf(q) !== -1) { match = true; break; }
+      }
+      if (match) filtered.push(entries[i]);
+    }
+  }
+
+  if (filtered.length === 0) {
+    cl.innerHTML = '<div class="empty">Noch keine Einträge. Klicke auf "+ Neu" um zu starten.</div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < filtered.length; i++) {
+    html += rCard(modul, filtered[i], cfg);
+  }
+  cl.innerHTML = html;
+}
+
+function rCard(modul, entry, cfg) {
+  var d = entry.data || {};
+  var docs = d.dokumente || [];
+  var firstField = cfg.f[0];
+  var title = d[firstField.k] || '(kein Titel)';
+  var statusVal = d.status || '';
+  var statusCls = statusVal === 'aktiv' || statusVal === 'offen' ? 'bg' : statusVal === 'in Bearbeitung' ? 'bo' : statusVal === 'ausgelaufen' || statusVal === 'storniert' || statusVal === 'abgeschlossen' ? 'br' : 'bx';
+
+  var h = '<div class="card">';
+  h += '<div class="chd"><div class="ct">' + esc(title);
+  if (statusVal) h += '<span class="bdg ' + statusCls + '">' + esc(statusVal) + '</span>';
+  h += '</div>';
+  h += '<div class="ca">';
+  h += '<button class="ib" onclick="oMod(\'' + modul + '\',\'' + entry.id + '\')" title="Bearbeiten">✏️</button>';
+  h += '<button class="ib" onclick="dEnt(\'' + modul + '\',\'' + entry.id + '\')" title="Löschen">🗑️</button>';
+  h += '</div></div>';
+
+  for (var i = 1; i < Math.min(cfg.f.length, 4); i++) {
+    var f = cfg.f[i];
+    if (f.a) continue;
+    var val = d[f.k] || '';
+    if (val) {
+      h += '<div class="cf"><span class="cl">' + esc(f.l) + '</span><span class="cv">' + esc(val) + '</span></div>';
+    }
+  }
+
+  if (docs.length > 0) {
+    h += '<div>';
+    for (var j = 0; j < docs.length; j++) {
+      h += '<span class="doc-chip" onclick="dlDoc(\'' + encodeURIComponent(docs[j].path) + '\')">📎 ' + esc(docs[j].name) + '</span> ';
+    }
+    h += '</div>';
+  }
+
+  h += '</div>';
+  return h;
+}
+
+// ── MODAL: ÖFFNEN ─────────────────────────────────────────────────────
+function oMod(modul, id) {
+  var cfg = F[modul];
+  if (!cfg) return;
+  var isEdit = !!id;
+  var entry = null;
+
+  if (isEdit) {
+    var entries = modEntries[modul] || [];
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].id === id) { entry = entries[i]; break; }
+    }
+  }
+
+  cModal = {mode: isEdit ? 'edit' : 'add', modul: modul, id: id, entry: entry};
+
+  document.getElementById('mod-title').textContent = (isEdit ? 'Bearbeiten – ' : 'Neu – ') + cfg.label;
+
+  var html = '';
+  for (var i = 0; i < cfg.f.length; i++) {
+    var f = cfg.f[i];
+    var val = entry ? (entry.data[f.k] || '') : '';
+    html += '<div class="fr"><label class="fl">' + esc(f.l) + (f.r ? ' *' : '') + '</label>';
+    if (f.a) {
+      html += '<textarea id="fi' + i + '">' + esc(val) + '</textarea>';
+    } else if (f.s) {
+      html += '<select id="fi' + i + '">';
+      html += '<option value="">— Auswählen —</option>';
+      for (var j = 0; j < f.s.length; j++) {
+        html += '<option value="' + esc(f.s[j]) + '"' + (val === f.s[j] ? ' selected' : '') + '>' + esc(f.s[j]) + '</option>';
+      }
+      html += '</select>';
+    } else if (f.t === 'date') {
+      html += '<input type="date" id="fi' + i + '" value="' + esc(val) + '">';
+    } else {
+      html += '<input type="text" id="fi' + i + '" value="' + esc(val) + '">';
+    }
+    html += '</div>';
+  }
+  document.getElementById('mod-fields').innerHTML = html;
+
+  // Dokumente nur im Edit-Modus anzeigen
+  var docSec = document.getElementById('mod-docs');
+  if (isEdit && entry) {
+    docSec.style.display = 'block';
+    renderDocList(entry.data.dokumente || []);
   } else {
-    document.getElementById('pwErr').style.display='block';
-    input.value='';input.focus();
+    docSec.style.display = 'none';
+  }
+
+  document.getElementById('ov').className = 'show';
+}
+
+function cModal_close() {
+  document.getElementById('ov').className = '';
+  cModal = null;
+}
+// Alias wegen onclick im HTML
+window.cModal = cModal_close;
+
+// ── MODAL: SPEICHERN ──────────────────────────────────────────────────
+function sEnt() {
+  if (!cModal) return;
+  var cfg = F[cModal.modul];
+  var data = {};
+  var ok = true;
+
+  // Bestehende Daten erhalten (inkl. Dokumente)
+  if (cModal.entry && cModal.entry.data) {
+    data = JSON.parse(JSON.stringify(cModal.entry.data));
+  }
+
+  for (var i = 0; i < cfg.f.length; i++) {
+    var f = cfg.f[i];
+    var el = document.getElementById('fi' + i);
+    if (el) {
+      data[f.k] = el.value.trim();
+      if (f.r && !data[f.k]) { el.style.borderColor = '#c0392b'; ok = false; }
+      else el.style.borderColor = '';
+    }
+  }
+  if (!ok) return;
+
+  var btn = document.getElementById('bSav');
+  btn.disabled = true;
+  btn.textContent = 'Wird gespeichert…';
+
+  if (cModal.mode === 'add') {
+    SB.from('betriebspass_eintraege').insert({
+      user_id: currentUser.id,
+      modul: cModal.modul,
+      data: data
+    }).select().then(function(res) {
+      btn.disabled = false; btn.textContent = 'Speichern';
+      if (res.error) { alert('Fehler: ' + res.error.message); return; }
+      // Nach dem Speichern in den Edit-Modus wechseln für Dokument-Upload
+      var newEntry = res.data[0];
+      if (!modEntries[cModal.modul]) modEntries[cModal.modul] = [];
+      modEntries[cModal.modul].unshift(newEntry);
+      renderCards(cModal.modul, '');
+      // Modal bleibt offen – wechsle in Edit-Modus
+      cModal.mode = 'edit';
+      cModal.id = newEntry.id;
+      cModal.entry = newEntry;
+      document.getElementById('mod-title').textContent = 'Bearbeiten – ' + F[cModal.modul].label;
+      var docSec = document.getElementById('mod-docs');
+      docSec.style.display = 'block';
+      renderDocList([]);
+    });
+  } else {
+    SB.from('betriebspass_eintraege').update({data: data, updated_at: new Date().toISOString()}).eq('id', cModal.id).select().then(function(res) {
+      btn.disabled = false; btn.textContent = 'Speichern';
+      if (res.error) { alert('Fehler: ' + res.error.message); return; }
+      var updated = res.data[0];
+      var entries = modEntries[cModal.modul] || [];
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].id === cModal.id) { entries[i] = updated; break; }
+      }
+      cModal.entry = updated;
+      renderCards(cModal.modul, '');
+      var msg = document.createElement('div');
+      msg.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#27ae60;color:#fff;padding:10px 16px;border-radius:6px;font-size:12px;z-index:9999';
+      msg.textContent = 'Gespeichert ✓';
+      document.body.appendChild(msg);
+      setTimeout(function() { if (msg.parentNode) msg.parentNode.removeChild(msg); }, 2000);
+    });
   }
 }
 
-// ── EVENTS ──────────────────────────────────────────────
-document.getElementById('main').addEventListener('click',function(ev){
-  var t=ev.target;
-  while(t&&t!==this){
-    var a=t.getAttribute('data-a');
-    if(a){
-      var s=t.getAttribute('data-s');var i=t.getAttribute('data-i');
-      if(a==='ed')oMod(s,i);
-      else if(a==='dl')dEnt(s,i);
-      else if(a==='add')oMod(s||cPage,null);
-      else if(a==='svs')svSet();
-      else if(a==='chpw'){
-        var p1=document.getElementById('pw1');var p2=document.getElementById('pw2');
-        if(p1&&p2){
-          if(p1.value.length<4){alert('Code muss mindestens 4 Zeichen haben.');}
-          else if(p1.value!==p2.value){alert('Codes stimmen nicht \u00FCberein.');}
-          else{localStorage.setItem(PW_KEY,p1.value);p1.value='';p2.value='';alert('Zugangscode ge\u00E4ndert!');}
-        }
-      }
-      else if(a==='clr'){
-        if(confirm('Wirklich alle Daten l\u00F6schen?')){
-          db={settings:{},auftraege:[],kunden:[],lieferanten:[],inventar:[],finanzen:[],vertraege:[],versicherungen:[],zugaenge:[],kontakte:[],rechtliches:[],wissen:[],notizen:[]};
-          lsSave();localStorage.removeItem(FIRST_RUN_KEY);go('dashboard');
-        }
-      }
-      return;
+// ── EINTRAG LÖSCHEN ───────────────────────────────────────────────────
+function dEnt(modul, id) {
+  if (!confirm('Eintrag löschen?')) return;
+  // Auch Dokumente im Storage löschen
+  var entries = modEntries[modul] || [];
+  var entry = null;
+  for (var i = 0; i < entries.length; i++) {
+    if (entries[i].id === id) { entry = entries[i]; break; }
+  }
+  if (entry && entry.data && entry.data.dokumente && entry.data.dokumente.length > 0) {
+    var paths = [];
+    for (var j = 0; j < entry.data.dokumente.length; j++) {
+      paths.push(entry.data.dokumente[j].path);
     }
-    t=t.parentNode;
+    SB.storage.from(BUCKET).remove(paths);
+  }
+  SB.from('betriebspass_eintraege').delete().eq('id', id).then(function(res) {
+    if (res.error) { alert('Fehler: ' + res.error.message); return; }
+    var newList = [];
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].id !== id) newList.push(entries[i]);
+    }
+    modEntries[modul] = newList;
+    renderCards(modul, document.getElementById('sb') ? document.getElementById('sb').value : '');
+  });
+}
+
+// ── DOKUMENTE ─────────────────────────────────────────────────────────
+function renderDocList(docs) {
+  var dl = document.getElementById('doc-list');
+  if (!dl) return;
+  if (!docs || docs.length === 0) {
+    dl.innerHTML = '<div style="font-size:12px;color:#999;margin-bottom:8px">Noch keine Dokumente angehängt.</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < docs.length; i++) {
+    var doc = docs[i];
+    var sizeStr = doc.size ? (doc.size > 1048576 ? (doc.size / 1048576).toFixed(1) + ' MB' : Math.round(doc.size / 1024) + ' KB') : '';
+    html += '<div class="doc-item">';
+    html += '<span style="font-size:16px">' + (doc.name.match(/\.pdf$/i) ? '📄' : '🖼️') + '</span>';
+    html += '<span class="doc-item-name">' + esc(doc.name) + '</span>';
+    html += '<span class="doc-item-size">' + sizeStr + '</span>';
+    html += '<button class="doc-dl" onclick="dlDoc(\'' + encodeURIComponent(doc.path) + '\')" title="Herunterladen">⬇</button>';
+    html += '<button class="doc-rm" onclick="rmDoc(\'' + encodeURIComponent(doc.path) + '\')" title="Entfernen">✕</button>';
+    html += '</div>';
+  }
+  dl.innerHTML = html;
+}
+
+function uploadDoc(input) {
+  if (!input.files || !input.files[0]) return;
+  if (!cModal || !cModal.entry) return;
+  var file = input.files[0];
+  var ext = file.name.split('.').pop();
+  var uid = currentUser.id;
+  var eid = cModal.entry.id;
+  var fname = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  var path = uid + '/' + cModal.modul + '/' + eid + '/' + fname;
+
+  var docMsg = document.getElementById('doc-msg');
+  docMsg.textContent = 'Wird hochgeladen…';
+  input.value = '';
+
+  SB.storage.from(BUCKET).upload(path, file, {upsert: false}).then(function(res) {
+    if (res.error) { docMsg.textContent = 'Fehler: ' + res.error.message; return; }
+    var docs = (cModal.entry.data.dokumente || []).slice();
+    docs.push({path: path, name: file.name, size: file.size, uploaded_at: new Date().toISOString()});
+    var newData = JSON.parse(JSON.stringify(cModal.entry.data));
+    newData.dokumente = docs;
+    SB.from('betriebspass_eintraege').update({data: newData, updated_at: new Date().toISOString()}).eq('id', eid).select().then(function(r2) {
+      if (r2.error) { docMsg.textContent = 'Fehler beim Speichern: ' + r2.error.message; return; }
+      cModal.entry = r2.data[0];
+      // Update cache
+      var entries = modEntries[cModal.modul] || [];
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].id === eid) { entries[i] = r2.data[0]; break; }
+      }
+      renderDocList(docs);
+      renderCards(cModal.modul, '');
+      docMsg.textContent = 'Hochgeladen ✓';
+      setTimeout(function() { docMsg.textContent = ''; }, 2000);
+    });
+  });
+}
+
+function dlDoc(pathEnc) {
+  var path = decodeURIComponent(pathEnc);
+  SB.storage.from(BUCKET).createSignedUrl(path, 3600).then(function(res) {
+    if (res.error || !res.data) { alert('Download-Fehler: ' + (res.error ? res.error.message : 'Unbekannt')); return; }
+    var a = document.createElement('a');
+    a.href = res.data.signedUrl;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+}
+
+function rmDoc(pathEnc) {
+  if (!confirm('Dokument entfernen?')) return;
+  var path = decodeURIComponent(pathEnc);
+  if (!cModal || !cModal.entry) return;
+  SB.storage.from(BUCKET).remove([path]).then(function() {
+    var docs = (cModal.entry.data.dokumente || []).filter(function(d) { return d.path !== path; });
+    var newData = JSON.parse(JSON.stringify(cModal.entry.data));
+    newData.dokumente = docs;
+    SB.from('betriebspass_eintraege').update({data: newData, updated_at: new Date().toISOString()}).eq('id', cModal.entry.id).select().then(function(r) {
+      if (r.error) { alert('Fehler: ' + r.error.message); return; }
+      cModal.entry = r.data[0];
+      var entries = modEntries[cModal.modul] || [];
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].id === cModal.entry.id) { entries[i] = r.data[0]; break; }
+      }
+      renderDocList(docs);
+      renderCards(cModal.modul, '');
+    });
+  });
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────────
+document.getElementById('ov').addEventListener('click', function(ev) {
+  if (ev.target === this) cModal_close();
+});
+document.getElementById('nav').addEventListener('click', function(ev) {
+  var t = ev.target;
+  while (t && t !== this) {
+    var p = t.getAttribute('data-p');
+    if (p) { go(p); return; }
+    t = t.parentNode;
   }
 });
-document.getElementById('main').addEventListener('input',function(ev){
-  if(ev.target&&ev.target.id==='sb'){var cl=document.getElementById('cl');if(cl)cl.innerHTML=rCards(cPage,ev.target.value);}
+document.addEventListener('keydown', function(ev) {
+  if (ev.key === 'Escape') cModal_close();
 });
-document.getElementById('ov').addEventListener('click',function(ev){if(ev.target===this)cMod();});
-document.getElementById('nav').addEventListener('click',function(ev){
-  var t=ev.target;
-  while(t&&t!==this){var p=t.getAttribute('data-p');if(p){go(p);return;}t=t.parentNode;}
-});
-document.getElementById('bNew').addEventListener('click',function(){
-  var s=cPage;
-  if(s==='dashboard'||s==='einstellungen')s='notizen';
-  oMod(s,null);
-});
-document.getElementById('bExp').addEventListener('click',expData);
-document.getElementById('bFile').addEventListener('change',impData);
-document.getElementById('bPrint').addEventListener('click',function(){window.print();});
-document.getElementById('bSav').addEventListener('click',sEnt);
-document.getElementById('bCan').addEventListener('click',cMod);
 
-lsLoad();
+// ── INIT ──────────────────────────────────────────────────────────────
+SB.auth.getSession().then(function(res) {
+  if (res.data && res.data.session && res.data.session.user) {
+    afterAuth(res.data.session.user);
+  } else {
+    showScreen('auth');
+  }
+});
+
+SB.auth.onAuthStateChange(function(event, session) {
+  if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    userPlan = 'free';
+    modEntries = {};
+    showScreen('auth');
+  }
+});
 </script>
-</div>
 </body>
 </html>
