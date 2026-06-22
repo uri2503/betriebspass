@@ -204,7 +204,7 @@ textarea{resize:vertical;min-height:65px}
     <div id="logo"><span>BETRIEBSPASS</span><span>Digitales Betriebshandbuch</span></div>
     <button class="tb" onclick="openNewEntry()" id="bNew">+ Neu</button>
     <button class="tb" onclick="doBackup()">💾 Backup</button>
-    <button class="tb" onclick="window.print()">Drucken</button>
+    <button class="tb" onclick="printReport()">📄 Notfallbericht</button>
     <button class="tb" id="btn-logout" onclick="doLogout()">Abmelden</button>
   </div>
   <div id="wrap">
@@ -323,7 +323,7 @@ var F = {
   inventar:{label:'Inventar / Maschinen',icon:'⚙️',f:[
     {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'seriennr',l:'Seriennummer'},
     {k:'kaufdatum',l:'Kaufdatum',t:'date'},{k:'wert',l:'Kaufwert (€)'},
-    {k:'wartung',l:'Nächste Wartung',t:'date'},{k:'standort',l:'Standort'},{k:'notiz',l:'Notiz',a:true}]},
+    {k:'buchwert',l:'Buchwert / Zeitwert geschätzt (€)'},{k:'wartung',l:'Nächste Wartung',t:'date'},{k:'standort',l:'Standort'},{k:'notiz',l:'Notiz',a:true}]},
   finanzen:{label:'Bank & Finanzen',icon:'🏦',f:[
     {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'bank',l:'Bank / Institut'},
     {k:'iban',l:'IBAN'},{k:'vollmacht',l:'Kontovollmacht'},
@@ -711,6 +711,10 @@ function openModal(modul, id) {
 function closeModal() {
   document.getElementById('ov').className = '';
   mState = null;
+  var bd = document.getElementById('bDone');
+  if (bd) bd.parentNode.removeChild(bd);
+  var bs = document.getElementById('bSav');
+  if (bs) { bs.textContent = 'Speichern'; bs.disabled = false; }
 }
 
 // ── EINTRAG SPEICHERN ─────────────────────────────────────────────────
@@ -770,6 +774,15 @@ function saveEntry() {
       document.getElementById('mod-title').textContent = 'Bearbeiten – '+F[mState.modul].label;
       document.getElementById('mod-docs').style.display='block';
       renderDocList([]);
+      // Nach erstem Speichern: Buttons anpassen
+      document.getElementById('bSav').textContent = 'Erneut speichern';
+      var ma = document.querySelector('.ma');
+      if (!document.getElementById('bDone')) {
+        var bd = document.createElement('button');
+        bd.className = 'mbtn'; bd.id = 'bDone'; bd.style.background = '#27ae60';
+        bd.textContent = 'Fertig ✓'; bd.onclick = closeModal;
+        ma.appendChild(bd);
+      }
     });
   } else {
     SB.from('betriebspass_eintraege').update({data:data,updated_at:new Date().toISOString()}).eq('id',mState.id).select().then(function(res) {
@@ -900,6 +913,167 @@ if (DEMO_MODE) {
   });
   SB.auth.onAuthStateChange(function(event) {
     if (event==='SIGNED_OUT') { currentUser=null; userPlan='free'; modCache={}; showScreen('auth'); }
+  });
+}
+
+
+// ── NOTFALLBERICHT (PDF) ──────────────────────────────────────────────
+function printReport() {
+  var btn = document.querySelector('.tb[onclick="printReport()"]');
+  if (btn) { btn.textContent = '⏳ Wird erstellt…'; btn.disabled = true; }
+
+  function buildAndOpen(settings, dataByMod) {
+    var s = settings || {};
+    var firma = s.firma || 'Betrieb';
+    var now = new Date();
+    var dateStr = pad(now.getDate()) + '.' + pad(now.getMonth()+1) + '.' + now.getFullYear();
+    var timeStr = pad(now.getHours()) + ':' + pad(now.getMinutes());
+
+    var modOrder = ['kontakte','finanzen','zugaenge','vertraege','versicherungen','auftraege','kunden','lieferanten','inventar','rechtliches','wissen','notizen'];
+
+    var css = [
+      '*{box-sizing:border-box;margin:0;padding:0}',
+      'body{font-family:Arial,Helvetica,sans-serif;font-size:11pt;color:#222;line-height:1.5}',
+      '@page{margin:2cm 2.2cm;size:A4}',
+      '.cover{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;page-break-after:always}',
+      '.cover-mark{width:80px;height:80px;background:#1a3a5c;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:36px}',
+      '.cover h1{font-size:28pt;font-weight:900;color:#1a3a5c;letter-spacing:2px;margin-bottom:8px}',
+      '.cover h2{font-size:16pt;color:#444;font-weight:400;margin-bottom:32px}',
+      '.cover-meta{font-size:10pt;color:#666;line-height:2}',
+      '.cover-warn{margin-top:40px;border:1px solid #c0392b;border-radius:4px;padding:14px 24px;max-width:440px;background:#fdecea}',
+      '.cover-warn p{font-size:10pt;color:#c0392b;line-height:1.6}',
+      '.cover-inst{margin-top:24px;border:1px solid #2a6090;border-radius:4px;padding:14px 24px;max-width:440px;background:#f0f6fc}',
+      '.cover-inst p{font-size:10pt;color:#1a3a5c;line-height:1.6}',
+      '.toc{page-break-after:always;padding:20px 0}',
+      '.toc h3{font-size:13pt;font-weight:700;color:#1a3a5c;margin-bottom:16px;border-bottom:2px solid #1a3a5c;padding-bottom:6px}',
+      '.toc-item{display:flex;justify-content:space-between;font-size:10pt;padding:4px 0;border-bottom:1px dotted #ccc;color:#444}',
+      '.toc-item span:first-child{font-weight:600}',
+      '.section{page-break-before:always}',
+      '.section:first-of-type{page-break-before:auto}',
+      '.sec-header{background:#1a3a5c;color:#fff;padding:10px 16px;margin-bottom:16px;border-radius:3px;display:flex;justify-content:space-between;align-items:center}',
+      '.sec-header h2{font-size:14pt;font-weight:700;letter-spacing:1px}',
+      '.sec-header span{font-size:10pt;opacity:.8}',
+      '.entry{border:1px solid #e0e0e0;border-left:3px solid #2a6090;border-radius:2px;padding:12px 14px;margin-bottom:10px;page-break-inside:avoid}',
+      '.entry-title{font-size:11pt;font-weight:700;color:#1a3a5c;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #eee}',
+      '.field{display:flex;gap:12px;margin-bottom:4px;font-size:10pt}',
+      '.field-label{color:#888;min-width:140px;flex-shrink:0;font-size:9pt;text-transform:uppercase;letter-spacing:0.5px;padding-top:1px}',
+      '.field-value{color:#222;flex:1;word-break:break-word}',
+      '.field-value.area{white-space:pre-wrap}',
+      '.no-entries{color:#999;font-style:italic;font-size:10pt;padding:8px 0}',
+      '.footer{position:fixed;bottom:0;left:0;right:0;text-align:center;font-size:8pt;color:#aaa;padding:8px;border-top:1px solid #eee;background:#fff}',
+      '.page-num:after{content:counter(page)}',
+      '@media print{.footer{position:fixed}.no-print{display:none}}'
+    ].join('\n');
+
+    var html = '<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">';
+    html += '<title>Notfallbericht – ' + esc(firma) + ' – ' + dateStr + '</title>';
+    html += '<style>' + css + '</style></head><body>';
+
+    // ── DECKBLATT
+    html += '<div class="cover">';
+    html += '<div class="cover-mark">🗂️</div>';
+    html += '<h1>BETRIEBSPASS</h1>';
+    html += '<h2>' + esc(firma) + '</h2>';
+    html += '<div class="cover-meta">';
+    if (s.inhaber) html += '<div><strong>Inhaber/in:</strong> ' + esc(s.inhaber) + '</div>';
+    if (s.adresse) html += '<div><strong>Adresse:</strong> ' + esc(s.adresse) + '</div>';
+    if (s.telefon) html += '<div><strong>Telefon:</strong> ' + esc(s.telefon) + '</div>';
+    if (s.email)   html += '<div><strong>E-Mail:</strong> '  + esc(s.email)   + '</div>';
+    if (s.stb)     html += '<div><strong>Steuerberater:</strong> ' + esc(s.stb) + '</div>';
+    if (s.anwalt)  html += '<div><strong>Anwalt/Kanzlei:</strong> ' + esc(s.anwalt) + '</div>';
+    html += '</div>';
+    html += '<div class="cover-warn"><p>⚠️ <strong>Vertraulich</strong><br>Dieses Dokument enthält sensible Betriebsinformationen. Nur an Vertrauenspersonen weitergeben und sicher aufbewahren.</p></div>';
+    if (s.anweisung) {
+      html += '<div class="cover-inst"><p>📋 <strong>Persönliche Anweisung des Inhabers:</strong><br>' + esc(s.anweisung) + '</p></div>';
+    }
+    html += '<div class="cover-meta" style="margin-top:40px;color:#bbb;font-size:9pt">Erstellt am ' + dateStr + ' um ' + timeStr + ' Uhr · Betriebspass digitales Betriebshandbuch</div>';
+    html += '</div>';
+
+    // ── INHALTSVERZEICHNIS
+    html += '<div class="toc"><h3>Inhaltsverzeichnis</h3>';
+    var hasAny = false;
+    for (var i = 0; i < modOrder.length; i++) {
+      var m = modOrder[i];
+      var cfg = F[m]; if (!cfg) continue;
+      var entries = dataByMod[m] || [];
+      var count = entries.length;
+      html += '<div class="toc-item"><span>' + esc(cfg.icon) + ' ' + esc(cfg.label) + '</span><span>' + count + ' Einträge</span></div>';
+      if (count > 0) hasAny = true;
+    }
+    if (!hasAny) html += '<p style="color:#999;font-style:italic;margin-top:12px">Noch keine Einträge vorhanden.</p>';
+    html += '</div>';
+
+    // ── MODULE
+    for (var i = 0; i < modOrder.length; i++) {
+      var m = modOrder[i];
+      var cfg = F[m]; if (!cfg) continue;
+      var entries = dataByMod[m] || [];
+      html += '<div class="section">';
+      html += '<div class="sec-header"><h2>' + esc(cfg.icon) + ' ' + esc(cfg.label) + '</h2><span>' + entries.length + ' Einträge</span></div>';
+      if (entries.length === 0) {
+        html += '<div class="no-entries">Keine Einträge vorhanden.</div>';
+      } else {
+        for (var j = 0; j < entries.length; j++) {
+          var entry = entries[j];
+          var d = entry.data || {};
+          var title = d[cfg.f[0].k] || '(kein Titel)';
+          html += '<div class="entry">';
+          html += '<div class="entry-title">' + esc(title) + '</div>';
+          for (var k = 0; k < cfg.f.length; k++) {
+            var f = cfg.f[k];
+            var val = d[f.k] || '';
+            if (!val) continue;
+            html += '<div class="field">';
+            html += '<span class="field-label">' + esc(f.l) + '</span>';
+            html += '<span class="field-value' + (f.a ? ' area' : '') + '">' + esc(val) + '</span>';
+            html += '</div>';
+          }
+          // Dokumente auflisten
+          if (d.dokumente && d.dokumente.length > 0) {
+            html += '<div class="field"><span class="field-label">Dokumente</span><span class="field-value">';
+            for (var dk = 0; dk < d.dokumente.length; dk++) {
+              html += '📎 ' + esc(d.dokumente[dk].name);
+              if (dk < d.dokumente.length - 1) html += '<br>';
+            }
+            html += '</span></div>';
+          }
+          html += '</div>';
+        }
+      }
+      html += '</div>';
+    }
+
+    html += '<div class="footer">VERTRAULICH · Betriebspass · ' + esc(firma) + ' · Seite <span class="page-num"></span></div>';
+    html += '<script>window.onload=function(){window.print();};<\/script>';
+    html += '</body></html>';
+
+    var blob = new Blob([html], {type: 'text/html;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var w = window.open(url, '_blank');
+    if (!w) alert('Bitte Pop-ups für diese Seite erlauben, dann erneut versuchen.');
+    setTimeout(function() { URL.revokeObjectURL(url); }, 30000);
+    if (btn) { btn.textContent = '📄 Notfallbericht'; btn.disabled = false; }
+  }
+
+  // Daten laden
+  if (DEMO_MODE) {
+    var demoData = {};
+    var allMods2 = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+    for (var i = 0; i < allMods2.length; i++) demoData[allMods2[i]] = demoGet(allMods2[i]);
+    buildAndOpen(userSettings, demoData);
+    return;
+  }
+
+  SB.from('betriebspass_eintraege').select('*').eq('user_id', currentUser.id).then(function(res) {
+    var grouped = {};
+    var allMods2 = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+    for (var i = 0; i < allMods2.length; i++) grouped[allMods2[i]] = [];
+    var entries = res.data || [];
+    for (var j = 0; j < entries.length; j++) {
+      var m = entries[j].modul;
+      if (grouped[m]) grouped[m].push(entries[j]);
+    }
+    buildAndOpen(userSettings, grouped);
   });
 }
 
