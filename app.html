@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Betriebspass – Digitales Betriebshandbuch</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;font-size:14px}
+
+/* ── AUTH / PAYWALL ── */
+.screen-center{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f2840 0%,#1a3a5c 100%);padding:20px}
+.auth-box{background:#fff;border-radius:12px;padding:36px 32px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.auth-logo{text-align:center;margin-bottom:24px}
+.auth-logo .mark{width:52px;height:52px;background:#1a3a5c;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:22px}
+.auth-logo h1{font-size:20px;font-weight:900;color:#1a3a5c;letter-spacing:1px}
+.auth-logo p{font-size:11px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.auth-tabs{display:flex;border-bottom:2px solid #eee;margin-bottom:24px}
+.auth-tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;color:#999;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+.auth-tab.on{color:#1a3a5c;border-bottom-color:#2a6090}
+.fr{margin-bottom:14px}
+.fl{display:block;font-size:10px;color:#999;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+input[type=text],input[type=email],input[type=password],input[type=date],textarea,select{width:100%;background:#f8f8f8;border:1px solid #ddd;color:#222;font-size:13px;padding:10px 12px;outline:none;border-radius:6px;font-family:inherit;-webkit-appearance:none}
+input:focus,textarea:focus,select:focus{border-color:#2a6090;background:#fff;box-shadow:0 0 0 2px rgba(42,96,144,.15)}
+textarea{resize:vertical;min-height:65px}
+.btn-primary{width:100%;background:#1a3a5c;border:none;color:#fff;padding:12px;font-size:14px;font-weight:700;border-radius:6px;cursor:pointer;letter-spacing:1px;margin-top:4px}
+.btn-primary:hover{background:#2a6090}
+.btn-primary:disabled{background:#aaa;cursor:not-allowed}
+.auth-msg{font-size:12px;text-align:center;margin-top:12px;min-height:18px}
+.auth-msg.err{color:#c0392b}
+.auth-msg.ok{color:#27ae60}
+
+/* ── PAYWALL ── */
+.pay-box{background:#fff;border-radius:12px;padding:40px 36px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.pay-box .mark{font-size:48px;margin-bottom:16px}
+.pay-box h2{font-size:22px;font-weight:900;color:#1a3a5c;margin-bottom:8px}
+.pay-box .sub{font-size:13px;color:#666;margin-bottom:24px;line-height:1.6}
+.pay-features{text-align:left;background:#f0f6fc;border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.pay-features li{font-size:13px;color:#1a3a5c;padding:4px 0;list-style:none;display:flex;gap:8px}
+.pay-features li::before{content:'✓';color:#27ae60;font-weight:700;flex-shrink:0}
+.pay-price{font-size:36px;font-weight:900;color:#1a3a5c;margin-bottom:4px}
+.pay-price span{font-size:14px;font-weight:400;color:#999}
+.pay-hint{font-size:11px;color:#999;margin-bottom:20px}
+.btn-pay{background:#c0392b;border:none;color:#fff;padding:14px 32px;font-size:15px;font-weight:700;border-radius:6px;cursor:pointer;width:100%;letter-spacing:1px}
+.btn-pay:hover{background:#a93226}
+.btn-pay:disabled{background:#aaa;cursor:not-allowed}
+.pay-logout{font-size:11px;color:#999;margin-top:12px;cursor:pointer;text-decoration:underline;display:inline-block}
+
+/* ── DEMO BANNER ── */
+.demo-banner{background:#1a3a5c;color:#fff;padding:9px 16px;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.demo-banner a{background:#fff;color:#1a3a5c;padding:5px 14px;border-radius:3px;font-size:11px;font-weight:700;text-decoration:none;letter-spacing:1px;flex-shrink:0}
+
+/* ── APP ── */
+#s-app{display:none}
+#bar{background:#1a3a5c;padding:0 16px;height:54px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;border-bottom:3px solid #2a6090}
+#logo{display:flex;flex-direction:column;flex:1}
+#logo span:first-child{color:#fff;font-size:16px;font-weight:900;letter-spacing:2px}
+#logo span:last-child{color:#7ab3d4;font-size:9px;letter-spacing:3px;text-transform:uppercase}
+.tb{background:none;border:1px solid #2a6090;color:#7ab3d4;padding:6px 12px;font-size:11px;text-transform:uppercase;cursor:pointer;letter-spacing:1px;border-radius:3px}
+#wrap{display:block;width:100%}
+#nav{display:inline-block;vertical-align:top;width:190px;background:#0f2840;min-height:calc(100vh - 54px)}
+#main{display:inline-block;vertical-align:top;width:calc(100% - 194px);padding:20px;background:#f5f5f5;min-height:calc(100vh - 54px)}
+.ng{padding:12px 0 4px}
+.ngl{font-size:9px;color:#3a6080;letter-spacing:2px;text-transform:uppercase;padding:0 14px 5px;display:block}
+.nb{display:block;width:100%;background:none;border:none;border-left:3px solid transparent;padding:10px 14px;text-align:left;color:#7ab3d4;font-size:13px;cursor:pointer}
+.nb.on{color:#fff;border-left-color:#2a6090;background:rgba(42,96,144,.25)}
+.nb.locked{color:#3a5060;cursor:pointer}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e0e0e0;gap:10px;flex-wrap:wrap}
+.pt{font-size:20px;font-weight:900;color:#1a3a5c;letter-spacing:1px}
+.abtn{background:#1a3a5c;border:none;color:#fff;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;border-radius:3px;letter-spacing:1px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{background:#fff;border:1px solid #e0e0e0;border-left:3px solid #2a6090;border-radius:4px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.chd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px;gap:6px}
+.ct{font-size:13px;font-weight:700;color:#1a3a5c;word-break:break-word}
+.ca{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.ib{background:none;border:none;color:#aaa;font-size:14px;padding:3px 6px;cursor:pointer;border-radius:3px}
+.cf{display:flex;gap:8px;margin-bottom:3px;font-size:12px;line-height:1.4}
+.cl{color:#999;min-width:90px;flex-shrink:0}
+.cv{color:#333;word-break:break-word}
+.bdg{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px}
+.bg{background:#e8f5e9;color:#2e7d32}.bo{background:#fff3e0;color:#e65100}.br{background:#fdecea;color:#c62828}.bx{background:#f5f5f5;color:#666}
+.doc-chip{display:inline-flex;align-items:center;gap:4px;background:#e8f0f8;border:1px solid #c8dff0;border-radius:10px;padding:2px 8px;font-size:10px;color:#1a3a5c;margin-top:6px;cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:20px}
+.sc{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer}
+.sc.locked-sc{opacity:.45;cursor:default}
+.sn{font-size:32px;font-weight:900;color:#1a3a5c}
+.sl{font-size:9px;color:#999;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.ntc{background:#e8f0f8;border-left:3px solid #2a6090;padding:10px 14px;font-size:12px;color:#1a3a5c;margin-bottom:14px;border-radius:0 4px 4px 0}
+.sbar{position:relative;margin-bottom:12px}
+.sbar input{width:100%;background:#fff;border:1px solid #ddd;color:#222;padding:9px 12px 9px 32px;font-size:13px;outline:none;border-radius:4px}
+.sbar input:focus{border-color:#2a6090}
+.sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#aaa;pointer-events:none}
+.empty{text-align:center;padding:32px;color:#bbb;border:2px dashed #e0e0e0;border-radius:6px;font-size:13px;background:#fff}
+.loading{text-align:center;padding:32px;color:#999;font-size:13px}
+
+/* ── LOCKED PAGE ── */
+.locked-page{text-align:center;padding:60px 20px;max-width:440px;margin:0 auto}
+.locked-page .lock-icon{font-size:56px;margin-bottom:20px}
+.locked-page h2{font-size:22px;font-weight:900;color:#1a3a5c;margin-bottom:10px}
+.locked-page p{color:#666;margin-bottom:28px;font-size:14px;line-height:1.7}
+.locked-page .buy-cta{background:#1a3a5c;color:#fff;border:none;padding:13px 32px;font-size:14px;font-weight:700;border-radius:4px;cursor:pointer;letter-spacing:1px;text-decoration:none;display:inline-block;margin-bottom:10px}
+.locked-page .demo-hint{font-size:12px;color:#999}
+
+/* ── LIMIT BANNER ── */
+.limit-banner{background:#fff3e0;border:1px solid #ffe0b2;border-left:3px solid #e67e22;border-radius:4px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.limit-banner p{font-size:12px;color:#7a5500}
+.limit-banner a{background:#e67e22;color:#fff;padding:6px 14px;border-radius:3px;font-size:11px;font-weight:700;text-decoration:none;flex-shrink:0}
+
+/* ── MODAL ── */
+#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:16px}
+#ov.show{display:flex}
+#mod{background:#fff;border-radius:8px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mt{font-size:17px;font-weight:900;color:#1a3a5c;margin-bottom:16px}
+.ma{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid #eee}
+.mbtn{background:#1a3a5c;border:none;color:#fff;padding:9px 20px;font-size:13px;font-weight:700;border-radius:4px;cursor:pointer}
+.mbtn:disabled{background:#aaa;cursor:not-allowed}
+.mbtn.sec{background:none;border:1px solid #ddd;color:#666;font-weight:400}
+
+/* ── DOKUMENTE ── */
+.doc-section{border-top:1px solid #eee;margin-top:16px;padding-top:14px}
+.doc-section-title{font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.doc-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.doc-item{display:flex;align-items:center;gap:8px;background:#f8f8f8;border:1px solid #eee;border-radius:4px;padding:8px 10px}
+.doc-item-name{flex:1;font-size:12px;color:#222;word-break:break-word}
+.doc-item-size{font-size:10px;color:#999;flex-shrink:0}
+.doc-dl{background:none;border:none;color:#2a6090;font-size:12px;cursor:pointer;padding:2px 6px;border-radius:3px}
+.doc-rm{background:none;border:none;color:#c0392b;font-size:14px;cursor:pointer;padding:2px 4px;border-radius:3px}
+.doc-upload{position:relative;display:inline-block}
+.doc-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.doc-upload-btn{background:none;border:1px dashed #2a6090;color:#2a6090;padding:7px 14px;font-size:12px;border-radius:4px;cursor:pointer}
+.doc-msg{font-size:11px;color:#999;margin-top:6px;font-style:italic}
+
+/* ── EINSTELLUNGEN ── */
+.sf{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:18px;max-width:480px;margin-bottom:16px}
+.dz{border:2px solid #fdecea;border-radius:6px;padding:14px;max-width:480px;background:#fffbfb;margin-bottom:16px}
+.sec-lbl{font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:16px;font-weight:600}
+.welcome{background:linear-gradient(135deg,#1a3a5c,#0f2840);color:#fff;border-radius:8px;padding:20px 24px;margin-bottom:16px}
+.welcome h2{font-size:18px;margin-bottom:6px;letter-spacing:1px}
+.welcome p{font-size:12px;color:#7ab3d4;line-height:1.6}
+.legal-footer{padding:16px 14px;border-top:1px solid #1a3a5c;margin-top:auto}
+.legal-footer a{display:block;font-size:10px;color:#3a6080;text-decoration:none;padding:3px 0;letter-spacing:1px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#2a6090;border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ══ AUTH ═══════════════════════════════════════════════════════ -->
+<div id="s-auth" class="screen-center">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="mark">🗂️</div>
+      <h1>BETRIEBSPASS</h1>
+      <p>Digitales Betriebshandbuch</p>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab on" id="tab-login" onclick="showAuthTab('login')">Anmelden</div>
+      <div class="auth-tab" id="tab-signup" onclick="showAuthTab('signup')">Registrieren</div>
+    </div>
+    <div id="form-login">
+      <div class="fr"><label class="fl">E-Mail</label><input type="email" id="li-email" placeholder="name@firma.de"></div>
+      <div class="fr"><label class="fl">Passwort</label><input type="password" id="li-pw" placeholder="••••••••"></div>
+      <button class="btn-primary" onclick="doLogin()">Anmelden</button>
+      <div class="auth-msg" id="li-msg"></div>
+      <div style="text-align:center;margin-top:14px"><a href="index.html?demo=1" style="font-size:12px;color:#2a6090">Erst kostenlos testen →</a></div>
+    </div>
+    <div id="form-signup" style="display:none">
+      <div class="fr"><label class="fl">E-Mail</label><input type="email" id="su-email" placeholder="name@firma.de"></div>
+      <div class="fr"><label class="fl">Passwort (min. 8 Zeichen)</label><input type="password" id="su-pw" placeholder="••••••••"></div>
+      <div class="fr"><label class="fl">Passwort wiederholen</label><input type="password" id="su-pw2" placeholder="••••••••"></div>
+      <button class="btn-primary" onclick="doSignup()">Konto erstellen</button>
+      <div class="auth-msg" id="su-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAYWALL ════════════════════════════════════════════════════ -->
+<div id="s-pay" class="screen-center" style="display:none">
+  <div class="pay-box">
+    <div class="mark">🗂️</div>
+    <h2>Betriebspass Basic</h2>
+    <p class="sub">Alle wichtigen Betriebsinformationen sicher an einem Ort – Verträge, Zugänge, Versicherungen, Kontakte und Dokumente.</p>
+    <ul class="pay-features">
+      <li>13 Datenmodule komplett freigeschaltet</li>
+      <li>Dokument-Upload (PDF, Bilder) pro Eintrag</li>
+      <li>Sicherer Cloud-Speicher – immer verfügbar</li>
+      <li>Einmalzahlung – keine laufenden Kosten</li>
+    </ul>
+    <div class="pay-price">39,– € <span>einmalig</span></div>
+    <div class="pay-hint">inkl. MwSt. · Sofortiger Zugang nach Zahlung</div>
+    <button class="btn-pay" id="btn-pay" onclick="doCheckout()">Jetzt kaufen – 39 €</button>
+    <div class="auth-msg" id="pay-msg"></div>
+    <span class="pay-logout" onclick="doLogout()">Abmelden</span>
+  </div>
+</div>
+
+<!-- ══ APP ════════════════════════════════════════════════════════ -->
+<div id="s-app">
+  <div id="demo-banner" style="display:none" class="demo-banner">
+    <span>🔍 <strong>Demo-Modus</strong> – Inventar &amp; Notizen kostenlos testen. Alle weiteren Module im Vollzugang.</span>
+    <a href="index.html">Jetzt kaufen – 39 €</a>
+  </div>
+  <div id="bar">
+    <div id="logo"><span>BETRIEBSPASS</span><span>Digitales Betriebshandbuch</span></div>
+    <button class="tb" onclick="openNewEntry()" id="bNew">+ Neu</button>
+    <button class="tb" onclick="doBackup()">💾 Backup</button>
+    <button class="tb" onclick="window.print()">Drucken</button>
+    <button class="tb" id="btn-logout" onclick="doLogout()">Abmelden</button>
+  </div>
+  <div id="wrap">
+    <div id="nav">
+      <div class="ng">
+        <span class="ngl">Übersicht</span>
+        <button class="nb on" data-p="dashboard">📊 Dashboard</button>
+      </div>
+      <div class="ng">
+        <span class="ngl">Betrieb</span>
+        <button class="nb" data-p="auftraege">🔧 Aufträge</button>
+        <button class="nb" data-p="kunden">🏠 Kunden</button>
+        <button class="nb" data-p="lieferanten">🚚 Lieferanten</button>
+        <button class="nb" data-p="inventar">⚙️ Inventar</button>
+      </div>
+      <div class="ng">
+        <span class="ngl">Finanzen &amp; Recht</span>
+        <button class="nb" data-p="finanzen">🏦 Bank &amp; Finanzen</button>
+        <button class="nb" data-p="vertraege">📄 Verträge</button>
+        <button class="nb" data-p="versicherungen">🛡️ Versicherungen</button>
+        <button class="nb" data-p="rechtliches">⚖️ Rechtliches</button>
+      </div>
+      <div class="ng">
+        <span class="ngl">Zugang &amp; Wissen</span>
+        <button class="nb" data-p="zugaenge">🔐 Zugänge</button>
+        <button class="nb" data-p="kontakte">👤 Kontakte</button>
+        <button class="nb" data-p="wissen">💡 Betriebswissen</button>
+        <button class="nb" data-p="notizen">📝 Notizen</button>
+      </div>
+      <div class="ng">
+        <span class="ngl">Konto</span>
+        <button class="nb" data-p="einstellungen">⚙ Einstellungen</button>
+      </div>
+      <div class="legal-footer">
+        <a href="rechtliches.html" target="_blank">Datenschutz · Impressum · AGB</a>
+      </div>
+    </div>
+    <div id="main"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL ══════════════════════════════════════════════════════ -->
+<div id="ov">
+  <div id="mod">
+    <div class="mt" id="mod-title">Eintrag</div>
+    <div id="mod-fields"></div>
+    <div id="mod-docs" class="doc-section" style="display:none">
+      <div class="doc-section-title">Dokumente &amp; Anhänge</div>
+      <div class="doc-list" id="doc-list"></div>
+      <div class="doc-upload">
+        <button class="doc-upload-btn">📎 Dokument / Bild hinzufügen</button>
+        <input type="file" id="doc-input" accept=".pdf,.jpg,.jpeg,.png,.webp,.heic" onchange="uploadDoc(this)">
+      </div>
+      <div class="doc-msg" id="doc-msg"></div>
+    </div>
+    <div class="ma">
+      <button class="mbtn sec" onclick="closeModal()">Abbrechen</button>
+      <button class="mbtn" id="bSav" onclick="saveEntry()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── KONFIGURATION ─────────────────────────────────────────────────────
+var SUPA_URL     = 'https://ysqzdqazcgyuzdorauiq.supabase.co';
+var SUPA_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzcXpkcWF6Y2d5dXpkb3JhdWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODM0NzcsImV4cCI6MjA5NTU1OTQ3N30.u5cbSVniUl5Zvlf2rdpnjtvDyKvv9csmPwvdtnEwWzE';
+var CHECKOUT_URL = SUPA_URL + '/functions/v1/betriebspass-checkout';
+var VERIFY_URL   = SUPA_URL + '/functions/v1/betriebspass-verify';
+var BUCKET       = 'betriebspass-docs';
+
+// ── DEMO-MODUS ────────────────────────────────────────────────────────
+var DEMO_MODE       = (new URLSearchParams(window.location.search)).get('demo') === '1';
+var DEMO_FREE       = {inventar: true, notizen: true, dashboard: true, einstellungen: true};
+var DEMO_INV_LIMIT  = 10;
+
+// ── ZUSTAND (KEINE Namenskollision mehr: mState statt cModal) ─────────
+var SB           = supabase.createClient(SUPA_URL, SUPA_KEY);
+var currentUser  = null;
+var userPlan     = 'free';
+var userSettings = {};
+var cPage        = 'dashboard';
+var mState       = null;   // Modal-Zustand: {mode, modul, id, entry}
+var modCache     = {};     // Cache Einträge pro Modul
+
+// ── MODUL-DEFINITIONEN ────────────────────────────────────────────────
+var F = {
+  vertraege:{label:'Verträge',icon:'📄',f:[
+    {k:'titel',l:'Vertragsbezeichnung',r:true},{k:'partner',l:'Vertragspartner',r:true},
+    {k:'beginn',l:'Laufzeit ab',t:'date'},{k:'ende',l:'Laufzeit bis',t:'date'},
+    {k:'kuendigung',l:'Kündigungsfrist'},{k:'betrag',l:'Betrag/Jahr (€)'},
+    {k:'status',l:'Status',s:['aktiv','ausgelaufen','gekündigt']},{k:'notiz',l:'Notiz',a:true}]},
+  versicherungen:{label:'Versicherungen',icon:'🛡️',f:[
+    {k:'art',l:'Versicherungsart',r:true},{k:'gesellschaft',l:'Gesellschaft',r:true},
+    {k:'nr',l:'Versicherungsnummer'},{k:'ansprechpartner',l:'Ansprechpartner'},
+    {k:'telefon',l:'Telefon'},{k:'jahresbeitrag',l:'Jahresbeitrag (€)'},
+    {k:'kuendigung',l:'Kündigungsfrist'},{k:'notiz',l:'Notiz',a:true}]},
+  zugaenge:{label:'Zugänge & Passwörter',icon:'🔐',f:[
+    {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'url',l:'URL / System'},
+    {k:'benutzername',l:'Benutzername'},{k:'passwort',l:'Passwort / PIN'},
+    {k:'kontakt',l:'Support-Kontakt'},{k:'notiz',l:'Notiz',a:true}]},
+  kontakte:{label:'Wichtige Kontakte',icon:'👤',f:[
+    {k:'name',l:'Name',r:true},{k:'funktion',l:'Funktion/Rolle',r:true},
+    {k:'telefon',l:'Telefon'},{k:'email',l:'E-Mail'},
+    {k:'adresse',l:'Adresse'},{k:'notiz',l:'Notiz',a:true}]},
+  auftraege:{label:'Laufende Aufträge',icon:'🔧',f:[
+    {k:'bezeichnung',l:'Auftragsbezeichnung',r:true},{k:'kunde',l:'Kunde'},
+    {k:'status',l:'Status',s:['offen','in Bearbeitung','abgeschlossen','storniert']},
+    {k:'faellig',l:'Fällig am',t:'date'},{k:'wert',l:'Auftragswert (€)'},{k:'notiz',l:'Notiz',a:true}]},
+  kunden:{label:'Kundenliste',icon:'🏠',f:[
+    {k:'name',l:'Name / Firma',r:true},{k:'telefon',l:'Telefon'},
+    {k:'email',l:'E-Mail'},{k:'adresse',l:'Adresse'},{k:'notiz',l:'Notiz',a:true}]},
+  lieferanten:{label:'Lieferanten',icon:'🚚',f:[
+    {k:'name',l:'Lieferant',r:true},{k:'produkte',l:'Produkte / Leistungen'},
+    {k:'ansprechpartner',l:'Ansprechpartner'},{k:'telefon',l:'Telefon'},
+    {k:'email',l:'E-Mail'},{k:'konditionen',l:'Konditionen'},{k:'notiz',l:'Notiz',a:true}]},
+  inventar:{label:'Inventar / Maschinen',icon:'⚙️',f:[
+    {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'seriennr',l:'Seriennummer'},
+    {k:'kaufdatum',l:'Kaufdatum',t:'date'},{k:'wert',l:'Kaufwert (€)'},
+    {k:'wartung',l:'Nächste Wartung',t:'date'},{k:'standort',l:'Standort'},{k:'notiz',l:'Notiz',a:true}]},
+  finanzen:{label:'Bank & Finanzen',icon:'🏦',f:[
+    {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'bank',l:'Bank / Institut'},
+    {k:'iban',l:'IBAN'},{k:'vollmacht',l:'Kontovollmacht'},
+    {k:'kreditlimit',l:'Kreditlimit (€)'},{k:'notiz',l:'Notiz',a:true}]},
+  rechtliches:{label:'Rechtliches',icon:'⚖️',f:[
+    {k:'thema',l:'Thema',r:true},{k:'anwalt',l:'Anwalt / Kanzlei'},
+    {k:'aktenzeichen',l:'Aktenzeichen'},
+    {k:'status',l:'Status',s:['laufend','abgeschlossen','ruhend']},
+    {k:'frist',l:'Frist',t:'date'},{k:'notiz',l:'Notiz',a:true}]},
+  wissen:{label:'Betriebswissen',icon:'💡',f:[
+    {k:'titel',l:'Titel',r:true},{k:'kategorie',l:'Kategorie'},{k:'inhalt',l:'Inhalt',a:true,r:true}]},
+  notizen:{label:'Notizen',icon:'📝',f:[
+    {k:'titel',l:'Titel',r:true},{k:'inhalt',l:'Inhalt',a:true}]}
+};
+var MODS = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+
+// ── DEMO-HILFSFUNKTIONEN ──────────────────────────────────────────────
+function demoGet(modul) {
+  var raw = localStorage.getItem('bp_demo_' + modul);
+  return raw ? JSON.parse(raw) : [];
+}
+function demoSet(modul, arr) {
+  localStorage.setItem('bp_demo_' + modul, JSON.stringify(arr));
+}
+function demoUUID() {
+  return 'demo_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+}
+function isDemo() { return DEMO_MODE; }
+function isDemoFree(page) { return !!DEMO_FREE[page]; }
+
+// ── SCREENS ───────────────────────────────────────────────────────────
+function showScreen(s) {
+  document.getElementById('s-auth').style.display = s==='auth' ? 'flex' : 'none';
+  document.getElementById('s-pay').style.display  = s==='pay'  ? 'flex' : 'none';
+  document.getElementById('s-app').style.display  = s==='app'  ? 'block' : 'none';
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+function showAuthTab(tab) {
+  document.getElementById('form-login').style.display   = tab==='login'  ? 'block' : 'none';
+  document.getElementById('form-signup').style.display  = tab==='signup' ? 'block' : 'none';
+  document.getElementById('tab-login').className  = 'auth-tab' + (tab==='login'  ? ' on' : '');
+  document.getElementById('tab-signup').className = 'auth-tab' + (tab==='signup' ? ' on' : '');
+}
+function setMsg(id, txt, isErr) {
+  var el = document.getElementById(id);
+  el.textContent = txt;
+  el.className = 'auth-msg' + (isErr ? ' err' : ' ok');
+}
+function doLogin() {
+  var email = document.getElementById('li-email').value.trim();
+  var pw    = document.getElementById('li-pw').value;
+  if (!email||!pw) { setMsg('li-msg','Bitte alle Felder ausfüllen.',true); return; }
+  setMsg('li-msg','Wird angemeldet…',false);
+  SB.auth.signInWithPassword({email:email,password:pw}).then(function(res) {
+    if (res.error) { setMsg('li-msg',res.error.message,true); return; }
+    afterAuth(res.data.user);
+  });
+}
+function doSignup() {
+  var email = document.getElementById('su-email').value.trim();
+  var pw    = document.getElementById('su-pw').value;
+  var pw2   = document.getElementById('su-pw2').value;
+  if (!email||!pw) { setMsg('su-msg','Bitte alle Felder ausfüllen.',true); return; }
+  if (pw.length<8)  { setMsg('su-msg','Passwort mind. 8 Zeichen.',true); return; }
+  if (pw!==pw2)     { setMsg('su-msg','Passwörter stimmen nicht überein.',true); return; }
+  setMsg('su-msg','Konto wird erstellt…',false);
+  SB.auth.signUp({email:email,password:pw}).then(function(res) {
+    if (res.error) { setMsg('su-msg',res.error.message,true); return; }
+    if (res.data&&res.data.user&&res.data.user.identities&&res.data.user.identities.length===0) {
+      setMsg('su-msg','Diese E-Mail ist bereits registriert.',true); return;
+    }
+    setMsg('su-msg','Konto erstellt! Bitte E-Mail bestätigen, dann anmelden.',false);
+  });
+}
+function doLogout() {
+  if (DEMO_MODE) { window.location.href = 'index.html'; return; }
+  SB.auth.signOut().then(function() {
+    currentUser=null; userPlan='free'; showScreen('auth');
+  });
+}
+function afterAuth(user) {
+  currentUser = user;
+  var params   = new URLSearchParams(window.location.search);
+  var sid      = params.get('session_id');
+  var bpUser   = params.get('bp_user');
+  var canceled = params.get('canceled');
+  window.history.replaceState(null,'',window.location.pathname);
+  if (canceled) { showScreen('pay'); setMsg('pay-msg','Zahlung abgebrochen.',true); return; }
+  if (sid && bpUser===user.id) { verifyAndActivate(sid); return; }
+  loadPlan(user.id);
+}
+function verifyAndActivate(sid) {
+  showScreen('pay');
+  var btn = document.getElementById('btn-pay');
+  btn.disabled=true; btn.textContent='Zahlung wird geprüft…';
+  fetch(VERIFY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sid})})
+    .then(function(r){return r.json();}).then(function(d) {
+      if (d.paid) { userPlan='basic'; showApp(); }
+      else { setMsg('pay-msg','Zahlung konnte nicht bestätigt werden.',true); btn.disabled=false; btn.textContent='Jetzt kaufen – 39 €'; }
+    }).catch(function() { setMsg('pay-msg','Verbindungsfehler.',true); btn.disabled=false; btn.textContent='Jetzt kaufen – 39 €'; });
+}
+function loadPlan(uid) {
+  SB.from('betriebspass_accounts').select('plan').eq('id',uid).maybeSingle().then(function(res) {
+    if (res.data&&(res.data.plan==='basic'||res.data.plan==='pro')) {
+      userPlan=res.data.plan; showApp();
+    } else {
+      SB.from('betriebspass_accounts').upsert({id:uid,plan:'free',updated_at:new Date().toISOString()},{onConflict:'id'}).then(function() { showScreen('pay'); });
+    }
+  });
+}
+function doCheckout() {
+  var btn = document.getElementById('btn-pay');
+  btn.disabled=true; btn.textContent='Weiterleitung zu Stripe…';
+  var base = window.location.origin + window.location.pathname;
+  fetch(CHECKOUT_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPA_KEY},
+    body:JSON.stringify({return_url:base,user_id:currentUser.id})})
+    .then(function(r){return r.json();}).then(function(d) {
+      if (d.url) { window.location.href=d.url; }
+      else { setMsg('pay-msg','Fehler: '+(d.error||'Unbekannt'),true); btn.disabled=false; btn.textContent='Jetzt kaufen – 39 €'; }
+    }).catch(function() { setMsg('pay-msg','Verbindungsfehler.',true); btn.disabled=false; btn.textContent='Jetzt kaufen – 39 €'; });
+}
+
+// ── APP STARTEN ───────────────────────────────────────────────────────
+function showApp() {
+  showScreen('app');
+  if (DEMO_MODE) {
+    document.getElementById('demo-banner').style.display = 'flex';
+    document.getElementById('btn-logout').textContent = 'Demo beenden';
+    updateDemoNav();
+  }
+  loadSettings(function() { go('dashboard'); });
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────
+function go(page) {
+  cPage = page;
+  var nbs = document.querySelectorAll('.nb');
+  for (var i=0;i<nbs.length;i++) {
+    nbs[i].className = 'nb' + (nbs[i].getAttribute('data-p')===page ? ' on' : '') + (DEMO_MODE&&!isDemoFree(nbs[i].getAttribute('data-p')) ? ' locked' : '');
+  }
+  var bNew = document.getElementById('bNew');
+  if (bNew) bNew.style.display = (page==='dashboard'||page==='einstellungen') ? 'none' : 'inline-block';
+  if (DEMO_MODE && !isDemoFree(page) && page!=='dashboard' && page!=='einstellungen') {
+    renderLockedPage(page); return;
+  }
+  if (page==='dashboard')     { renderDashboard(); return; }
+  if (page==='einstellungen') { renderSettings(); return; }
+  renderModulePage(page);
+}
+
+function openNewEntry() { if (cPage && cPage!=='dashboard' && cPage!=='einstellungen') openModal(cPage, null); }
+
+function updateDemoNav() {
+  var nbs = document.querySelectorAll('.nb');
+  for (var i=0;i<nbs.length;i++) {
+    var p = nbs[i].getAttribute('data-p');
+    if (p && !isDemoFree(p)) {
+      nbs[i].className = 'nb locked';
+      nbs[i].textContent = nbs[i].textContent.trim() + ' 🔒';
+    }
+  }
+}
+
+// ── GESPERRTE SEITE ───────────────────────────────────────────────────
+function renderLockedPage(page) {
+  var cfg = F[page] || {label: page, icon:'🔒'};
+  document.getElementById('main').innerHTML =
+    '<div class="locked-page">' +
+    '<div class="lock-icon">🔒</div>' +
+    '<h2>' + cfg.icon + ' ' + esc(cfg.label) + '</h2>' +
+    '<p>Dieses Modul ist in der Demo-Version nicht verfügbar.<br>Kaufe den Betriebspass für 39 € und erhalte sofort Zugang zu allen 13 Modulen, Dokument-Upload und Cloud-Speicher.</p>' +
+    '<a href="index.html" class="buy-cta">Jetzt kaufen – 39 €</a><br>' +
+    '<span class="demo-hint">Demo mit Inventar &amp; Notizen aktiv</span>' +
+    '</div>';
+}
+
+// ── EINSTELLUNGEN ─────────────────────────────────────────────────────
+function loadSettings(cb) {
+  if (DEMO_MODE) {
+    var raw = localStorage.getItem('bp_demo_settings');
+    userSettings = raw ? JSON.parse(raw) : {};
+    if (cb) cb(); return;
+  }
+  SB.from('betriebspass_einstellungen').select('data').eq('user_id',currentUser.id).maybeSingle().then(function(res) {
+    if (res.data) userSettings = res.data.data || {};
+    if (cb) cb();
+  });
+}
+function saveSettings() {
+  var keys = ['firma','inhaber','branche','adresse','telefon','email','stb','anwalt','anweisung'];
+  for (var i=0;i<keys.length;i++) {
+    var el = document.getElementById('s'+keys[i]);
+    if (el) userSettings[keys[i]] = el.value;
+  }
+  if (DEMO_MODE) {
+    localStorage.setItem('bp_demo_settings', JSON.stringify(userSettings));
+    var msg = document.getElementById('settings-msg');
+    if (msg) { msg.textContent='Gespeichert ✓'; setTimeout(function(){msg.textContent='';},2000); }
+    return;
+  }
+  SB.from('betriebspass_einstellungen').upsert({user_id:currentUser.id,data:userSettings,updated_at:new Date().toISOString()},{onConflict:'user_id'}).then(function(res) {
+    var msg = document.getElementById('settings-msg');
+    if (msg) { msg.textContent = res.error ? 'Fehler!' : 'Gespeichert ✓'; setTimeout(function(){msg.textContent='';},2000); }
+  });
+}
+function renderSettings() {
+  var s = userSettings;
+  document.getElementById('main').innerHTML =
+    '<div class="ph"><div class="pt">⚙ Einstellungen</div></div>' +
+    (DEMO_MODE ? '<div class="ntc">Demo-Modus: Einstellungen werden lokal gespeichert.</div>' : '') +
+    '<div class="sf">' +
+      '<div class="sec-lbl">Betriebsdaten</div>' +
+      fr('sfirma','Firmenname',s.firma||'') + fr('sinhaber','Inhaber/in',s.inhaber||'') +
+      fr('sbranche','Branche',s.branche||'') + fr('sadresse','Adresse',s.adresse||'') +
+      fr('stelefon','Telefon',s.telefon||'') + fr('semail','E-Mail',s.email||'') +
+      '<div class="sec-lbl">Externe Ansprechpartner</div>' +
+      fr('sstb','Steuerberater',s.stb||'') + fr('sanwalt','Anwalt / Kanzlei',s.anwalt||'') +
+      '<div class="sec-lbl">Im Notfall</div>' +
+      '<div class="fr"><label class="fl">Besondere Anweisung</label><textarea id="sanweisung">' + esc(s.anweisung||'') + '</textarea></div>' +
+      '<button class="abtn" onclick="saveSettings()">Speichern</button> &nbsp;' +
+      '<button class="abtn" onclick="doBackup()" style="background:#2a6090">💾 Backup erstellen</button> &nbsp;' +
+      '<button class="abtn" onclick="doRestore()" style="background:#666">📥 Backup importieren</button>' +
+      '<span id="settings-msg" style="margin-left:10px;font-size:12px;color:#27ae60"></span>' +
+    '</div>' +
+    (!DEMO_MODE ? '<div class="dz"><div style="font-size:10px;color:#c0392b;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;font-weight:700">Konto</div><p style="font-size:12px;color:#666;margin-bottom:10px">Angemeldet als: ' + esc(currentUser?currentUser.email:'') + '</p><button class="abtn" style="background:#c0392b" onclick="doLogout()">Abmelden</button></div>' : '<div class="dz"><div style="font-size:10px;color:#e67e22;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;font-weight:700">Demo-Version</div><a href="index.html" class="abtn">Jetzt kaufen – 39 €</a></div>');
+}
+function fr(id, lbl, val) {
+  return '<div class="fr"><label class="fl">'+lbl+'</label><input type="text" id="'+id+'" value="'+esc(val)+'"></div>';
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────
+function renderDashboard() {
+  document.getElementById('main').innerHTML = '<div class="loading">Wird geladen…</div>';
+  if (DEMO_MODE) {
+    var counts = {};
+    for (var i=0;i<MODS.length;i++) {
+      var entries = demoGet(MODS[i]);
+      counts[MODS[i]] = entries.length;
+    }
+    renderDashboardHTML(counts);
+    return;
+  }
+  SB.from('betriebspass_eintraege').select('modul').eq('user_id',currentUser.id).then(function(res) {
+    var counts = {};
+    if (res.data) { for (var i=0;i<res.data.length;i++) { var m=res.data[i].modul; counts[m]=(counts[m]||0)+1; } }
+    renderDashboardHTML(counts);
+  });
+}
+function renderDashboardHTML(counts) {
+  var s = userSettings;
+  var firmaName = s.firma || (DEMO_MODE ? 'Demo-Modus' : 'Ihr Betrieb');
+  var html = '<div class="welcome"><h2>🗂️ ' + esc(firmaName) + '</h2><p>' + (DEMO_MODE ? 'Demo-Version – Inventar &amp; Notizen kostenlos. Alle weiteren Module nach dem Kauf.' : 'Ihr digitaler Betriebspass – alle wichtigen Informationen sicher an einem Ort.') + '</p></div>';
+  html += '<div class="stats">';
+  for (var i=0;i<MODS.length;i++) {
+    var m = MODS[i];
+    var cfg = F[m];
+    var locked = DEMO_MODE && !isDemoFree(m);
+    html += '<div class="sc' + (locked?' locked-sc':'') + '"' + (!locked?' onclick="go(\''+m+'\')"':'') + '>';
+    html += '<div class="sn">' + (locked ? '🔒' : (counts[m]||0)) + '</div>';
+    html += '<div class="sl">' + esc(cfg.label) + '</div></div>';
+  }
+  html += '</div>';
+  if (!s.firma) html += '<div class="ntc">💡 Tipp: Trage deine Betriebsdaten unter <a href="#" onclick="go(\'einstellungen\');return false;">Einstellungen</a> ein.</div>';
+  document.getElementById('main').innerHTML = html;
+}
+
+// ── MODUL-SEITE ───────────────────────────────────────────────────────
+function renderModulePage(modul) {
+  var cfg = F[modul];
+  if (!cfg) return;
+  var isInvLimit = DEMO_MODE && modul==='inventar' && demoGet('inventar').length >= DEMO_INV_LIMIT;
+  var limitBanner = isInvLimit ?
+    '<div class="limit-banner"><p>⚠️ Du hast ' + DEMO_INV_LIMIT + ' Einträge erreicht – das Maximum der Demo. Im Vollzugang unbegrenzt.</p><a href="index.html">Jetzt kaufen – 39 €</a></div>' : '';
+  document.getElementById('main').innerHTML =
+    '<div class="ph"><div class="pt">' + cfg.icon + ' ' + esc(cfg.label) + '</div>' +
+    '<button class="abtn" onclick="openModal(\'' + modul + '\',null)">+ Neu</button></div>' +
+    limitBanner +
+    '<div class="sbar"><span class="sico">🔍</span><input type="text" id="sb" placeholder="Suchen…" oninput="filterCards(this.value)"></div>' +
+    '<div class="grid" id="cl"><div class="loading">Wird geladen…</div></div>';
+
+  if (DEMO_MODE) {
+    modCache[modul] = demoGet(modul);
+    renderCards(modul, '');
+    return;
+  }
+  SB.from('betriebspass_eintraege').select('*').eq('user_id',currentUser.id).eq('modul',modul).order('created_at',{ascending:false}).then(function(res) {
+    modCache[modul] = res.data || [];
+    renderCards(modul, '');
+  });
+}
+function filterCards(q) { renderCards(cPage, q); }
+function renderCards(modul, q) {
+  var cfg = F[modul];
+  var entries = modCache[modul] || [];
+  var cl = document.getElementById('cl');
+  if (!cl) return;
+  var filtered = entries;
+  if (q) {
+    q = q.toLowerCase(); filtered = [];
+    for (var i=0;i<entries.length;i++) {
+      var d = entries[i].data;
+      for (var k in d) { if (d[k]&&String(d[k]).toLowerCase().indexOf(q)!==-1) { filtered.push(entries[i]); break; } }
+    }
+  }
+  if (filtered.length===0) { cl.innerHTML='<div class="empty">Noch keine Einträge. Klicke auf "+ Neu" um zu starten.</div>'; return; }
+  var html = '';
+  for (var i=0;i<filtered.length;i++) html += rCard(modul, filtered[i], cfg);
+  cl.innerHTML = html;
+}
+function rCard(modul, entry, cfg) {
+  var d = entry.data || {};
+  var docs = d.dokumente || [];
+  var title = d[cfg.f[0].k] || '(kein Titel)';
+  var statusVal = d.status || '';
+  var sCls = statusVal==='aktiv'||statusVal==='offen'?'bg':statusVal==='in Bearbeitung'?'bo':statusVal==='ausgelaufen'||statusVal==='storniert'||statusVal==='abgeschlossen'?'br':'bx';
+  var h = '<div class="card"><div class="chd"><div class="ct">' + esc(title);
+  if (statusVal) h += '<span class="bdg '+sCls+'">'+esc(statusVal)+'</span>';
+  h += '</div><div class="ca">';
+  h += '<button class="ib" onclick="openModal(\''+modul+'\',\''+entry.id+'\')" title="Bearbeiten">✏️</button>';
+  h += '<button class="ib" onclick="deleteEntry(\''+modul+'\',\''+entry.id+'\')" title="Löschen">🗑️</button>';
+  h += '</div></div>';
+  for (var i=1;i<Math.min(cfg.f.length,4);i++) {
+    var f=cfg.f[i]; if (f.a) continue;
+    var val=d[f.k]||'';
+    if (val) h += '<div class="cf"><span class="cl">'+esc(f.l)+'</span><span class="cv">'+esc(val)+'</span></div>';
+  }
+  if (docs.length>0) {
+    h += '<div>';
+    for (var j=0;j<docs.length;j++) h += '<span class="doc-chip" onclick="dlDoc(\''+encodeURIComponent(docs[j].path)+'\')">📎 '+esc(docs[j].name)+'</span> ';
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+// ── MODAL ÖFFNEN ──────────────────────────────────────────────────────
+function openModal(modul, id) {
+  var cfg = F[modul]; if (!cfg) return;
+  // Demo Inventar-Limit: stilles Blockieren beim 11. Eintrag
+  if (DEMO_MODE && modul==='inventar' && !id) {
+    var inv = demoGet('inventar');
+    if (inv.length >= DEMO_INV_LIMIT) {
+      document.getElementById('main').innerHTML =
+        '<div class="locked-page">' +
+        '<div class="lock-icon">🎯</div>' +
+        '<h2>Super – du hast ' + DEMO_INV_LIMIT + ' Einträge!</h2>' +
+        '<p>In der Demo sind maximal ' + DEMO_INV_LIMIT + ' Inventareinträge möglich. Im Vollzugang kannst du unbegrenzt weitere hinzufügen – plus alle anderen 12 Module.</p>' +
+        '<a href="index.html" class="buy-cta">Betriebspass kaufen – 39 €</a><br>' +
+        '<span class="demo-hint">Deine ' + DEMO_INV_LIMIT + ' Demo-Einträge bleiben gespeichert</span>' +
+        '</div>';
+      return;
+    }
+  }
+  var isEdit = !!id;
+  var entry = null;
+  if (isEdit) {
+    var entries = modCache[modul] || [];
+    for (var i=0;i<entries.length;i++) { if (entries[i].id===id) { entry=entries[i]; break; } }
+  }
+  mState = {mode: isEdit?'edit':'add', modul: modul, id: id, entry: entry};
+  document.getElementById('mod-title').textContent = (isEdit?'Bearbeiten – ':'Neu – ') + cfg.label;
+  var html = '';
+  for (var i=0;i<cfg.f.length;i++) {
+    var f=cfg.f[i]; var val=entry?(entry.data[f.k]||''):'';
+    html += '<div class="fr"><label class="fl">'+esc(f.l)+(f.r?' *':'')+'</label>';
+    if (f.a) html += '<textarea id="fi'+i+'">'+esc(val)+'</textarea>';
+    else if (f.s) {
+      html += '<select id="fi'+i+'"><option value="">— Auswählen —</option>';
+      for (var j=0;j<f.s.length;j++) html += '<option value="'+esc(f.s[j])+'"'+(val===f.s[j]?' selected':'')+'>'+esc(f.s[j])+'</option>';
+      html += '</select>';
+    } else if (f.t==='date') html += '<input type="date" id="fi'+i+'" value="'+esc(val)+'">';
+    else html += '<input type="text" id="fi'+i+'" value="'+esc(val)+'">';
+    html += '</div>';
+  }
+  document.getElementById('mod-fields').innerHTML = html;
+  // Dokumente nur im Vollzugang + Edit-Modus
+  var docSec = document.getElementById('mod-docs');
+  if (!DEMO_MODE && isEdit && entry) { docSec.style.display='block'; renderDocList(entry.data.dokumente||[]); }
+  else docSec.style.display='none';
+  document.getElementById('ov').className = 'show';
+}
+
+// ── MODAL SCHLIESSEN (FIX: eigene Funktion, kein Variablenkonflikt) ───
+function closeModal() {
+  document.getElementById('ov').className = '';
+  mState = null;
+}
+
+// ── EINTRAG SPEICHERN ─────────────────────────────────────────────────
+function saveEntry() {
+  if (!mState) return;
+  var cfg = F[mState.modul];
+  var data = {};
+  if (mState.entry && mState.entry.data) data = JSON.parse(JSON.stringify(mState.entry.data));
+  var ok = true;
+  for (var i=0;i<cfg.f.length;i++) {
+    var f=cfg.f[i]; var el=document.getElementById('fi'+i);
+    if (el) {
+      data[f.k] = el.value.trim();
+      if (f.r&&!data[f.k]) { el.style.borderColor='#c0392b'; ok=false; }
+      else el.style.borderColor='';
+    }
+  }
+  if (!ok) return;
+  var btn = document.getElementById('bSav');
+  btn.disabled=true; btn.textContent='Wird gespeichert…';
+
+  if (DEMO_MODE) {
+    var entries = demoGet(mState.modul);
+    if (mState.mode==='add') {
+      var newEntry = {id:demoUUID(), modul:mState.modul, data:data, created_at:new Date().toISOString()};
+      entries.unshift(newEntry);
+      demoSet(mState.modul, entries);
+      modCache[mState.modul] = entries;
+      btn.disabled=false; btn.textContent='Speichern';
+      // Wechsle in Edit-Modus (ohne Dokument-Upload in Demo)
+      mState.mode='edit'; mState.id=newEntry.id; mState.entry=newEntry;
+      document.getElementById('mod-title').textContent = 'Bearbeiten – '+F[mState.modul].label;
+      renderCards(mState.modul, '');
+      showToast('Gespeichert ✓');
+    } else {
+      for (var i=0;i<entries.length;i++) { if (entries[i].id===mState.id) { entries[i].data=data; break; } }
+      demoSet(mState.modul, entries);
+      modCache[mState.modul] = entries;
+      mState.entry = {id:mState.id, modul:mState.modul, data:data};
+      btn.disabled=false; btn.textContent='Speichern';
+      renderCards(mState.modul, '');
+      showToast('Gespeichert ✓');
+    }
+    return;
+  }
+
+  // Supabase-Modus
+  if (mState.mode==='add') {
+    SB.from('betriebspass_eintraege').insert({user_id:currentUser.id,modul:mState.modul,data:data}).select().then(function(res) {
+      btn.disabled=false; btn.textContent='Speichern';
+      if (res.error) { alert('Fehler: '+res.error.message); return; }
+      var ne = res.data[0];
+      if (!modCache[mState.modul]) modCache[mState.modul]=[];
+      modCache[mState.modul].unshift(ne);
+      renderCards(mState.modul,'');
+      mState.mode='edit'; mState.id=ne.id; mState.entry=ne;
+      document.getElementById('mod-title').textContent = 'Bearbeiten – '+F[mState.modul].label;
+      document.getElementById('mod-docs').style.display='block';
+      renderDocList([]);
+    });
+  } else {
+    SB.from('betriebspass_eintraege').update({data:data,updated_at:new Date().toISOString()}).eq('id',mState.id).select().then(function(res) {
+      btn.disabled=false; btn.textContent='Speichern';
+      if (res.error) { alert('Fehler: '+res.error.message); return; }
+      var updated = res.data[0];
+      var entries = modCache[mState.modul]||[];
+      for (var i=0;i<entries.length;i++) { if (entries[i].id===mState.id) { entries[i]=updated; break; } }
+      mState.entry=updated;
+      renderCards(mState.modul,'');
+      showToast('Gespeichert ✓');
+    });
+  }
+}
+
+// ── EINTRAG LÖSCHEN ───────────────────────────────────────────────────
+function deleteEntry(modul, id) {
+  if (!confirm('Eintrag löschen?')) return;
+  if (DEMO_MODE) {
+    var entries = demoGet(modul).filter(function(e){return e.id!==id;});
+    demoSet(modul, entries); modCache[modul]=entries;
+    renderCards(modul, document.getElementById('sb')?document.getElementById('sb').value:'');
+    renderModulePage(modul); return;
+  }
+  // Docs mitlöschen
+  var entries = modCache[modul]||[];
+  for (var i=0;i<entries.length;i++) {
+    if (entries[i].id===id && entries[i].data&&entries[i].data.dokumente&&entries[i].data.dokumente.length>0) {
+      var paths = entries[i].data.dokumente.map(function(d){return d.path;});
+      SB.storage.from(BUCKET).remove(paths);
+    }
+  }
+  SB.from('betriebspass_eintraege').delete().eq('id',id).then(function(res) {
+    if (res.error) { alert('Fehler: '+res.error.message); return; }
+    modCache[modul] = (modCache[modul]||[]).filter(function(e){return e.id!==id;});
+    renderCards(modul, document.getElementById('sb')?document.getElementById('sb').value:'');
+  });
+}
+
+// ── DOKUMENTE ─────────────────────────────────────────────────────────
+function renderDocList(docs) {
+  var dl = document.getElementById('doc-list'); if (!dl) return;
+  if (!docs||docs.length===0) { dl.innerHTML='<div style="font-size:12px;color:#999;margin-bottom:8px">Noch keine Dokumente angehängt.</div>'; return; }
+  var html = '';
+  for (var i=0;i<docs.length;i++) {
+    var doc=docs[i];
+    var sz = doc.size ? (doc.size>1048576 ? (doc.size/1048576).toFixed(1)+' MB' : Math.round(doc.size/1024)+' KB') : '';
+    html += '<div class="doc-item"><span style="font-size:16px">'+(doc.name.match(/\.pdf$/i)?'📄':'🖼️')+'</span>';
+    html += '<span class="doc-item-name">'+esc(doc.name)+'</span><span class="doc-item-size">'+sz+'</span>';
+    html += '<button class="doc-dl" onclick="dlDoc(\''+encodeURIComponent(doc.path)+'\')">⬇</button>';
+    html += '<button class="doc-rm" onclick="rmDoc(\''+encodeURIComponent(doc.path)+'\')">✕</button></div>';
+  }
+  dl.innerHTML = html;
+}
+function uploadDoc(input) {
+  if (!input.files||!input.files[0]) return;
+  if (!mState||!mState.entry) return;
+  var file=input.files[0]; input.value='';
+  var path = currentUser.id+'/'+mState.modul+'/'+mState.entry.id+'/'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  var docMsg = document.getElementById('doc-msg'); docMsg.textContent='Wird hochgeladen…';
+  SB.storage.from(BUCKET).upload(path,file,{upsert:false}).then(function(res) {
+    if (res.error) { docMsg.textContent='Fehler: '+res.error.message; return; }
+    var docs = (mState.entry.data.dokumente||[]).slice();
+    docs.push({path:path,name:file.name,size:file.size,uploaded_at:new Date().toISOString()});
+    var nd = JSON.parse(JSON.stringify(mState.entry.data)); nd.dokumente=docs;
+    SB.from('betriebspass_eintraege').update({data:nd,updated_at:new Date().toISOString()}).eq('id',mState.entry.id).select().then(function(r2) {
+      if (r2.error) { docMsg.textContent='Fehler: '+r2.error.message; return; }
+      mState.entry=r2.data[0];
+      var entries=modCache[mState.modul]||[];
+      for(var i=0;i<entries.length;i++){if(entries[i].id===mState.entry.id){entries[i]=r2.data[0];break;}}
+      renderDocList(docs); renderCards(mState.modul,'');
+      docMsg.textContent='Hochgeladen ✓'; setTimeout(function(){docMsg.textContent='';},2000);
+    });
+  });
+}
+function dlDoc(pathEnc) {
+  var path=decodeURIComponent(pathEnc);
+  SB.storage.from(BUCKET).createSignedUrl(path,3600).then(function(res) {
+    if (res.error||!res.data) { alert('Download-Fehler'); return; }
+    var a=document.createElement('a'); a.href=res.data.signedUrl; a.target='_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+}
+function rmDoc(pathEnc) {
+  if (!confirm('Dokument entfernen?')) return;
+  var path=decodeURIComponent(pathEnc); if(!mState||!mState.entry) return;
+  SB.storage.from(BUCKET).remove([path]).then(function() {
+    var docs=(mState.entry.data.dokumente||[]).filter(function(d){return d.path!==path;});
+    var nd=JSON.parse(JSON.stringify(mState.entry.data)); nd.dokumente=docs;
+    SB.from('betriebspass_eintraege').update({data:nd,updated_at:new Date().toISOString()}).eq('id',mState.entry.id).select().then(function(r) {
+      if (r.error){alert('Fehler: '+r.error.message);return;}
+      mState.entry=r.data[0];
+      var entries=modCache[mState.modul]||[];
+      for(var i=0;i<entries.length;i++){if(entries[i].id===mState.entry.id){entries[i]=r.data[0];break;}}
+      renderDocList(docs); renderCards(mState.modul,'');
+    });
+  });
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────
+function showToast(msg) {
+  var t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:20px;right:20px;background:#27ae60;color:#fff;padding:10px 16px;border-radius:6px;font-size:12px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.2)';
+  t.textContent=msg; document.body.appendChild(t);
+  setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},2000);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────────
+document.getElementById('ov').addEventListener('click', function(ev) { if (ev.target===this) closeModal(); });
+document.getElementById('nav').addEventListener('click', function(ev) {
+  var t=ev.target;
+  while(t&&t!==this) { var p=t.getAttribute('data-p'); if(p){go(p);return;} t=t.parentNode; }
+});
+document.addEventListener('keydown', function(ev) { if (ev.key==='Escape') closeModal(); });
+
+// ── INIT ──────────────────────────────────────────────────────────────
+if (DEMO_MODE) {
+  showApp();
+} else {
+  SB.auth.getSession().then(function(res) {
+    if (res.data&&res.data.session&&res.data.session.user) { afterAuth(res.data.session.user); }
+    else { showScreen('auth'); }
+  });
+  SB.auth.onAuthStateChange(function(event) {
+    if (event==='SIGNED_OUT') { currentUser=null; userPlan='free'; modCache={}; showScreen('auth'); }
+  });
+}
+
+// ── BACKUP & RESTORE ──────────────────────────────────────────────────
+function doBackup() {
+  var btn = document.querySelector('.tb[onclick="doBackup()"]');
+  if (btn) { btn.textContent = '⏳ Wird erstellt…'; btn.disabled = true; }
+
+  if (DEMO_MODE) {
+    var bk = buildDemoBackup();
+    downloadJSON(bk);
+    if (btn) { btn.textContent = '💾 Backup'; btn.disabled = false; }
+    showToast('Backup heruntergeladen ✓');
+    return;
+  }
+
+  // Alle Einträge aus Supabase laden
+  SB.from('betriebspass_eintraege').select('*').eq('user_id', currentUser.id).then(function(res) {
+    if (res.error) { alert('Backup-Fehler: ' + res.error.message); if(btn){btn.textContent='💾 Backup';btn.disabled=false;} return; }
+    SB.from('betriebspass_einstellungen').select('data').eq('user_id', currentUser.id).maybeSingle().then(function(sRes) {
+      var grouped = {};
+      var allMods = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+      for (var i = 0; i < allMods.length; i++) grouped[allMods[i]] = [];
+      var entries = res.data || [];
+      for (var j = 0; j < entries.length; j++) {
+        var m = entries[j].modul;
+        if (grouped[m]) grouped[m].push({id: entries[j].id, data: entries[j].data, created_at: entries[j].created_at, updated_at: entries[j].updated_at});
+      }
+      var bk = {
+        version: '1.0',
+        produkt: 'Betriebspass Basic',
+        exported_at: new Date().toISOString(),
+        exported_by: currentUser ? currentUser.email : '',
+        betrieb: userSettings.firma || '',
+        einstellungen: sRes.data ? sRes.data : {},
+        daten: grouped
+      };
+      downloadJSON(bk);
+      if (btn) { btn.textContent = '💾 Backup'; btn.disabled = false; }
+      showToast('Backup heruntergeladen ✓');
+    });
+  });
+}
+
+function buildDemoBackup() {
+  var grouped = {};
+  var allMods = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+  for (var i = 0; i < allMods.length; i++) {
+    grouped[allMods[i]] = demoGet(allMods[i]).map(function(e){ return {id:e.id, data:e.data, created_at:e.created_at}; });
+  }
+  return {
+    version: '1.0',
+    produkt: 'Betriebspass Demo',
+    exported_at: new Date().toISOString(),
+    betrieb: userSettings.firma || '',
+    einstellungen: userSettings,
+    daten: grouped
+  };
+}
+
+function downloadJSON(obj) {
+  var d = new Date();
+  var ts = d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes());
+  var firma = (userSettings.firma || 'Betriebspass').replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g,'_');
+  var fname = 'Backup_' + firma + '_' + ts + '.json';
+  var blob = new Blob([JSON.stringify(obj, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = fname;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function pad(n) { return n < 10 ? '0'+n : ''+n; }
+
+function doRestore() {
+  if (!confirm('Achtung: Der Import überschreibt alle vorhandenen Einträge im jeweiligen Modul. Fortfahren?')) return;
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = function() {
+    var file = input.files[0]; if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var bk = JSON.parse(e.target.result);
+        if (!bk.version || !bk.daten) { alert('Ungültige Backup-Datei.'); return; }
+        importBackup(bk);
+      } catch(err) { alert('Fehler beim Lesen der Datei: ' + err.message); }
+    };
+    reader.readAsText(file);
+  };
+  document.body.appendChild(input); input.click(); document.body.removeChild(input);
+}
+
+function importBackup(bk) {
+  if (DEMO_MODE) {
+    var mods = Object.keys(bk.daten);
+    for (var i = 0; i < mods.length; i++) {
+      var m = mods[i];
+      if (bk.daten[m] && bk.daten[m].length > 0) {
+        var entries = bk.daten[m].map(function(e) { return {id: e.id||demoUUID(), modul:m, data:e.data, created_at:e.created_at||new Date().toISOString()}; });
+        demoSet(m, entries);
+        modCache[m] = entries;
+      }
+    }
+    if (bk.einstellungen) { userSettings = bk.einstellungen; localStorage.setItem('bp_demo_settings', JSON.stringify(userSettings)); }
+    showToast('Backup importiert ✓');
+    go(cPage);
+    return;
+  }
+
+  // Supabase: insert alle Einträge
+  var allMods = Object.keys(bk.daten);
+  var allEntries = [];
+  for (var i = 0; i < allMods.length; i++) {
+    var m = allMods[i];
+    var modEntries = bk.daten[m] || [];
+    for (var j = 0; j < modEntries.length; j++) {
+      allEntries.push({user_id: currentUser.id, modul: m, data: modEntries[j].data, created_at: modEntries[j].created_at || new Date().toISOString(), updated_at: new Date().toISOString()});
+    }
+  }
+
+  if (allEntries.length === 0) { showToast('Backup leer – nichts importiert.'); return; }
+
+  // Erst alle bestehenden Einträge löschen, dann neu einfügen
+  SB.from('betriebspass_eintraege').delete().eq('user_id', currentUser.id).then(function(delRes) {
+    if (delRes.error) { alert('Fehler beim Löschen: ' + delRes.error.message); return; }
+    SB.from('betriebspass_eintraege').insert(allEntries).then(function(insRes) {
+      if (insRes.error) { alert('Fehler beim Importieren: ' + insRes.error.message); return; }
+      // Einstellungen importieren
+      if (bk.einstellungen) {
+        userSettings = bk.einstellungen;
+        SB.from('betriebspass_einstellungen').upsert({user_id:currentUser.id, data:userSettings, updated_at:new Date().toISOString()},{onConflict:'user_id'});
+      }
+      modCache = {};
+      showToast('Backup importiert – ' + allEntries.length + ' Einträge ✓');
+      go(cPage);
+    });
+  });
+}
+
+</script>
+</body>
+</html>
