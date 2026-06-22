@@ -19,7 +19,6 @@ nav{background:#0f2840;padding:0 24px;height:56px;display:flex;align-items:cente
 h1{font-size:28px;font-weight:900;color:#1a3a5c;margin-bottom:8px}
 .updated{font-size:12px;color:#999;margin-bottom:36px;letter-spacing:1px}
 h2{font-size:16px;font-weight:700;color:#1a3a5c;margin:32px 0 10px;text-transform:uppercase;letter-spacing:1px}
-h3{font-size:14px;font-weight:700;color:#333;margin:20px 0 8px}
 p{margin-bottom:14px;color:#444}
 ul{margin:0 0 14px 20px;color:#444}
 ul li{margin-bottom:6px}
@@ -42,18 +41,15 @@ footer a{color:#3a6080;text-decoration:none}
 </nav>
 
 <div class="tabs">
-  <button class="tab on" onclick="show('impressum')">Impressum</button>
-  <button class="tab" onclick="show('datenschutz')">Datenschutz</button>
-  <button class="tab" onclick="show('agb')">AGB</button>
+  <button class="tab on" onclick="show('impressum',this)">Impressum</button>
+  <button class="tab" onclick="show('datenschutz',this)">Datenschutz</button>
+  <button class="tab" onclick="show('agb',this)">AGB</button>
 </div>
 
-<!-- ═══════════════════════════════════ -->
-<!-- IMPRESSUM                          -->
-<!-- ═══════════════════════════════════ -->
+<!-- IMPRESSUM -->
 <div class="page on" id="impressum">
   <h1>Impressum</h1>
   <p class="updated">Angaben gemäß § 5 TMG</p>
-
   <h2>Anbieter</h2>
   <address>
     Uwe Riedel<br>
@@ -62,146 +58,112 @@ footer a{color:#3a6080;text-decoration:none}
     73249 Wernau<br>
     Deutschland
   </address>
-
   <h2>Kontakt</h2>
   <p>
     Telefon: 0172 / 7409769<br>
-    E-Mail: info@riedel-classics.de&nbsp;<span style="color:#999;font-size:12px">(aktiv ab Launch)</span><br>
+    E-Mail: info@betriebspass.de<br>
     Website: www.betriebspass.de
   </p>
-
   <h2>Umsatzsteuer</h2>
-  <p>
-    Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG:<br>
-    <strong>DE353692126</strong>
-  </p>
-  <p>
-    Steuernummer: <strong>59374/14373</strong>
-  </p>
-
+  <p>Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG:<br><strong>DE353692126</strong></p>
+  <p>Steuernummer: <strong>59374/14373</strong></p>
   <h2>Verantwortlich für den Inhalt</h2>
   <p>Uwe Riedel, Esslinger Str. 5, 73249 Wernau</p>
-
   <h2>Streitschlichtung</h2>
   <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" style="color:#2a6090">https://ec.europa.eu/consumers/odr/</a></p>
   <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
-
   <h2>Haftung für Inhalte</h2>
-  <p>Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
-
+  <p>Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.</p>
   <h2>Haftung für Links</h2>
-  <p>Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+  <p>Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter verantwortlich.</p>
 </div>
 
-<!-- ═══════════════════════════════════ -->
-<!-- DATENSCHUTZ                        -->
-<!-- ═══════════════════════════════════ -->
+<!-- DATENSCHUTZ -->
 <div class="page" id="datenschutz">
   <h1>Datenschutzerklärung</h1>
   <p class="updated">Stand: Juni 2026</p>
-
   <div class="info-box">
-    <p><strong>Kurzfassung:</strong> Der Betriebspass speichert Ihre Daten ausschließlich lokal auf Ihrem Gerät (localStorage). Es werden keine personenbezogenen Daten an uns oder Dritte übertragen. Wir haben keinen Zugriff auf Ihre eingetragenen Betriebsdaten.</p>
+    <p><strong>Kurzfassung:</strong> Der Betriebspass speichert Ihre Daten verschlüsselt in der Cloud (Supabase, EU-Server). Betriebsdaten werden nicht an Dritte weitergegeben. Zugriff nur mit Ihrem persönlichen Account.</p>
   </div>
-
   <h2>1. Verantwortlicher</h2>
-  <p>Uwe Riedel, Riedel Classics, Esslinger Str. 5, 73249 Wernau<br>
-  E-Mail: info@riedel-classics.de</p>
-
-  <h2>2. Grundsatz: Lokale Datenspeicherung</h2>
-  <p>Der Betriebspass ist ein browserbasiertes Tool. Alle Daten die Sie im Betriebspass erfassen – Aufträge, Kunden, Finanzen, Zugänge, etc. – werden ausschließlich im <strong>localStorage Ihres Browsers</strong> auf Ihrem eigenen Gerät gespeichert.</p>
-  <p>Es findet <strong>keine Übertragung Ihrer Betriebsdaten an unsere Server</strong> oder Dritte statt. Wir haben technisch keinen Zugriff auf diese Daten. Ihre Daten verlassen Ihr Gerät nur wenn Sie die Export-Funktion nutzen – dann speichern Sie sie selbst als Datei.</p>
-
-  <h2>3. Daten beim Kauf</h2>
-  <p>Beim Kauf des Betriebspasses werden folgende Daten verarbeitet:</p>
+  <p>Uwe Riedel, Riedel Classics, Esslinger Str. 5, 73249 Wernau<br>E-Mail: info@betriebspass.de</p>
+  <h2>2. Datenspeicherung</h2>
+  <p>Der Betriebspass speichert Ihre Daten in einer gesicherten Datenbank bei Supabase (Server-Standort: EU West). Alle Daten sind durch Row-Level-Security geschützt – technisch kann ausschließlich Ihr eigener Account auf Ihre Daten zugreifen.</p>
+  <h2>3. Welche Daten werden gespeichert</h2>
   <ul>
-    <li>Name und E-Mail-Adresse (für Kaufabwicklung und Rechnungsstellung)</li>
-    <li>Zahlungsdaten (werden ausschließlich durch unseren Zahlungsdienstleister Stripe verarbeitet)</li>
-    <li>IP-Adresse (technisch notwendig für die Transaktion)</li>
+    <li>E-Mail-Adresse und verschlüsseltes Passwort (für Ihren Account)</li>
+    <li>Die von Ihnen eingetragenen Betriebsdaten (Einträge in den Modulen)</li>
+    <li>Hochgeladene Dokumente und Bilder (in gesichertem Cloud-Speicher)</li>
+    <li>Kaufdatum und Stripe-Session-ID (für Lizenznachweis)</li>
   </ul>
-  <p>Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung). Die Daten werden für die gesetzlich vorgeschriebene Aufbewahrungsfrist (10 Jahre für Rechnungsdaten) gespeichert.</p>
-
-  <h2>4. Zahlungsdienstleister Stripe</h2>
-  <p>Wir nutzen Stripe für die Zahlungsabwicklung. Stripe ist ein Dienst der Stripe Inc. / Stripe Payments Europe Ltd. Bei der Bezahlung werden Ihre Zahlungsdaten direkt an Stripe übermittelt. Wir haben keinen Zugriff auf Ihre vollständigen Zahlungsdaten (Kreditkartennummern etc.).</p>
-  <p>Datenschutzerklärung von Stripe: <a href="https://stripe.com/de/privacy" target="_blank" style="color:#2a6090">https://stripe.com/de/privacy</a></p>
-
-  <h2>5. Server-Logs</h2>
-  <p>Beim Aufruf unserer Website speichert der Webserver automatisch Zugriffsdaten (IP-Adresse, Datum/Uhrzeit, aufgerufene Seite, Browser). Diese Daten werden für maximal 7 Tage gespeichert und ausschließlich zur Fehlerbehebung genutzt.</p>
-
-  <h2>6. Cookies</h2>
-  <p>Diese Website verwendet keine Tracking-Cookies. Wir nutzen ausschließlich technisch notwendige Speichermechanismen (localStorage) für die Funktion des Tools.</p>
-
-  <h2>7. Ihre Rechte</h2>
-  <p>Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung sowie Datenübertragbarkeit bezüglich Ihrer personenbezogenen Daten. Bei Fragen wenden Sie sich an: info@riedel-classics.de</p>
-  <p>Sie haben außerdem das Recht, sich bei der zuständigen Datenschutz-Aufsichtsbehörde zu beschweren. In Baden-Württemberg ist dies der Landesbeauftragte für den Datenschutz und die Informationsfreiheit (LfDI BW).</p>
-
-  <h2>8. Datensicherheit Ihrer Betriebsdaten</h2>
-  <div class="warn-box">
-    <p><strong>Hinweis:</strong> Da Ihre Betriebsdaten lokal auf Ihrem Gerät gespeichert werden, sind Sie selbst für deren Sicherung verantwortlich. Wir empfehlen dringend regelmäßige Exporte und sichere Aufbewahrung der Backup-Dateien.</p>
-  </div>
+  <h2>4. Daten beim Kauf</h2>
+  <p>Beim Kauf werden folgende Daten verarbeitet:</p>
+  <ul>
+    <li>E-Mail-Adresse (für Kaufabwicklung und Rechnungsstellung)</li>
+    <li>Zahlungsdaten (ausschließlich durch Stripe verarbeitet – wir sehen keine Kartendaten)</li>
+    <li>IP-Adresse (technisch notwendig)</li>
+  </ul>
+  <p>Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung). Aufbewahrungsfrist: 10 Jahre (gesetzliche Pflicht für Rechnungsdaten).</p>
+  <h2>5. Zahlungsdienstleister Stripe</h2>
+  <p>Wir nutzen Stripe für die Zahlungsabwicklung (Stripe Payments Europe Ltd.). Datenschutzerklärung: <a href="https://stripe.com/de/privacy" target="_blank" style="color:#2a6090">stripe.com/de/privacy</a></p>
+  <h2>6. Infrastruktur-Dienstleister</h2>
+  <p>Supabase Inc. (Datenbankhosting, EU-Server) – <a href="https://supabase.com/privacy" target="_blank" style="color:#2a6090">supabase.com/privacy</a></p>
+  <h2>7. Cookies</h2>
+  <p>Diese Website verwendet keine Tracking-Cookies. Technisch notwendig: Session-Token für die Anmeldung (wird beim Abmelden gelöscht).</p>
+  <h2>8. Ihre Rechte</h2>
+  <p>Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit. Anfragen an: info@betriebspass.de. Beschwerderecht beim LfDI Baden-Württemberg.</p>
+  <h2>9. Datenlöschung</h2>
+  <p>Auf Anfrage werden alle Ihre Betriebsdaten und Ihr Account vollständig gelöscht. Rechnungsdaten werden entsprechend der gesetzlichen Aufbewahrungspflicht (10 Jahre) aufbewahrt.</p>
 </div>
 
-<!-- ═══════════════════════════════════ -->
-<!-- AGB                                -->
-<!-- ═══════════════════════════════════ -->
+<!-- AGB -->
 <div class="page" id="agb">
   <h1>Allgemeine Geschäftsbedingungen</h1>
   <p class="updated">Stand: Juni 2026</p>
-
   <h2>1. Geltungsbereich</h2>
-  <p>Diese Allgemeinen Geschäftsbedingungen gelten für alle Käufe des digitalen Produkts „Betriebspass" über die Website betriebspass.de. Anbieter ist Uwe Riedel, Riedel Classics, Esslinger Str. 5, 73249 Wernau (nachfolgend „Anbieter").</p>
-
+  <p>Diese AGB gelten für alle Käufe des digitalen Produkts „Betriebspass" über betriebspass.de. Anbieter: Uwe Riedel, Riedel Classics, Esslinger Str. 5, 73249 Wernau.</p>
   <h2>2. Vertragsgegenstand</h2>
-  <p>Der Betriebspass ist ein digitales Softwareprodukt in Form einer HTML-Datei. Das Produkt ermöglicht die strukturierte Erfassung und Verwaltung geschäftskritischer Betriebsinformationen im Browser. Es handelt sich um ein Werkzeug zur persönlichen Nutzung – nicht um eine Rechts-, Steuer- oder Finanzberatung.</p>
-
+  <p>Der Betriebspass ist ein webbasiertes Softwareprodukt zur strukturierten Erfassung und Verwaltung geschäftskritischer Betriebsinformationen. Er ist ein Dokumentationswerkzeug – kein Ersatz für Rechts-, Steuer- oder Finanzberatung.</p>
   <h2>3. Vertragsschluss</h2>
-  <p>Mit dem Abschluss des Kaufvorgangs und der Zahlung kommt ein verbindlicher Kaufvertrag zwischen dem Käufer und dem Anbieter zustande. Der Käufer erhält nach erfolgreicher Zahlung unverzüglich Zugang zum digitalen Produkt per Download-Link.</p>
-
+  <p>Mit Abschluss des Kaufvorgangs und Zahlung kommt ein verbindlicher Kaufvertrag zustande. Der Käufer erhält nach erfolgreicher Zahlung sofortigen Zugang zur Anwendung.</p>
   <h2>4. Preise und Zahlung</h2>
-  <p>Der Kaufpreis beträgt <strong>€29,00 inkl. 19% MwSt.</strong> (einmalig, kein Abonnement). Die Zahlung erfolgt über den Zahlungsdienstleister Stripe. Akzeptierte Zahlungsmittel: Kreditkarte, SEPA-Lastschrift, weitere Methoden gemäß Stripe-Angebot.</p>
-
-  <h2>5. Lieferung / Bereitstellung</h2>
-  <p>Nach erfolgreicher Zahlung erhält der Käufer den Download-Link zur Betriebspass-Datei (HTML) per E-Mail. Die Bereitstellung erfolgt unverzüglich, spätestens innerhalb von 24 Stunden nach Zahlungseingang.</p>
-
+  <p>Der Kaufpreis beträgt <strong>€ 39,00 inkl. 19 % MwSt.</strong> (einmalig, kein Abonnement). Zahlung über Stripe. Akzeptierte Zahlungsmittel: Kreditkarte, weitere Methoden gemäß Stripe-Angebot.</p>
+  <h2>5. Leistungsumfang</h2>
+  <p>Nach erfolgreicher Zahlung erhält der Käufer dauerhaften Zugang zu allen 13 Modulen des Betriebspass Basic, inkl. Dokument-Upload, Cloud-Speicher und Notfallbericht-Funktion.</p>
   <h2>6. Widerrufsrecht</h2>
   <div class="info-box">
-    <p><strong>Widerrufsrecht bei digitalen Produkten:</strong> Bei digitalen Produkten (Downloads) erlischt das Widerrufsrecht mit Beginn der Ausführung des Vertrags, wenn der Käufer ausdrücklich zugestimmt hat, dass mit der Ausführung des Vertrags vor Ablauf der Widerrufsfrist begonnen wird, und er seine Kenntnis davon bestätigt hat, dass er durch seine Zustimmung mit Beginn der Ausführung des Vertrags sein Widerrufsrecht verliert (§ 356 Abs. 5 BGB). Diese Zustimmung wird beim Kaufvorgang eingeholt.</p>
+    <p><strong>Hinweis:</strong> Bei digitalen Produkten mit sofortigem Zugang erlischt das Widerrufsrecht mit Beginn der Vertragsausführung, sofern der Käufer ausdrücklich zugestimmt hat (§ 356 Abs. 5 BGB). Diese Zustimmung wird beim Kaufvorgang eingeholt.</p>
   </div>
-  <p>Sofern kein Ausschluss des Widerrufsrechts vorliegt, besteht ein 14-tägiges Widerrufsrecht. Zur Ausübung wenden Sie sich an: info@riedel-classics.de</p>
-
+  <p>Sofern kein Ausschluss vorliegt, besteht ein 14-tägiges Widerrufsrecht. Kontakt: info@betriebspass.de</p>
   <h2>7. Nutzungsrecht</h2>
-  <p>Mit dem Kauf erhält der Käufer ein nicht-exklusives, nicht übertragbares Nutzungsrecht für den Betriebspass zur persönlichen betrieblichen Nutzung. Eine Weitergabe, Weiterveräußerung oder gewerbliche Nutzung des Produkts ist nicht gestattet.</p>
-
-  <h2>8. Haftungsbeschränkung</h2>
-  <p>Der Betriebspass ist ein Hilfsmittel zur strukturierten Dokumentation. Er ersetzt keine Rechts-, Steuer- oder sonstige Fachberatung. Der Anbieter übernimmt keine Haftung für die Vollständigkeit, Richtigkeit oder Aktualität der vom Nutzer eingetragenen Daten.</p>
-  <p>Der Anbieter haftet nur bei Vorsatz und grober Fahrlässigkeit sowie bei der Verletzung wesentlicher Vertragspflichten. Die Haftung ist auf den vorhersehbaren, typischen Schaden begrenzt, höchstens jedoch auf den Kaufpreis des Produkts.</p>
-
-  <h2>9. Datenspeicherung</h2>
-  <p>Der Betriebspass speichert alle eingetragenen Daten lokal im Browser des Nutzers (localStorage). Der Anbieter hat keinen Zugriff auf diese Daten. Der Nutzer ist selbst für die Sicherung seiner Daten verantwortlich (Export-Funktion).</p>
-
-  <h2>10. Anwendbares Recht & Gerichtsstand</h2>
-  <p>Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Gerichtsstand für Kaufleute und juristische Personen des öffentlichen Rechts ist Wernau / Baden-Württemberg.</p>
-
-  <h2>11. Salvatorische Klausel</h2>
-  <p>Sollten einzelne Bestimmungen dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
-
+  <p>Mit dem Kauf erhält der Käufer ein nicht-exklusives, nicht übertragbares Nutzungsrecht für den persönlichen betrieblichen Einsatz. Weitergabe oder gewerbliche Weiterveräußerung ist nicht gestattet.</p>
+  <h2>8. Verfügbarkeit</h2>
+  <p>Wir bemühen uns um eine hohe Verfügbarkeit der Anwendung. Ein Anspruch auf ununterbrochene Verfügbarkeit besteht nicht. Geplante Wartungsarbeiten werden soweit möglich vorab kommuniziert.</p>
+  <h2>9. Haftungsbeschränkung</h2>
+  <p>Der Betriebspass ist ein Hilfsmittel zur Dokumentation. Der Anbieter haftet nur bei Vorsatz und grober Fahrlässigkeit sowie bei Verletzung wesentlicher Vertragspflichten, begrenzt auf den Kaufpreis.</p>
+  <h2>10. Datenspeicherung</h2>
+  <p>Betriebsdaten werden verschlüsselt in der Cloud gespeichert. Der Anbieter hat keinen inhaltlichen Zugriff auf die Betriebsdaten. Der Nutzer ist für regelmäßige Backups mitverantwortlich (Backup-Funktion vorhanden).</p>
+  <h2>11. Anwendbares Recht & Gerichtsstand</h2>
+  <p>Es gilt deutsches Recht. Gerichtsstand für Kaufleute: Wernau / Baden-Württemberg.</p>
+  <h2>12. Salvatorische Klausel</h2>
+  <p>Sollten einzelne Bestimmungen unwirksam sein, bleibt die Wirksamkeit der übrigen unberührt.</p>
   <hr>
-  <p style="font-size:13px;color:#999">Uwe Riedel · Riedel Classics · Esslinger Str. 5 · 73249 Wernau · info@riedel-classics.de</p>
+  <p style="font-size:13px;color:#999">Uwe Riedel · Riedel Classics · Esslinger Str. 5 · 73249 Wernau · info@betriebspass.de</p>
 </div>
 
 <footer>
-  <p>betriebspass.de &nbsp;·&nbsp; <a href="#">Impressum</a> &nbsp;·&nbsp; <a href="#">Datenschutz</a> &nbsp;·&nbsp; <a href="#">AGB</a></p>
+  <p>betriebspass.de &nbsp;·&nbsp; <a href="index.html">Zurück zur Startseite</a></p>
 </footer>
 
 <script>
-function show(id){
-  var pages=document.querySelectorAll('.page');
-  var tabs=document.querySelectorAll('.tab');
-  for(var i=0;i<pages.length;i++)pages[i].classList.remove('on');
-  for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('on');
+function show(id, tab) {
+  var pages = document.querySelectorAll('.page');
+  var tabs  = document.querySelectorAll('.tab');
+  for (var i = 0; i < pages.length; i++) pages[i].classList.remove('on');
+  for (var i = 0; i < tabs.length;  i++) tabs[i].classList.remove('on');
   document.getElementById(id).classList.add('on');
-  event.target.classList.add('on');
-  window.scrollTo(0,0);
+  tab.classList.add('on');
+  window.scrollTo(0, 0);
 }
 </script>
 </body>
