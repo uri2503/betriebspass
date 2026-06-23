@@ -257,6 +257,7 @@ textarea{resize:vertical;min-height:65px}
       </div>
       <div class="safe-nav-sep"></div>
       <div class="ng">
+        <button class="nb-safe" data-p="testament" onclick="go('testament')" style="border-left-color:#8e44ad;background:rgba(142,68,173,.12);color:#c39bd3">📜 Digitales Testament</button>
         <button class="nb-safe" data-p="safe" onclick="go('safe')">🔒 Safe – Geheime Daten</button>
       </div>
       <div class="legal-footer">
@@ -306,6 +307,7 @@ var DEMO_INV_LIMIT  = 10;
 var SB           = supabase.createClient(SUPA_URL, SUPA_KEY);
 var currentUser  = null;
 var userPlan     = 'free';
+var userAddons   = {};   // z.B. {testament: true, waechter: true}
 var userSettings = {};
 var cPage        = 'dashboard';
 var mState       = null;   // Modal-Zustand: {mode, modul, id, entry}
@@ -368,6 +370,7 @@ var F = {
   notizen:{label:'Notizen',icon:'📝',f:[
     {k:'titel',l:'Titel',r:true},{k:'inhalt',l:'Inhalt',a:true}]}
 };
+// Testament ist kein Standard-Modul – eigene Render-Logik
 var MODS = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
 
 // ── DEMO-HILFSFUNKTIONEN ──────────────────────────────────────────────
@@ -457,9 +460,11 @@ function verifyAndActivate(sid) {
     }).catch(function() { setMsg('pay-msg','Verbindungsfehler.',true); btn.disabled=false; btn.textContent='Jetzt kaufen – 39 €'; });
 }
 function loadPlan(uid) {
-  SB.from('betriebspass_accounts').select('plan').eq('id',uid).maybeSingle().then(function(res) {
+  SB.from('betriebspass_accounts').select('plan,addons').eq('id',uid).maybeSingle().then(function(res) {
     if (res.data&&(res.data.plan==='basic'||res.data.plan==='pro')) {
-      userPlan=res.data.plan; showApp();
+      userPlan=res.data.plan;
+      userAddons=res.data.addons||{};
+      showApp();
     } else {
       SB.from('betriebspass_accounts').upsert({id:uid,plan:'free',updated_at:new Date().toISOString()},{onConflict:'id'}).then(function() { showScreen('pay'); });
     }
@@ -495,14 +500,20 @@ function go(page) {
   for (var i=0;i<nbs.length;i++) {
     nbs[i].className = 'nb' + (nbs[i].getAttribute('data-p')===page ? ' on' : '') + (DEMO_MODE&&!isDemoFree(nbs[i].getAttribute('data-p')) ? ' locked' : '');
   }
-  // Safe-Nav-Button separat highlighten
-  var safeBtn = document.querySelector('.nb-safe');
+  // Safe+Testament-Nav-Buttons separat highlighten
+  var safeBtn = document.querySelector('.nb-safe[data-p="safe"]');
   if (safeBtn) safeBtn.className = 'nb-safe' + (page==='safe' ? ' on' : '');
+  var testBtn = document.querySelector('.nb-safe[data-p="testament"]');
+  if (testBtn) testBtn.className = 'nb-safe' + (page==='testament' ? ' on' : '') + '" style="border-left-color:#8e44ad;background:rgba(142,68,173,.12);color:#c39bd3"';
   var bNew = document.getElementById('bNew');
   if (bNew) bNew.style.display = (page==='dashboard'||page==='einstellungen') ? 'none' : 'inline-block';
   if (page==='safe') {
     if (bNew) { bNew.style.display = safeUnlocked ? 'inline-block' : 'none'; bNew.onclick = function(){ openSafeModal(null); }; }
     renderSafe(); return;
+  }
+  if (page==='testament') {
+    if (bNew) bNew.style.display = 'none';
+    renderTestament(); return;
   }
   // NEU-Button zurück auf Standard
   if (bNew) bNew.onclick = openNewEntry;
@@ -1329,6 +1340,119 @@ function importBackup(bk) {
       showToast('Backup importiert – ' + allEntries.length + ' Einträge ✓');
       go(cPage);
     });
+  });
+}
+
+// ── DIGITALES TESTAMENT ───────────────────────────────────────────────
+var TESTAMENT_FIELDS = [
+  {k:'testament_ort',     l:'Wo liegt das offizielle Testament?', s:['Beim Notar','Amtsgericht','Zuhause (Tresor)','Beim Anwalt','Keines vorhanden']},
+  {k:'notar_kontakt',    l:'Notar / Anwalt – Name & Kontakt',    a:false},
+  {k:'erben',            l:'Gewünschte Erben – Zusammenfassung', a:true},
+  {k:'digitale_konten',  l:'Digitale Konten & Abos – was soll passieren?', a:true,
+   hint:'z.B. E-Mail löschen, Netflix kündigen, PayPal an Erben übertragen…'},
+  {k:'social_media',     l:'Social Media', s:['Löschen','Gedenkseite','Nichts – laufen lassen','Kein Social Media']},
+  {k:'bestattung',       l:'Bestattungswünsche', a:true,
+   hint:'z.B. Feuerbestattung, Ort, Musik, Blumen ja/nein…'},
+  {k:'botschaften',      l:'Persönliche Botschaften – wo hinterlegt?', a:true,
+   hint:'z.B. Brief im Tresor, E-Mail geplant, Ordner im Schrank…'},
+  {k:'hinweise',         l:'Wichtige Hinweise für Angehörige', a:true}
+];
+
+function getTestamentData() {
+  if (DEMO_MODE) {
+    var raw = localStorage.getItem('bp_demo_testament');
+    return raw ? JSON.parse(raw) : {};
+  }
+  return (userSettings && userSettings._testament) ? userSettings._testament : {};
+}
+
+function saveTestamentData(data) {
+  if (DEMO_MODE) { localStorage.setItem('bp_demo_testament', JSON.stringify(data)); return; }
+  userSettings._testament = data;
+  SB.from('betriebspass_einstellungen').upsert({
+    user_id:currentUser.id, data:userSettings, updated_at:new Date().toISOString()
+  },{onConflict:'user_id'});
+}
+
+function renderTestament() {
+  // Paywall wenn kein Addon (außer Demo)
+  if (!DEMO_MODE && !userAddons.testament) {
+    document.getElementById('main').innerHTML =
+      '<div class="locked-page">' +
+      '<div class="lock-icon">📜</div>' +
+      '<h2>Digitales Testament</h2>' +
+      '<p>Hinterlege Wünsche, Hinweise und wichtige Informationen für deine Angehörigen.<br><br>' +
+      'Dieses Modul ist als optionale Erweiterung erhältlich.</p>' +
+      '<div style="font-size:22px;font-weight:900;color:#1a3a5c;margin:16px 0">+ 10,– €<span style="font-size:13px;font-weight:400;color:#999"> einmalig</span></div>' +
+      '<button class="btn-primary" onclick="doAddonCheckout(\'testament\')">Jetzt freischalten</button>' +
+      '<div id="testament-pay-msg" class="auth-msg" style="margin-top:10px"></div>' +
+      '<p style="font-size:10px;color:#aaa;margin-top:20px">⚠️ Dieses Modul ersetzt kein rechtsgültiges Testament.</p>' +
+      '</div>';
+    return;
+  }
+  var data = getTestamentData();
+  var html =
+    '<div class="ph"><div class="pt">📜 Digitales Testament</div></div>' +
+    '<div class="safe-hint" style="border-color:#d5b8e8;background:#faf5ff;color:#6c3483">⚠️ Dieses Modul ersetzt kein rechtsgültiges Testament. Es dient als persönlicher Wegweiser und Begleitdokument für deine Angehörigen.</div>' +
+    '<div style="max-width:640px">' +
+    '<div class="sf">';
+  for (var i=0;i<TESTAMENT_FIELDS.length;i++) {
+    var f = TESTAMENT_FIELDS[i];
+    html += '<div class="fr"><label class="fl">'+f.l+'</label>';
+    if (f.s) {
+      html += '<select id="tf_'+f.k+'" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:4px;font-size:13px">';
+      html += '<option value="">– bitte wählen –</option>';
+      for (var j=0;j<f.s.length;j++) {
+        var sel = (data[f.k]===f.s[j]) ? ' selected' : '';
+        html += '<option value="'+f.s[j]+'"'+sel+'>'+f.s[j]+'</option>';
+      }
+      html += '</select>';
+    } else if (f.a) {
+      html += '<textarea id="tf_'+f.k+'" style="min-height:80px" placeholder="'+(f.hint||'')+'">'+esc(data[f.k]||'')+'</textarea>';
+    } else {
+      html += '<input type="text" id="tf_'+f.k+'" value="'+esc(data[f.k]||'')+'" placeholder="'+(f.hint||'')+'">';
+    }
+    html += '</div>';
+  }
+  html +=
+    '<div style="margin-top:16px;display:flex;gap:10px">' +
+    '<button class="abtn" onclick="saveTestament()">💾 Speichern</button>' +
+    '<div id="testament-save-msg" style="font-size:12px;color:#27ae60;padding:8px 0"></div>' +
+    '</div>' +
+    '</div></div>';
+  document.getElementById('main').innerHTML = html;
+}
+
+function saveTestament() {
+  var data = {};
+  for (var i=0;i<TESTAMENT_FIELDS.length;i++) {
+    var el = document.getElementById('tf_'+TESTAMENT_FIELDS[i].k);
+    if (el) data[TESTAMENT_FIELDS[i].k] = el.value.trim();
+  }
+  saveTestamentData(data);
+  var msg = document.getElementById('testament-save-msg');
+  if (msg) { msg.textContent = '✓ Gespeichert'; setTimeout(function(){ msg.textContent=''; },2500); }
+}
+
+function doAddonCheckout(addon) {
+  var btn = document.querySelector('.locked-page .btn-primary');
+  if (btn) { btn.disabled=true; btn.textContent='Weiterleitung zu Stripe…'; }
+  var base = window.location.origin + window.location.pathname;
+  fetch(CHECKOUT_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPA_KEY},
+    body:JSON.stringify({return_url:base, user_id:currentUser.id, addon:addon})
+  }).then(function(r){return r.json();}).then(function(d) {
+    if (d.url) { window.location.href=d.url; }
+    else {
+      var msg=document.getElementById('testament-pay-msg');
+      if (msg) msg.textContent='Fehler: '+(d.error||'Unbekannt');
+      if (btn) { btn.disabled=false; btn.textContent='Jetzt freischalten'; }
+    }
+  }).catch(function() {
+    var msg=document.getElementById('testament-pay-msg');
+    if (msg) msg.textContent='Verbindungsfehler.';
+    if (btn) { btn.disabled=false; btn.textContent='Jetzt freischalten'; }
   });
 }
 
