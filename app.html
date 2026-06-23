@@ -475,23 +475,24 @@ function afterAuth(user) {
   loadPlan(user.id);
 }
 function verifyAndActivate(sid) {
-  showScreen('pay');
-  var btn = document.getElementById('btn-pay');
-  btn.disabled=true; btn.textContent='Zahlung wird geprüft…';
+  // Prüfen ob Addon oder Basic – Addon braucht keinen Paywall-Screen
   fetch(VERIFY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:sid})})
     .then(function(r){return r.json();}).then(function(d) {
       if (d.paid) {
         if (d.product === 'betriebspass_basic') {
           userPlan='basic'; showApp();
         } else {
-          // Addon-Kauf: Plan und Addons neu laden dann App öffnen
+          // Addon: Plan+Addons neu laden, App direkt öffnen
           loadPlan(currentUser.id);
         }
       } else {
+        showScreen('pay');
         setMsg('pay-msg','Zahlung konnte nicht bestätigt werden.',true);
-        btn.disabled=false; btn.textContent='Jetzt kaufen – 39 €';
       }
-    }).catch(function() { setMsg('pay-msg','Verbindungsfehler.',true); btn.disabled=false; btn.textContent='Jetzt kaufen – 39 €'; });
+    }).catch(function() {
+      showScreen('pay');
+      setMsg('pay-msg','Verbindungsfehler.',true);
+    });
 }
 function loadPlan(uid) {
   SB.from('betriebspass_accounts').select('plan,addons').eq('id',uid).maybeSingle().then(function(res) {
