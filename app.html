@@ -219,6 +219,7 @@ textarea{resize:vertical;min-height:65px}
         <button class="nb" data-p="kunden">🏠 Kunden</button>
         <button class="nb" data-p="lieferanten">🚚 Lieferanten</button>
         <button class="nb" data-p="inventar">⚙️ Inventar</button>
+        <button class="nb" data-p="fuhrpark">🚗 Fuhrpark</button>
       </div>
       <div class="ng">
         <span class="ngl">Finanzen &amp; Recht</span>
@@ -261,9 +262,9 @@ textarea{resize:vertical;min-height:65px}
       <div class="doc-msg" id="doc-msg"></div>
     </div>
     <div class="ma">
-      <button class="mbtn sec" onclick="closeModal()">Schließen</button>
-      <button class="mbtn" id="bWtr" onclick="saveAndNext()" style="background:#2a6090">Speichern &amp; Weiter</button>
       <button class="mbtn" id="bSav" onclick="saveEntry()">Speichern</button>
+      <button class="mbtn" id="bWtr" onclick="saveAndNext()" style="background:#2a6090">Speichern &amp; Weiter</button>
+      <button class="mbtn sec" onclick="closeModal()">Schließen</button>
     </div>
   </div>
 </div>
@@ -294,6 +295,7 @@ var modCache     = {};     // Cache Einträge pro Modul
 var F = {
   vertraege:{label:'Verträge',icon:'📄',f:[
     {k:'titel',l:'Vertragsbezeichnung',r:true},{k:'partner',l:'Vertragspartner',r:true},
+    {k:'typ',l:'Vertragstyp',s:['Dienstleistung','Leasing','Kredit','Wartung','Miet/Pacht','Lizenz','Sonstiges']},
     {k:'beginn',l:'Laufzeit ab',t:'date'},{k:'ende',l:'Laufzeit bis',t:'date'},
     {k:'kuendigung',l:'Kündigungsfrist'},{k:'betrag',l:'Betrag/Jahr (€)'},
     {k:'status',l:'Status',s:['aktiv','ausgelaufen','gekündigt']},{k:'notiz',l:'Notiz',a:true}]},
@@ -336,10 +338,17 @@ var F = {
     {k:'frist',l:'Frist',t:'date'},{k:'notiz',l:'Notiz',a:true}]},
   wissen:{label:'Betriebswissen',icon:'💡',f:[
     {k:'titel',l:'Titel',r:true},{k:'kategorie',l:'Kategorie'},{k:'inhalt',l:'Inhalt',a:true,r:true}]},
+  fuhrpark:{label:'Fuhrpark / Fahrzeuge',icon:'🚗',f:[
+    {k:'bezeichnung',l:'Fahrzeug / Bezeichnung',r:true},{k:'kennzeichen',l:'Kennzeichen'},
+    {k:'typ',l:'Art',s:['Firmenwagen','Leasing','Kredit','Privat']},
+    {k:'halter',l:'Halter / Eigentümer'},{k:'hu',l:'HU fällig am',t:'date'},
+    {k:'versicherung',l:'Versicherung / Gesellschaft'},{k:'km',l:'Kilometerstand'},
+    {k:'rate',l:'Rate/Monat (€)'},{k:'vertragsende',l:'Vertragsende',t:'date'},
+    {k:'notiz',l:'Notiz',a:true}]},
   notizen:{label:'Notizen',icon:'📝',f:[
     {k:'titel',l:'Titel',r:true},{k:'inhalt',l:'Inhalt',a:true}]}
 };
-var MODS = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+var MODS = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
 
 // ── DEMO-HILFSFUNKTIONEN ──────────────────────────────────────────────
 function demoGet(modul) {
@@ -1173,7 +1182,7 @@ function doBackup() {
     if (res.error) { alert('Backup-Fehler: ' + res.error.message); if(btn){btn.textContent='💾 Backup';btn.disabled=false;} return; }
     SB.from('betriebspass_einstellungen').select('data').eq('user_id', currentUser.id).maybeSingle().then(function(sRes) {
       var grouped = {};
-      var allMods = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+      var allMods = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
       for (var i = 0; i < allMods.length; i++) grouped[allMods[i]] = [];
       var entries = res.data || [];
       for (var j = 0; j < entries.length; j++) {
@@ -1198,7 +1207,7 @@ function doBackup() {
 
 function buildDemoBackup() {
   var grouped = {};
-  var allMods = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+  var allMods = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
   for (var i = 0; i < allMods.length; i++) {
     grouped[allMods[i]] = demoGet(allMods[i]).map(function(e){ return {id:e.id, data:e.data, created_at:e.created_at}; });
   }
