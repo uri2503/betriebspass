@@ -1450,7 +1450,16 @@ function saveTestamentData(data) {
 function renderTestament() {
   // Gesperrt im Demo-Modus
   if (DEMO_MODE) {
-    renderLockedPage('testament'); return;
+    document.getElementById('main').innerHTML =
+      '<div class="locked-page">' +
+      '<div class="lock-icon">📜</div>' +
+      '<h2>Digitales Testament</h2>' +
+      '<p>Dieses Modul ist eine kostenpflichtige Erweiterung.<br><br>' +
+      '⚠️ Voraussetzung: Du benötigst zuerst den <strong>Betriebspass Basic (39 €)</strong>,<br>danach ist das Digitale Testament als Erweiterung für <strong>+ 10 €</strong> zubuchbar.</p>' +
+      '<a href="index.html" class="buy-cta">Zuerst Betriebspass kaufen – 39 €</a><br>' +
+      '<span class="demo-hint">Demo mit Inventar &amp; Notizen aktiv</span>' +
+      '</div>';
+    return;
   }
   // Paywall wenn kein Addon
   if (!DEMO_MODE && !userAddons.testament) {
