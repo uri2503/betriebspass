@@ -261,7 +261,8 @@ textarea{resize:vertical;min-height:65px}
       <div class="doc-msg" id="doc-msg"></div>
     </div>
     <div class="ma">
-      <button class="mbtn sec" onclick="closeModal()">Abbrechen</button>
+      <button class="mbtn sec" onclick="closeModal()">Schließen</button>
+      <button class="mbtn" id="bWtr" onclick="saveAndNext()" style="background:#2a6090">Speichern &amp; Weiter</button>
       <button class="mbtn" id="bSav" onclick="saveEntry()">Speichern</button>
     </div>
   </div>
@@ -794,6 +795,83 @@ function saveEntry() {
       mState.entry=updated;
       renderCards(mState.modul,'');
       showToast('Gespeichert ✓');
+    });
+  }
+}
+
+// ── SPEICHERN & WEITER ────────────────────────────────────────────────
+function saveAndNext() {
+  var modul = mState ? mState.modul : null;
+  if (!modul) return;
+  // saveEntry intern aufrufen, danach neues Modal öffnen
+  // Felder validieren (gleiche Logik wie saveEntry)
+  var cfg = F[modul];
+  var data = {};
+  if (mState.entry && mState.entry.data) data = JSON.parse(JSON.stringify(mState.entry.data));
+  var ok = true;
+  for (var i=0;i<cfg.f.length;i++) {
+    var f=cfg.f[i]; var el=document.getElementById('fi'+i);
+    if (el) {
+      data[f.k] = el.value.trim();
+      if (f.r&&!data[f.k]) { el.style.borderColor='#c0392b'; ok=false; }
+      else el.style.borderColor='';
+    }
+  }
+  if (!ok) return;
+  var bw = document.getElementById('bWtr');
+  var bs = document.getElementById('bSav');
+  if (bw) { bw.disabled=true; bw.textContent='Wird gespeichert…'; }
+  if (bs) bs.disabled=true;
+
+  if (DEMO_MODE) {
+    var entries = demoGet(modul);
+    if (mState.mode==='add') {
+      if (modul==='inventar' && entries.length >= DEMO_INV_LIMIT) {
+        if (bw) { bw.disabled=false; bw.textContent='Speichern & Weiter'; }
+        if (bs) bs.disabled=false;
+        showToast('Demo-Limit erreicht ('+DEMO_INV_LIMIT+' Einträge)');
+        return;
+      }
+      var ne2 = {id:demoUUID(), modul:modul, data:data, created_at:new Date().toISOString()};
+      entries.unshift(ne2);
+      demoSet(modul, entries);
+      modCache[modul] = entries;
+    } else {
+      for (var j=0;j<entries.length;j++) { if (entries[j].id===mState.id) { entries[j].data=data; break; } }
+      demoSet(modul, entries);
+      modCache[modul] = entries;
+    }
+    renderCards(modul, '');
+    showToast('Gespeichert ✓');
+    openModal(modul, null);
+    return;
+  }
+
+  // Supabase-Modus
+  var doOpen = function() {
+    renderCards(modul, '');
+    showToast('Gespeichert ✓');
+    openModal(modul, null);
+  };
+  if (mState.mode==='add') {
+    SB.from('betriebspass_eintraege').insert({user_id:currentUser.id,modul:modul,data:data}).select().then(function(res) {
+      if (bw) { bw.disabled=false; bw.textContent='Speichern & Weiter'; }
+      if (bs) bs.disabled=false;
+      if (res.error) { alert('Fehler: '+res.error.message); return; }
+      if (!modCache[modul]) modCache[modul]=[];
+      modCache[modul].unshift(res.data[0]);
+      doOpen();
+    });
+  } else {
+    SB.from('betriebspass_eintraege').update({data:data,updated_at:new Date().toISOString()}).eq('id',mState.id).select().then(function(res) {
+      if (bw) { bw.disabled=false; bw.textContent='Speichern & Weiter'; }
+      if (bs) bs.disabled=false;
+      if (res.error) { alert('Fehler: '+res.error.message); return; }
+      var updated=res.data[0];
+      var entries=modCache[modul]||[];
+      for (var i=0;i<entries.length;i++) { if (entries[i].id===mState.id) { entries[i]=updated; break; } }
+      mState.entry=updated;
+      doOpen();
     });
   }
 }
