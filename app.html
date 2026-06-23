@@ -509,10 +509,29 @@ function loadPlan(uid) {
       userPlan=res.data.plan;
       userAddons=res.data.addons||{};
       showApp();
+    } else if (res.data&&res.data.addons&&Object.keys(res.data.addons).length>0) {
+      // Hat Addons aber noch kein Basic – trotzdem App zeigen, Addon-Kauf war erfolgreich
+      userPlan='free';
+      userAddons=res.data.addons||{};
+      showAddonConfirmation();
     } else {
       SB.from('betriebspass_accounts').upsert({id:uid,plan:'free',updated_at:new Date().toISOString()},{onConflict:'id'}).then(function() { showScreen('pay'); });
     }
   });
+}
+
+function showAddonConfirmation() {
+  showScreen('pay');
+  var box = document.querySelector('.pay-box');
+  if (!box) return;
+  box.innerHTML =
+    '<div class="mark">✅</div>' +
+    '<h2>Erweiterung freigeschaltet!</h2>' +
+    '<p class="sub">Dein Addon wurde erfolgreich aktiviert.<br>Du benötigst noch den <strong>Betriebspass Basic</strong> um alle Funktionen nutzen zu können.</p>' +
+    '<div class="pay-price">39,– € <span>einmalig</span></div>' +
+    '<div class="pay-hint">inkl. MwSt. · Sofortiger Zugang nach Zahlung</div>' +
+    '<button class="btn-pay" onclick="doCheckout()">Jetzt Betriebspass kaufen – 39 €</button>' +
+    '<br><span class="pay-logout" onclick="doLogout()">Abmelden</span>';
 }
 function doCheckout() {
   var btn = document.getElementById('btn-pay');
