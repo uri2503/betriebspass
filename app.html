@@ -58,6 +58,7 @@ textarea{resize:vertical;min-height:65px}
 #logo span:first-child{color:#fff;font-size:16px;font-weight:900;letter-spacing:2px}
 #logo span:last-child{color:#7ab3d4;font-size:9px;letter-spacing:3px;text-transform:uppercase}
 .tb{background:none;border:1px solid #2a6090;color:#7ab3d4;padding:6px 12px;font-size:11px;text-transform:uppercase;cursor:pointer;letter-spacing:1px;border-radius:3px}
+.tb-new{background:#e8f0f8;border:2px solid #2a6090;color:#1a3a5c;padding:7px 18px;font-size:13px;font-weight:900;text-transform:uppercase;cursor:pointer;letter-spacing:1px;border-radius:4px}
 #wrap{display:block;width:100%}
 #nav{display:inline-block;vertical-align:top;width:190px;background:#0f2840;min-height:calc(100vh - 54px)}
 #main{display:inline-block;vertical-align:top;width:calc(100% - 194px);padding:20px;background:#f5f5f5;min-height:calc(100vh - 54px)}
@@ -217,7 +218,7 @@ textarea{resize:vertical;min-height:65px}
   </div>
   <div id="bar">
     <div id="logo"><span>BETRIEBSPASS</span><span>Digitales Betriebshandbuch</span></div>
-    <button class="tb" onclick="openNewEntry()" id="bNew">+ Neu</button>
+    <button class="tb-new" onclick="openNewEntry()" id="bNew">＋ NEU</button>
     <button class="tb" onclick="doBackup()">💾 Backup</button>
     <button class="tb" onclick="printReport()">📄 Notfallbericht</button>
     <button class="tb" id="btn-logout" onclick="doLogout()">Abmelden</button>
@@ -498,8 +499,13 @@ function go(page) {
   var safeBtn = document.querySelector('.nb-safe');
   if (safeBtn) safeBtn.className = 'nb-safe' + (page==='safe' ? ' on' : '');
   var bNew = document.getElementById('bNew');
-  if (bNew) bNew.style.display = (page==='dashboard'||page==='einstellungen'||page==='safe') ? 'none' : 'inline-block';
-  if (page==='safe') { renderSafe(); return; }
+  if (bNew) bNew.style.display = (page==='dashboard'||page==='einstellungen') ? 'none' : 'inline-block';
+  if (page==='safe') {
+    if (bNew) { bNew.style.display = safeUnlocked ? 'inline-block' : 'none'; bNew.onclick = function(){ openSafeModal(null); }; }
+    renderSafe(); return;
+  }
+  // NEU-Button zurück auf Standard
+  if (bNew) bNew.onclick = openNewEntry;
   if (DEMO_MODE && !isDemoFree(page) && page!=='dashboard' && page!=='einstellungen') {
     renderLockedPage(page); return;
   }
@@ -1437,6 +1443,8 @@ function doSetSafePIN() {
   if (pin1!==pin2) { msg.textContent='PINs stimmen nicht überein.'; return; }
   saveSafePINHash(hashPIN(pin1));
   safeUnlocked = true;
+  var bNew = document.getElementById('bNew');
+  if (bNew) { bNew.style.display='inline-block'; bNew.onclick=function(){ openSafeModal(null); }; }
   showToast('Safe eingerichtet ✓');
   renderSafeContent();
 }
@@ -1447,6 +1455,8 @@ function doUnlockSafe() {
   var stored = getSafePINHash();
   if (hashPIN(pin) !== stored) { renderSafePINEntry(true); return; }
   safeUnlocked = true;
+  var bNew = document.getElementById('bNew');
+  if (bNew) { bNew.style.display='inline-block'; bNew.onclick=function(){ openSafeModal(null); }; }
   renderSafeContent();
 }
 
@@ -1454,10 +1464,8 @@ function renderSafeContent() {
   var entries = getSafeEntries();
   var html =
     '<div class="ph"><div class="pt">🔒 Safe – Geheime Daten</div>' +
-    '<div style="display:flex;gap:8px">' +
-    '<button class="abtn" onclick="openSafeModal(null)">+ Neu</button>' +
     '<button class="abtn" style="background:#888" onclick="lockSafe()">🔒 Sperren</button>' +
-    '</div></div>' +
+    '</div>' +
     '<div class="safe-hint">⚠️ Diese Einträge sind nur für dich sichtbar. Sie werden nicht im Standard-Backup exportiert. Teile den Safe-PIN nur mit absolut vertrauten Personen.</div>';
   if (entries.length===0) {
     html += '<div class="empty">Noch keine geheimen Einträge. Klicke auf "+ Neu".</div>';
