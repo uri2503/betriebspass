@@ -1448,7 +1448,11 @@ function saveTestamentData(data) {
 }
 
 function renderTestament() {
-  // Paywall wenn kein Addon (außer Demo)
+  // Gesperrt im Demo-Modus
+  if (DEMO_MODE) {
+    renderLockedPage('testament'); return;
+  }
+  // Paywall wenn kein Addon
   if (!DEMO_MODE && !userAddons.testament) {
     document.getElementById('main').innerHTML =
       '<div class="locked-page">' +
