@@ -218,7 +218,11 @@ textarea{resize:vertical;min-height:65px}
     </ul>
     <div class="pay-price">39,– € <span>einmalig</span></div>
     <div class="pay-hint">inkl. MwSt. · Sofortiger Zugang nach Zahlung</div>
-    <button class="btn-pay" id="btn-pay" onclick="doCheckout()">Jetzt kaufen – 39 €</button>
+    <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5;color:#555;margin:14px 0;text-align:left;cursor:pointer">
+      <input type="checkbox" id="widerrufCheck" onchange="document.getElementById('btn-pay').disabled=!this.checked" style="margin-top:2px;flex-shrink:0">
+      <span>Ich stimme ausdrücklich zu, dass mit der Bereitstellung des digitalen Zugangs vor Ablauf der Widerrufsfrist begonnen wird, und bestätige, dass ich dadurch mein Widerrufsrecht verliere (§&nbsp;356 Abs.&nbsp;5 BGB). <a href="rechtliches.html" target="_blank" style="color:#1a3a5c">AGB &amp; Widerrufsbelehrung</a></span>
+    </label>
+    <button class="btn-pay" id="btn-pay" onclick="doCheckout()" disabled>Jetzt kaufen – 39 €</button>
     <div class="auth-msg" id="pay-msg"></div>
     <span class="pay-logout" onclick="doLogout()">Abmelden</span>
   </div>
@@ -531,7 +535,10 @@ function showAddonConfirmation() {
       '<p class="sub">Dein Addon wurde erfolgreich aktiviert.<br><br>Du benötigst noch den <strong>Betriebspass Basic</strong> um alle Funktionen nutzen zu können.</p>' +
       '<div class="pay-price">39,– € <span>einmalig</span></div>' +
       '<div class="pay-hint">inkl. MwSt. · Sofortiger Zugang nach Zahlung</div>' +
-      '<button class="btn-pay" onclick="doCheckout()">Jetzt Betriebspass kaufen – 39 €</button>' +
+      '<label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5;color:#555;margin:14px 0;text-align:left;cursor:pointer">' +
+      '<input type="checkbox" id="widerrufCheck2" onchange="document.getElementById(\'btn-pay-addon\').disabled=!this.checked" style="margin-top:2px;flex-shrink:0">' +
+      '<span>Ich stimme ausdrücklich zu, dass mit der Bereitstellung des digitalen Zugangs vor Ablauf der Widerrufsfrist begonnen wird, und bestätige, dass ich dadurch mein Widerrufsrecht verliere (§&nbsp;356 Abs.&nbsp;5 BGB). <a href="rechtliches.html" target="_blank" style="color:#1a3a5c">AGB &amp; Widerrufsbelehrung</a></span></label>' +
+      '<button class="btn-pay" id="btn-pay-addon" onclick="doCheckout()" disabled>Jetzt Betriebspass kaufen – 39 €</button>' +
       '<br><span class="pay-logout" onclick="doLogout()">Abmelden</span>';
   }, 50);
 }
@@ -1490,8 +1497,11 @@ function renderTestament() {
       '<h2>Digitales Testament</h2>' +
       '<p>Hinterlege Wünsche, Hinweise und wichtige Informationen für deine Angehörigen.<br><br>' +
       'Dieses Modul ist als optionale Erweiterung erhältlich.</p>' +
-      '<div style="font-size:22px;font-weight:900;color:#1a3a5c;margin:16px 0">+ 10,– €<span style="font-size:13px;font-weight:400;color:#999"> einmalig</span></div>' +
-      '<button class="btn-primary" onclick="doAddonCheckout(\'testament\')">Jetzt freischalten</button>' +
+      '<div style="font-size:22px;font-weight:900;color:#1a3a5c;margin:16px 0">+ 10,– €<span style="font-size:13px;font-weight:400;color:#999"> einmalig · inkl. MwSt.</span></div>' +
+      '<label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;line-height:1.5;color:#555;margin:12px 0;text-align:left;cursor:pointer">' +
+      '<input type="checkbox" id="widerrufCheckTestament" onchange="document.getElementById(\'btn-testament\').disabled=!this.checked" style="margin-top:2px;flex-shrink:0">' +
+      '<span>Ich stimme ausdrücklich zu, dass mit der Bereitstellung des digitalen Zugangs vor Ablauf der Widerrufsfrist begonnen wird, und bestätige, dass ich dadurch mein Widerrufsrecht verliere (§&nbsp;356 Abs.&nbsp;5 BGB). <a href="rechtliches.html" target="_blank" style="color:#1a3a5c">AGB &amp; Widerrufsbelehrung</a></span></label>' +
+      '<button class="btn-primary" id="btn-testament" onclick="doAddonCheckout(\'testament\')" disabled>Jetzt freischalten</button>' +
       '<div id="testament-pay-msg" class="auth-msg" style="margin-top:10px"></div>' +
       '<p style="font-size:10px;color:#aaa;margin-top:20px">⚠️ Dieses Modul ersetzt kein rechtsgültiges Testament.</p>' +
       '</div>';
