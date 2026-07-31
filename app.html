@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Betriebspass – Digitales Betriebshandbuch</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#f5f5f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;font-size:14px}
@@ -335,6 +337,9 @@ var SUPA_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 var CHECKOUT_URL = SUPA_URL + '/functions/v1/betriebspass-checkout';
 var VERIFY_URL   = SUPA_URL + '/functions/v1/betriebspass-verify';
 var BUCKET       = 'betriebspass-docs';
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+}
 
 // ── DEMO-MODUS ────────────────────────────────────────────────────────
 var DEMO_MODE       = (new URLSearchParams(window.location.search)).get('demo') === '1';
@@ -1102,13 +1107,76 @@ function compressImage(file, maxDim, quality) {
     img.src = url;
   });
 }
+function isPdfFile(file) {
+  return file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+}
+var PDF_COMPRESS_MIN_SIZE = 3 * 1024 * 1024; // erst ab 3 MB lohnt sich das Neu-Rastern
+// Große (meist gescannte) PDFs komprimieren: jede Seite wird auf reduzierte Auflösung
+// gerastert und als JPEG in ein neues, kleineres PDF eingebettet. Verliert die Textebene
+// (nicht mehr durchsuchbar/markierbar), spart bei Foto-Scans aber massiv Speicherplatz.
+function compressPdf(file, dpi, quality) {
+  return new Promise(function(resolve) {
+    if (!isPdfFile(file) || file.size < PDF_COMPRESS_MIN_SIZE ||
+        typeof pdfjsLib === 'undefined' || typeof PDFLib === 'undefined') { resolve(file); return; }
+    var reader = new FileReader();
+    reader.onerror = function() { resolve(file); };
+    reader.onload = function() {
+      var data = new Uint8Array(reader.result);
+      pdfjsLib.getDocument({data: data}).promise.then(function(pdf) {
+        PDFLib.PDFDocument.create().then(function(newDoc) {
+          function processPage(idx) {
+            if (idx > pdf.numPages) {
+              newDoc.save().then(function(bytes) {
+                var blob = new Blob([bytes], {type:'application/pdf'});
+                if (blob.size >= file.size) { resolve(file); return; }
+                var newFile;
+                try { newFile = new File([blob], file.name, {type:'application/pdf'}); }
+                catch(e) { blob.name = file.name; newFile = blob; }
+                resolve(newFile);
+              }).catch(function() { resolve(file); });
+              return;
+            }
+            pdf.getPage(idx).then(function(page) {
+              var basisVp = page.getViewport({scale:1});
+              var viewport = page.getViewport({scale: dpi/72});
+              var canvas = document.createElement('canvas');
+              canvas.width = Math.round(viewport.width);
+              canvas.height = Math.round(viewport.height);
+              var ctx = canvas.getContext('2d');
+              page.render({canvasContext:ctx, viewport:viewport}).promise.then(function() {
+                canvas.toBlob(function(blob) {
+                  if (!blob) { resolve(file); return; }
+                  blob.arrayBuffer().then(function(buf) {
+                    newDoc.embedJpg(buf).then(function(jpg) {
+                      var pg = newDoc.addPage([basisVp.width, basisVp.height]);
+                      pg.drawImage(jpg, {x:0, y:0, width:basisVp.width, height:basisVp.height});
+                      processPage(idx+1);
+                    }).catch(function() { resolve(file); });
+                  });
+                }, 'image/jpeg', quality);
+              }).catch(function() { resolve(file); });
+            }).catch(function() { resolve(file); });
+          }
+          processPage(1);
+        }).catch(function() { resolve(file); });
+      }).catch(function() { resolve(file); });
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+function prepareFileForUpload(file) {
+  if (isImageFile(file)) return compressImage(file, 1920, 0.8);
+  if (isPdfFile(file)) return compressPdf(file, 150, 0.7);
+  return Promise.resolve(file);
+}
 function uploadDoc(input) {
   if (!input.files||!input.files[0]) return;
   if (!mState||!mState.entry) return;
   var origFile=input.files[0]; input.value='';
   var docMsg = document.getElementById('doc-msg');
-  docMsg.textContent = isImageFile(origFile) ? 'Wird komprimiert…' : 'Wird hochgeladen…';
-  compressImage(origFile, 1920, 0.8).then(function(file) {
+  var willCompress = isImageFile(origFile) || (isPdfFile(origFile) && origFile.size >= PDF_COMPRESS_MIN_SIZE);
+  docMsg.textContent = willCompress ? 'Wird komprimiert…' : 'Wird hochgeladen…';
+  prepareFileForUpload(origFile).then(function(file) {
     docMsg.textContent='Wird hochgeladen…';
     var path = currentUser.id+'/'+mState.modul+'/'+mState.entry.id+'/'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
     SB.storage.from(BUCKET).upload(path,file,{upsert:false}).then(function(res) {
