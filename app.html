@@ -213,7 +213,7 @@ textarea{resize:vertical;min-height:65px}
     <h2>Betriebspass Basic</h2>
     <p class="sub">Alle wichtigen Betriebsinformationen sicher an einem Ort – Verträge, Zugänge, Versicherungen, Kontakte und Dokumente.</p>
     <ul class="pay-features">
-      <li>13 Datenmodule komplett freigeschaltet</li>
+      <li>14 Datenmodule komplett freigeschaltet</li>
       <li>Dokument-Upload (PDF, Bilder) pro Eintrag</li>
       <li>Sicherer Cloud-Speicher – immer verfügbar</li>
       <li>Einmalzahlung – keine laufenden Kosten</li>
@@ -256,6 +256,7 @@ textarea{resize:vertical;min-height:65px}
         <button class="nb" data-p="lieferanten">🚚 Lieferanten</button>
         <button class="nb" data-p="inventar">⚙️ Inventar</button>
         <button class="nb" data-p="fuhrpark">🚗 Fuhrpark</button>
+        <button class="nb" data-p="immobilien">🏘️ Immobilien</button>
       </div>
       <div class="ng">
         <span class="ngl">Finanzen &amp; Recht</span>
@@ -423,11 +424,22 @@ var F = {
     {k:'kaufpreis',l:'Kaufpreis (€)'},{k:'zeitwert',l:'Zeitwert geschätzt (€)'},
     {k:'rate',l:'Rate/Monat (€)'},{k:'vertragsende',l:'Vertragsende',t:'date'},
     {k:'notiz',l:'Notiz',a:true}]},
+  immobilien:{label:'Immobilien / Liegenschaften',icon:'🏘️',f:[
+    {k:'bezeichnung',l:'Bezeichnung / Adresse',r:true},
+    {k:'typ',l:'Objektart',s:['Wohnhaus','Eigentumswohnung','Gewerbeimmobilie','Grundstück','Sonstiges']},
+    {k:'kaufdatum',l:'Kaufdatum',t:'date'},{k:'kaufpreis',l:'Kaufpreis (€)'},
+    {k:'verkehrswert',l:'Verkehrswert geschätzt (€)'},
+    {k:'flaeche',l:'Wohn-/Grundstücksfläche (m²)'},
+    {k:'grundbuch',l:'Grundbuchblatt / Flurstück'},
+    {k:'restschuld',l:'Restschuld / Kredit (€)'},
+    {k:'versicherung',l:'Versicherung / Gesellschaft'},
+    {k:'grundsteuer',l:'Grundsteuer/Jahr (€)'},
+    {k:'notiz',l:'Notiz',a:true}]},
   notizen:{label:'Notizen',icon:'📝',f:[
     {k:'titel',l:'Titel',r:true},{k:'inhalt',l:'Inhalt',a:true}]}
 };
 // Testament ist kein Standard-Modul – eigene Render-Logik
-var MODS = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+var MODS = ['auftraege','kunden','lieferanten','inventar','fuhrpark','immobilien','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
 
 // ── DEMO-HILFSFUNKTIONEN ──────────────────────────────────────────────
 function demoGet(modul) {
@@ -664,7 +676,7 @@ function renderLockedPage(page) {
     '<div class="locked-page">' +
     '<div class="lock-icon">🔒</div>' +
     '<h2>' + cfg.icon + ' ' + esc(cfg.label) + '</h2>' +
-    '<p>Dieses Modul ist in der Demo-Version nicht verfügbar.<br>Kaufe den Betriebspass für 39 € und erhalte sofort Zugang zu allen 13 Modulen, Dokument-Upload und Cloud-Speicher.</p>' +
+    '<p>Dieses Modul ist in der Demo-Version nicht verfügbar.<br>Kaufe den Betriebspass für 39 € und erhalte sofort Zugang zu allen 14 Modulen, Dokument-Upload und Cloud-Speicher.</p>' +
     '<a href="index.html" class="buy-cta">Jetzt kaufen – 39 €</a><br>' +
     '<span class="demo-hint">Demo mit Inventar &amp; Notizen aktiv</span>' +
     '</div>';
@@ -1278,7 +1290,7 @@ function printReport() {
     var dateStr = pad(now.getDate()) + '.' + pad(now.getMonth()+1) + '.' + now.getFullYear();
     var timeStr = pad(now.getHours()) + ':' + pad(now.getMinutes());
 
-    var modOrder = ['kontakte','finanzen','zugaenge','vertraege','versicherungen','auftraege','kunden','lieferanten','inventar','fuhrpark','rechtliches','wissen','notizen'];
+    var modOrder = ['kontakte','finanzen','zugaenge','vertraege','versicherungen','auftraege','kunden','lieferanten','inventar','fuhrpark','immobilien','rechtliches','wissen','notizen'];
 
     var css = [
       '*{box-sizing:border-box;margin:0;padding:0}',
@@ -1407,7 +1419,7 @@ function printReport() {
   // Daten laden
   if (DEMO_MODE) {
     var demoData = {};
-    var allMods2 = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+    var allMods2 = ['auftraege','kunden','lieferanten','inventar','fuhrpark','immobilien','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
     for (var i = 0; i < allMods2.length; i++) demoData[allMods2[i]] = demoGet(allMods2[i]);
     buildAndOpen(userSettings, demoData);
     return;
@@ -1415,7 +1427,7 @@ function printReport() {
 
   SB.from('betriebspass_eintraege').select('*').eq('user_id', currentUser.id).then(function(res) {
     var grouped = {};
-    var allMods2 = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+    var allMods2 = ['auftraege','kunden','lieferanten','inventar','fuhrpark','immobilien','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
     for (var i = 0; i < allMods2.length; i++) grouped[allMods2[i]] = [];
     var entries = res.data || [];
     for (var j = 0; j < entries.length; j++) {
@@ -1444,7 +1456,7 @@ function doBackup() {
     if (res.error) { alert('Backup-Fehler: ' + res.error.message); if(btn){btn.textContent='💾 Backup';btn.disabled=false;} return; }
     SB.from('betriebspass_einstellungen').select('data').eq('user_id', currentUser.id).maybeSingle().then(function(sRes) {
       var grouped = {};
-      var allMods = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+      var allMods = ['auftraege','kunden','lieferanten','inventar','fuhrpark','immobilien','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
       for (var i = 0; i < allMods.length; i++) grouped[allMods[i]] = [];
       var entries = res.data || [];
       for (var j = 0; j < entries.length; j++) {
@@ -1469,7 +1481,7 @@ function doBackup() {
 
 function buildDemoBackup() {
   var grouped = {};
-  var allMods = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+  var allMods = ['auftraege','kunden','lieferanten','inventar','fuhrpark','immobilien','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
   for (var i = 0; i < allMods.length; i++) {
     grouped[allMods[i]] = demoGet(allMods[i]).map(function(e){ return {id:e.id, data:e.data, created_at:e.created_at}; });
   }
