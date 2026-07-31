@@ -368,6 +368,7 @@ var F = {
     {k:'art',l:'Versicherungsart',r:true},{k:'gesellschaft',l:'Gesellschaft',r:true},
     {k:'nr',l:'Versicherungsnummer'},{k:'ansprechpartner',l:'Ansprechpartner'},
     {k:'telefon',l:'Telefon'},{k:'jahresbeitrag',l:'Jahresbeitrag (€)'},
+    {k:'beginn',l:'Versicherungsbeginn',t:'date'},{k:'ablauf',l:'Ablauf-/Verlängerungsdatum',t:'date'},
     {k:'kuendigung',l:'Kündigungsfrist'},{k:'notiz',l:'Notiz',a:true}]},
   zugaenge:{label:'Zugänge & Passwörter',icon:'🔐',f:[
     {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'url',l:'URL / System'},
@@ -391,7 +392,9 @@ var F = {
   inventar:{label:'Inventar / Maschinen',icon:'⚙️',f:[
     {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'seriennr',l:'Seriennummer'},
     {k:'kaufdatum',l:'Kaufdatum',t:'date'},{k:'wert',l:'Kaufwert (€)'},
-    {k:'buchwert',l:'Buchwert / Zeitwert geschätzt (€)'},{k:'wartung',l:'Nächste Wartung',t:'date'},{k:'standort',l:'Standort'},{k:'notiz',l:'Notiz',a:true}]},
+    {k:'buchwert',l:'Buchwert / Zeitwert geschätzt (€)'},{k:'garantie',l:'Garantie bis',t:'date'},
+    {k:'wartung',l:'Nächste Wartung',t:'date'},{k:'versicherung',l:'Versicherung / Gesellschaft'},
+    {k:'standort',l:'Standort'},{k:'notiz',l:'Notiz',a:true}]},
   finanzen:{label:'Bank & Finanzen',icon:'🏦',f:[
     {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'bank',l:'Bank / Institut'},
     {k:'iban',l:'IBAN'},{k:'vollmacht',l:'Kontovollmacht'},
@@ -405,8 +408,10 @@ var F = {
     {k:'titel',l:'Titel',r:true},{k:'kategorie',l:'Kategorie'},{k:'inhalt',l:'Inhalt',a:true,r:true}]},
   fuhrpark:{label:'Fuhrpark / Fahrzeuge',icon:'🚗',f:[
     {k:'bezeichnung',l:'Fahrzeug / Bezeichnung',r:true},{k:'kennzeichen',l:'Kennzeichen'},
+    {k:'fin',l:'Fahrgestellnummer / FIN'},
     {k:'typ',l:'Art',s:['Firmenwagen','Leasing','Kredit','Privat']},
     {k:'halter',l:'Halter / Eigentümer'},{k:'hu',l:'HU fällig am',t:'date'},
+    {k:'service',l:'Nächster Service/Inspektion',t:'date'},
     {k:'versicherung',l:'Versicherung / Gesellschaft'},{k:'km',l:'Kilometerstand'},
     {k:'kaufpreis',l:'Kaufpreis (€)'},{k:'zeitwert',l:'Zeitwert geschätzt (€)'},
     {k:'rate',l:'Rate/Monat (€)'},{k:'vertragsende',l:'Vertragsende',t:'date'},
