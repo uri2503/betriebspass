@@ -374,7 +374,9 @@ var F = {
     {k:'beginn',l:'Versicherungsbeginn',t:'date'},{k:'ablauf',l:'Ablauf-/Verlängerungsdatum',t:'date'},
     {k:'kuendigung',l:'Kündigungsfrist'},{k:'notiz',l:'Notiz',a:true}]},
   zugaenge:{label:'Zugänge & Passwörter',icon:'🔐',f:[
-    {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'url',l:'URL / System'},
+    {k:'bezeichnung',l:'Bezeichnung',r:true},
+    {k:'kategorie',l:'Kategorie',s:['Banking','Software','Hardware','Behörden','Social Media','Sonstiges']},
+    {k:'url',l:'URL / System'},
     {k:'benutzername',l:'Benutzername'},{k:'passwort',l:'Passwort / PIN'},
     {k:'kontakt',l:'Support-Kontakt'},{k:'notiz',l:'Notiz',a:true}]},
   kontakte:{label:'Wichtige Kontakte',icon:'👤',f:[
@@ -386,10 +388,11 @@ var F = {
     {k:'status',l:'Status',s:['offen','in Bearbeitung','abgeschlossen','storniert']},
     {k:'faellig',l:'Fällig am',t:'date'},{k:'wert',l:'Auftragswert (€)'},{k:'notiz',l:'Notiz',a:true}]},
   kunden:{label:'Kundenliste',icon:'🏠',f:[
-    {k:'name',l:'Name / Firma',r:true},{k:'telefon',l:'Telefon'},
+    {k:'name',l:'Name / Firma',r:true},{k:'kundennr',l:'Kundennummer'},{k:'telefon',l:'Telefon'},
     {k:'email',l:'E-Mail'},{k:'adresse',l:'Adresse'},{k:'notiz',l:'Notiz',a:true}]},
   lieferanten:{label:'Lieferanten',icon:'🚚',f:[
-    {k:'name',l:'Lieferant',r:true},{k:'produkte',l:'Produkte / Leistungen'},
+    {k:'name',l:'Lieferant',r:true},{k:'lieferantennr',l:'Lieferantennummer'},
+    {k:'produkte',l:'Produkte / Leistungen'},
     {k:'ansprechpartner',l:'Ansprechpartner'},{k:'telefon',l:'Telefon'},
     {k:'email',l:'E-Mail'},{k:'konditionen',l:'Konditionen'},{k:'notiz',l:'Notiz',a:true}]},
   inventar:{label:'Inventar / Maschinen',icon:'⚙️',f:[
@@ -404,7 +407,7 @@ var F = {
     {k:'ansprechpartner',l:'Ansprechpartner / Berater'},{k:'telefon',l:'Telefon'},
     {k:'kreditlimit',l:'Kreditlimit (€)'},{k:'notiz',l:'Notiz',a:true}]},
   rechtliches:{label:'Rechtliches',icon:'⚖️',f:[
-    {k:'thema',l:'Thema',r:true},{k:'anwalt',l:'Anwalt / Kanzlei'},
+    {k:'thema',l:'Thema',r:true},{k:'gegenpartei',l:'Gegenpartei'},{k:'anwalt',l:'Anwalt / Kanzlei'},
     {k:'aktenzeichen',l:'Aktenzeichen'},
     {k:'status',l:'Status',s:['laufend','abgeschlossen','ruhend']},
     {k:'frist',l:'Frist',t:'date'},{k:'notiz',l:'Notiz',a:true}]},
