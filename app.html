@@ -1158,7 +1158,7 @@ function printReport() {
     var dateStr = pad(now.getDate()) + '.' + pad(now.getMonth()+1) + '.' + now.getFullYear();
     var timeStr = pad(now.getHours()) + ':' + pad(now.getMinutes());
 
-    var modOrder = ['kontakte','finanzen','zugaenge','vertraege','versicherungen','auftraege','kunden','lieferanten','inventar','rechtliches','wissen','notizen'];
+    var modOrder = ['kontakte','finanzen','zugaenge','vertraege','versicherungen','auftraege','kunden','lieferanten','inventar','fuhrpark','rechtliches','wissen','notizen'];
 
     var css = [
       '*{box-sizing:border-box;margin:0;padding:0}',
@@ -1287,7 +1287,7 @@ function printReport() {
   // Daten laden
   if (DEMO_MODE) {
     var demoData = {};
-    var allMods2 = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+    var allMods2 = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
     for (var i = 0; i < allMods2.length; i++) demoData[allMods2[i]] = demoGet(allMods2[i]);
     buildAndOpen(userSettings, demoData);
     return;
@@ -1295,7 +1295,7 @@ function printReport() {
 
   SB.from('betriebspass_eintraege').select('*').eq('user_id', currentUser.id).then(function(res) {
     var grouped = {};
-    var allMods2 = ['auftraege','kunden','lieferanten','inventar','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
+    var allMods2 = ['auftraege','kunden','lieferanten','inventar','fuhrpark','finanzen','vertraege','versicherungen','rechtliches','zugaenge','kontakte','wissen','notizen'];
     for (var i = 0; i < allMods2.length; i++) grouped[allMods2[i]] = [];
     var entries = res.data || [];
     for (var j = 0; j < entries.length; j++) {
