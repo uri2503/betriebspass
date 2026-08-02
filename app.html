@@ -406,10 +406,14 @@ var F = {
     {k:'ansprechpartner',l:'Ansprechpartner'},{k:'telefon',l:'Telefon'},
     {k:'email',l:'E-Mail'},{k:'konditionen',l:'Konditionen'},{k:'notiz',l:'Notiz',a:true}]},
   inventar:{label:'Inventar / Maschinen',icon:'⚙️',f:[
-    {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'seriennr',l:'Seriennummer'},
+    {k:'bezeichnung',l:'Bezeichnung',r:true},
+    {k:'kategorie',l:'Kategorie',s:['Maschine','Werkzeug','IT/Elektronik','Büroausstattung','Sonstiges']},
+    {k:'seriennr',l:'Seriennummer'},{k:'hersteller',l:'Hersteller / Modell'},
     {k:'kaufdatum',l:'Kaufdatum',t:'date'},{k:'wert',l:'Kaufwert (€)'},
     {k:'buchwert',l:'Buchwert / Zeitwert geschätzt (€)'},{k:'garantie',l:'Garantie bis',t:'date'},
-    {k:'wartung',l:'Nächste Wartung',t:'date'},{k:'versicherung',l:'Versicherung / Gesellschaft'},
+    {k:'wartung',l:'Nächste Wartung',t:'date'},
+    {k:'wartungsfirma',l:'Wartungsfirma / Ansprechpartner'},{k:'wartungTelefon',l:'Wartung Telefon'},
+    {k:'versicherung',l:'Versicherung / Gesellschaft'},
     {k:'standort',l:'Standort'},{k:'notiz',l:'Notiz',a:true}]},
   finanzen:{label:'Bank & Finanzen',icon:'🏦',f:[
     {k:'bezeichnung',l:'Bezeichnung',r:true},
