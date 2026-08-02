@@ -408,10 +408,13 @@ var F = {
     {k:'wartung',l:'Nächste Wartung',t:'date'},{k:'versicherung',l:'Versicherung / Gesellschaft'},
     {k:'standort',l:'Standort'},{k:'notiz',l:'Notiz',a:true}]},
   finanzen:{label:'Bank & Finanzen',icon:'🏦',f:[
-    {k:'bezeichnung',l:'Bezeichnung',r:true},{k:'bank',l:'Bank / Institut'},
+    {k:'bezeichnung',l:'Bezeichnung',r:true},
+    {k:'kontotyp',l:'Kontoart',s:['Girokonto','Sparkonto','Tagesgeld','Kreditkarte','Darlehen/Kredit','Depot','Sonstiges']},
+    {k:'bank',l:'Bank / Institut'},
     {k:'iban',l:'IBAN'},{k:'bic',l:'BIC'},{k:'vollmacht',l:'Kontovollmacht'},
-    {k:'ansprechpartner',l:'Ansprechpartner / Berater'},{k:'telefon',l:'Telefon'},
-    {k:'kreditlimit',l:'Kreditlimit (€)'},{k:'notiz',l:'Notiz',a:true}]},
+    {k:'ansprechpartner',l:'Ansprechpartner / Berater'},{k:'telefon',l:'Telefon'},{k:'email',l:'E-Mail Berater'},
+    {k:'kreditlimit',l:'Kreditlimit (€)'},{k:'faellig',l:'Kredit fällig am',t:'date'},
+    {k:'notiz',l:'Notiz',a:true}]},
   rechtliches:{label:'Rechtliches',icon:'⚖️',f:[
     {k:'thema',l:'Thema',r:true},
     {k:'kategorie',l:'Rechtsgebiet',s:['Vertragsrecht','Arbeitsrecht','Steuerrecht','Zivilrecht','Verwaltungsrecht','Sonstiges']},
