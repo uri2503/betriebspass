@@ -7,22 +7,28 @@
 //   - Ist der Check-in überfällig? -> Notfallbericht (ohne Safe-Inhalte) einmalig an
 //     alle hinterlegten Vertrauenspersonen senden.
 //
-// Benötigte Secrets (per `supabase secrets set ...` zu setzen):
-//   RESEND_API_KEY        – API-Key von resend.com
-//   WAECHTER_FROM_EMAIL    – Absenderadresse, z.B. "Betriebspass <waechter@betriebspass.de>"
-//   WAECHTER_CRON_SECRET    – frei gewähltes Geheimnis, muss mit dem Wert in der
-//                             Cron-Migration übereinstimmen (Schutz gegen fremde Aufrufe)
+// E-Mail-Versand nutzt bewusst dieselbe SMTP-Konfiguration wie die bestehende
+// "riedel-send-email"-Funktion (Secrets SMTP_HOST/PORT/USER/PASS/FROM sind im
+// Projekt bereits gesetzt und erprobt) – kein zusätzlicher E-Mail-Dienst nötig.
+//
+// Zusätzlich benötigtes Secret (per `supabase secrets set ...` zu setzen):
+//   WAECHTER_CRON_SECRET – frei gewähltes Geheimnis, muss mit dem Wert in der
+//                          Cron-Migration übereinstimmen (Schutz gegen fremde Aufrufe)
 //
 // SUPABASE_URL und SUPABASE_SERVICE_ROLE_KEY sind für Edge Functions automatisch
 // verfügbar und müssen nicht separat gesetzt werden.
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || "";
-const FROM_EMAIL = Deno.env.get("WAECHTER_FROM_EMAIL") || "Betriebspass <waechter@betriebspass.de>";
+const SMTP_HOST = Deno.env.get("SMTP_HOST") ?? "";
+const SMTP_PORT = parseInt(Deno.env.get("SMTP_PORT") ?? "465");
+const SMTP_USER = Deno.env.get("SMTP_USER") ?? "";
+const SMTP_PASS = Deno.env.get("SMTP_PASS") ?? "";
+const SMTP_FROM = Deno.env.get("SMTP_FROM") ?? SMTP_USER;
 const CRON_SECRET = Deno.env.get("WAECHTER_CRON_SECRET") || "";
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
@@ -53,21 +59,35 @@ function escapeHtml(s: string): string {
 }
 
 async function sendEmail(to: string, subject: string, html: string) {
-  if (!RESEND_API_KEY) {
-    console.error("RESEND_API_KEY fehlt – E-Mail wurde NICHT gesendet:", subject, to);
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    console.error("SMTP ist nicht eingerichtet (Secrets fehlen) – E-Mail wurde NICHT gesendet:", subject, to);
     return;
   }
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${RESEND_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ from: FROM_EMAIL, to: [to], subject, html })
-  });
-  if (!res.ok) {
-    console.error("Resend-Fehler", res.status, await res.text());
+  try {
+    const client = new SMTPClient({
+      connection: {
+        hostname: SMTP_HOST,
+        port: SMTP_PORT,
+        tls: true,
+        auth: { username: SMTP_USER, password: SMTP_PASS }
+      }
+    });
+    await client.send({
+      from: `Betriebspass <${SMTP_FROM}>`,
+      to,
+      subject,
+      html
+    });
+    await client.close();
+  } catch (e) {
+    console.error("SMTP-Fehler beim Senden an", to, e);
   }
+}
+
+async function resolveOwnerEmail(userId: string, settingsData: any): Promise<string | null> {
+  if (settingsData?.email) return settingsData.email;
+  const { data } = await supabase.auth.admin.getUserById(userId);
+  return data?.user?.email || null;
 }
 
 async function buildNotfallHtml(userId: string, settingsData: any): Promise<string> {
@@ -157,7 +177,7 @@ async function handleCheck() {
         const alreadySentRecently = w.erinnerungGesendetAm &&
           (Date.now() - new Date(w.erinnerungGesendetAm).getTime()) < vorlaufTage * 86400000;
         if (alreadySentRecently) continue;
-        const ownerEmail = row.data?.email;
+        const ownerEmail = await resolveOwnerEmail(row.user_id, row.data);
         if (!ownerEmail) continue;
         const naechster = new Date(lastCheckin + intervallTage * 86400000).toLocaleDateString("de-DE");
         const html = `<p>Dein Check-in für "Mein stiller Wächter" im Betriebspass ist bald fällig (${naechster}).</p>
