@@ -391,12 +391,16 @@ var F = {
     {k:'kontakt',l:'Support-Kontakt'},{k:'notiz',l:'Notiz',a:true}]},
   kontakte:{label:'Wichtige Kontakte',icon:'👤',f:[
     {k:'name',l:'Name',r:true},{k:'funktion',l:'Funktion/Rolle',r:true},
+    {k:'kategorie',l:'Kategorie',s:['Steuerberater','Anwalt/Notar','Bank','Behörde','Mitarbeiter','Familie/Erbe','Sonstiges']},
+    {k:'firma',l:'Firma / Kanzlei'},
     {k:'telefon',l:'Telefon'},{k:'email',l:'E-Mail'},
     {k:'adresse',l:'Adresse'},{k:'notiz',l:'Notiz',a:true}]},
   auftraege:{label:'Laufende Aufträge',icon:'🔧',f:[
-    {k:'bezeichnung',l:'Auftragsbezeichnung',r:true},{k:'kunde',l:'Kunde'},
+    {k:'bezeichnung',l:'Auftragsbezeichnung',r:true},{k:'kunde',l:'Kunde'},{k:'kundenTelefon',l:'Kunde Telefon'},
     {k:'status',l:'Status',s:['offen','in Bearbeitung','abgeschlossen','storniert']},
-    {k:'faellig',l:'Fällig am',t:'date'},{k:'wert',l:'Auftragswert (€)'},{k:'notiz',l:'Notiz',a:true}]},
+    {k:'faellig',l:'Fällig am',t:'date'},{k:'wert',l:'Auftragswert (€)'},
+    {k:'zahlungsstatus',l:'Zahlungsstatus',s:['offen','angezahlt','bezahlt']},
+    {k:'notiz',l:'Notiz',a:true}]},
   kunden:{label:'Kundenliste',icon:'🏠',f:[
     {k:'name',l:'Name / Firma',r:true},{k:'kundennr',l:'Kundennummer'},
     {k:'kategorie',l:'Kundentyp',s:['Privatkunde','Gewerbekunde','Stammkunde','Sonstiges']},
@@ -441,7 +445,9 @@ var F = {
     {k:'streitwert',l:'Streitwert / Risiko (€)'},
     {k:'notiz',l:'Notiz',a:true}]},
   wissen:{label:'Betriebswissen',icon:'💡',f:[
-    {k:'titel',l:'Titel',r:true},{k:'kategorie',l:'Kategorie'},{k:'inhalt',l:'Inhalt',a:true,r:true}]},
+    {k:'titel',l:'Titel',r:true},{k:'kategorie',l:'Kategorie'},
+    {k:'verantwortlich',l:'Verantwortlich / macht das normalerweise'},
+    {k:'inhalt',l:'Inhalt',a:true,r:true}]},
   fuhrpark:{label:'Fuhrpark / Fahrzeuge',icon:'🚗',f:[
     {k:'bezeichnung',l:'Fahrzeug / Bezeichnung',r:true},{k:'kennzeichen',l:'Kennzeichen'},
     {k:'fin',l:'Fahrgestellnummer / FIN'},
