@@ -156,7 +156,7 @@ textarea{resize:vertical;min-height:65px}
 .nb-premium-title{font-size:12px;font-weight:700;color:#e8d5a0;letter-spacing:.5px}
 .nb-premium-safe .nb-premium-title{color:#e8a0a0}
 .nb-premium-sub{font-size:10px;color:#a07840;letter-spacing:.5px}
-.nb-premium-waechter{border-left-color:#2980b9 !important;background:linear-gradient(135deg,rgba(41,128,185,.15),rgba(41,128,185,.06)) !important;border-color:rgba(41,128,185,.35) !important;opacity:.8}
+.nb-premium-waechter{border-left-color:#2980b9 !important;background:linear-gradient(135deg,rgba(41,128,185,.15),rgba(41,128,185,.06)) !important;border-color:rgba(41,128,185,.35) !important}
 .nb-premium-waechter .nb-premium-title{color:#7fb3d3}
 .nb-premium-waechter .nb-premium-sub{color:#2980b9}
 .safe-nav-sep{border-top:1px solid #1a3a5c;margin:10px 0 4px}
@@ -299,7 +299,7 @@ textarea{resize:vertical;min-height:65px}
           <span class="nb-premium-icon">⏰</span>
           <span class="nb-premium-text">
             <span class="nb-premium-title">Mein stiller Wächter</span>
-            <span class="nb-premium-sub" id="nav-status-waechter">Demnächst · + 10 € einmalig</span>
+            <span class="nb-premium-sub" id="nav-status-waechter">+ 10 € einmalig</span>
           </span>
         </button>
       </div>
@@ -671,6 +671,16 @@ function updateAddonStatus() {
       tEl.className = 'nb-premium-sub';
     }
   }
+  var wEl = document.getElementById('nav-status-waechter');
+  if (wEl) {
+    if (userAddons && userAddons.waechter) {
+      wEl.textContent = 'Freigeschaltet ✓';
+      wEl.className = 'nb-premium-sub unlocked';
+    } else {
+      wEl.textContent = '+ 10 € einmalig';
+      wEl.className = 'nb-premium-sub';
+    }
+  }
   // Safe ist immer im Paket – kein Preis nötig, bleibt statisch
 }
 
@@ -700,16 +710,7 @@ function go(page) {
   }
   if (page==='waechter') {
     if (bNew) bNew.style.display = 'none';
-    document.getElementById('main').innerHTML =
-      '<div class="locked-page">' +
-      '<div class="lock-icon">⏰</div>' +
-      '<h2>Mein stiller Wächter</h2>' +
-      '<p style="max-width:380px;margin:0 auto 20px">Lege einen Check-in Rhythmus fest.<br>Wenn du nicht antwortest, erhalten deine Vertrauenspersonen automatisch Zugang zu deinem Betriebspass.<br><br>' +
-      '<strong>Dieses Modul ist in Entwicklung</strong> und wird in Kürze verfügbar sein.</p>' +
-      '<div style="font-size:22px;font-weight:900;color:#1a3a5c;margin:16px 0">+ 10,– €<span style="font-size:13px;font-weight:400;color:#999"> einmalig</span></div>' +
-      '<button class="btn-primary" style="opacity:.5;cursor:not-allowed" disabled>Bald verfügbar</button>' +
-      '</div>';
-    return;
+    renderWaechter(); return;
   }
   // NEU-Button zurück auf Standard
   if (bNew) bNew.onclick = openNewEntry;
@@ -1446,6 +1447,8 @@ function printReport() {
     for (var tk in testamentData) { if (testamentData[tk]) { testamentFilled = true; break; } }
     html += '<div class="toc-item"><span>📜 Digitales Testament</span><span>' + (testamentFilled ? 'hinterlegt' : 'keine Angaben') + '</span></div>';
     if (testamentFilled) hasAny = true;
+    var waechterCfg = getWaechterConfig();
+    html += '<div class="toc-item"><span>⏰ Mein stiller Wächter</span><span>' + (waechterCfg.aktiv ? 'aktiv · alle ' + waechterCfg.intervallTage + ' Tage' : 'inaktiv') + '</span></div>';
     if (!hasAny) html += '<p style="color:#999;font-style:italic;margin-top:12px">Noch keine Einträge vorhanden.</p>';
     if (safeCount > 0) {
       html += '<p style="color:#999;font-style:italic;font-size:9pt;margin-top:8px">🔒 Der Safe ist PIN-geschützt – seine Inhalte sind aus Sicherheitsgründen nicht in diesem Bericht enthalten.</p>';
@@ -1802,15 +1805,165 @@ function doAddonCheckout(addon) {
   }).then(function(r){return r.json();}).then(function(d) {
     if (d.url) { window.location.href=d.url; }
     else {
-      var msg=document.getElementById('testament-pay-msg');
+      var msg=document.getElementById(addon+'-pay-msg');
       if (msg) msg.textContent='Fehler: '+(d.error||'Unbekannt');
       if (btn) { btn.disabled=false; btn.textContent='Jetzt freischalten'; }
     }
   }).catch(function() {
-    var msg=document.getElementById('testament-pay-msg');
+    var msg=document.getElementById(addon+'-pay-msg');
     if (msg) msg.textContent='Verbindungsfehler.';
     if (btn) { btn.disabled=false; btn.textContent='Jetzt freischalten'; }
   });
+}
+
+// ── MEIN STILLER WÄCHTER ─────────────────────────────────────────────
+var WAECHTER_INTERVALLE = [30,60,90,180];
+var WAECHTER_VORLAUFZEITEN = [3,7,14];
+
+function getWaechterConfig() {
+  var raw = DEMO_MODE ? localStorage.getItem('bp_demo_waechter') : (userSettings._waechter ? JSON.stringify(userSettings._waechter) : null);
+  var cfg = raw ? JSON.parse(raw) : {};
+  return {
+    aktiv: !!cfg.aktiv,
+    intervallTage: cfg.intervallTage || 90,
+    vorlaufTage: cfg.vorlaufTage || 7,
+    vertrauenspersonen: cfg.vertrauenspersonen || [],
+    letzterCheckin: cfg.letzterCheckin || null,
+    erinnerungGesendetAm: cfg.erinnerungGesendetAm || null,
+    ausgeloestAm: cfg.ausgeloestAm || null
+  };
+}
+
+function saveWaechterConfig(cfg) {
+  if (DEMO_MODE) { localStorage.setItem('bp_demo_waechter', JSON.stringify(cfg)); return; }
+  userSettings._waechter = cfg;
+  SB.from('betriebspass_einstellungen').upsert({user_id:currentUser.id,data:userSettings,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+}
+
+function renderWaechter() {
+  if (DEMO_MODE) {
+    document.getElementById('main').innerHTML =
+      '<div class="locked-page">' +
+      '<div class="lock-icon">⏰</div>' +
+      '<h2>Mein stiller Wächter</h2>' +
+      '<p>Dieses Modul ist eine kostenpflichtige Erweiterung.<br><br>' +
+      '⚠️ Voraussetzung: Du benötigst zuerst den <strong>Betriebspass Basic (39 €)</strong>,<br>danach ist Mein stiller Wächter als Erweiterung für <strong>+ 10 €</strong> zubuchbar.</p>' +
+      '<a href="index.html" class="buy-cta">Zuerst Betriebspass kaufen – 39 €</a><br>' +
+      '<span class="demo-hint">Demo mit Inventar &amp; Notizen aktiv</span>' +
+      '</div>';
+    return;
+  }
+  if (!userAddons.waechter) {
+    document.getElementById('main').innerHTML =
+      '<div class="locked-page">' +
+      '<div class="lock-icon">⏰</div>' +
+      '<h2>Mein stiller Wächter</h2>' +
+      '<p>Lege einen Check-in-Rhythmus fest. Wenn du nicht antwortest, erhalten deine Vertrauenspersonen automatisch deinen Notfallbericht per E-Mail.<br><br>' +
+      'Dieses Modul ist als optionale Erweiterung erhältlich.</p>' +
+      '<div style="font-size:22px;font-weight:900;color:#1a3a5c;margin:16px 0">+ 10,– €<span style="font-size:13px;font-weight:400;color:#999"> einmalig · inkl. MwSt.</span></div>' +
+      '<label style="display:flex;align-items:flex-start;gap:8px;font-size:11px;line-height:1.5;color:#555;margin:12px 0;text-align:left;cursor:pointer">' +
+      '<input type="checkbox" id="widerrufCheckWaechter" onchange="document.getElementById(\'btn-waechter\').disabled=!this.checked" style="margin-top:2px;flex-shrink:0">' +
+      '<span>Ich stimme ausdrücklich zu, dass mit der Bereitstellung des digitalen Zugangs vor Ablauf der Widerrufsfrist begonnen wird, und bestätige, dass ich dadurch mein Widerrufsrecht verliere (§&nbsp;356 Abs.&nbsp;5 BGB). <a href="rechtliches.html" target="_blank" style="color:#1a3a5c">AGB &amp; Widerrufsbelehrung</a></span></label>' +
+      '<button class="btn-primary" id="btn-waechter" onclick="doAddonCheckout(\'waechter\')" disabled>Jetzt freischalten</button>' +
+      '<div id="waechter-pay-msg" class="auth-msg" style="margin-top:10px"></div>' +
+      '<p style="font-size:10px;color:#aaa;margin-top:20px">⚠️ Der automatische Versand erfordert eine serverseitige Prüfung, die aktuell eingerichtet wird.</p>' +
+      '</div>';
+    return;
+  }
+  var cfg = getWaechterConfig();
+  var naechsterCheckin = '–';
+  var tageVerbleibend = null;
+  if (cfg.letzterCheckin) {
+    var next = new Date(cfg.letzterCheckin);
+    next.setDate(next.getDate() + cfg.intervallTage);
+    naechsterCheckin = pad(next.getDate())+'.'+pad(next.getMonth()+1)+'.'+next.getFullYear();
+    tageVerbleibend = Math.ceil((next - new Date()) / 86400000);
+  }
+  var html =
+    '<div class="ph"><div class="pt">⏰ Mein stiller Wächter</div></div>' +
+    '<div class="safe-hint" style="border-color:#a8c8e0;background:#f0f6fc;color:#1a3a5c">⚠️ Wenn der Check-in ausbleibt, erhalten deine Vertrauenspersonen automatisch deinen Notfallbericht per E-Mail (ohne Safe-Inhalte). Der automatische Versand erfordert eine serverseitige Prüfung, die aktuell eingerichtet wird – die Einstellungen hier werden bereits gespeichert.</div>' +
+    '<div style="max-width:640px"><div class="sf">' +
+    '<div class="fr"><label class="fl">Wächter aktiv</label>' +
+    '<select id="w-aktiv"><option value="nein"'+(!cfg.aktiv?' selected':'')+'>Nein</option><option value="ja"'+(cfg.aktiv?' selected':'')+'>Ja</option></select></div>' +
+    '<div class="fr"><label class="fl">Check-in-Rhythmus</label><select id="w-intervall">';
+  for (var i=0;i<WAECHTER_INTERVALLE.length;i++) html += '<option value="'+WAECHTER_INTERVALLE[i]+'"'+(cfg.intervallTage===WAECHTER_INTERVALLE[i]?' selected':'')+'>alle '+WAECHTER_INTERVALLE[i]+' Tage</option>';
+  html += '</select></div>' +
+    '<div class="fr"><label class="fl">Erinnerung vor Fälligkeit</label><select id="w-vorlauf">';
+  for (var j=0;j<WAECHTER_VORLAUFZEITEN.length;j++) html += '<option value="'+WAECHTER_VORLAUFZEITEN[j]+'"'+(cfg.vorlaufTage===WAECHTER_VORLAUFZEITEN[j]?' selected':'')+'>'+WAECHTER_VORLAUFZEITEN[j]+' Tage vorher</option>';
+  html += '</select></div>' +
+    '<div class="fr"><label class="fl">Letzter Check-in</label><div style="padding:9px 0;font-size:13px;color:#444">' +
+    (cfg.letzterCheckin ? new Date(cfg.letzterCheckin).toLocaleString('de-DE') : 'Noch kein Check-in') +
+    '</div></div>' +
+    '<div class="fr"><label class="fl">Nächster Check-in fällig</label><div style="padding:9px 0;font-size:13px;color:#444">' +
+    naechsterCheckin + (tageVerbleibend!==null ? (tageVerbleibend<0 ? ' <strong style="color:#c0392b">(überfällig)</strong>' : ' ('+tageVerbleibend+' Tage)') : '') +
+    '</div></div>' +
+    '<button class="abtn" style="background:#27ae60;margin-bottom:16px" onclick="doWaechterCheckin()">✓ Jetzt einchecken</button>' +
+    '<div class="sec-lbl">Vertrauenspersonen</div>' +
+    '<div id="w-personen">' + renderWaechterPersonen(cfg.vertrauenspersonen) + '</div>' +
+    '<button class="abtn" style="background:#888;margin-bottom:16px" onclick="addWaechterPerson()">+ Vertrauensperson hinzufügen</button>' +
+    '<div><button class="abtn" onclick="saveWaechterSettings()">💾 Speichern</button>' +
+    '<div id="waechter-save-msg" style="font-size:12px;color:#27ae60;padding:8px 0"></div></div>' +
+    '</div></div>';
+  document.getElementById('main').innerHTML = html;
+}
+
+function renderWaechterPersonen(personen) {
+  if (!personen || personen.length===0) return '<p style="font-size:12px;color:#999;margin-bottom:10px">Noch keine Vertrauensperson hinterlegt.</p>';
+  var html = '';
+  for (var i=0;i<personen.length;i++) {
+    html += '<div class="fr" style="display:flex;gap:8px;align-items:flex-end" data-wp="'+i+'">' +
+      '<div style="flex:1"><label class="fl">Name</label><input type="text" class="w-pname" value="'+esc(personen[i].name||'')+'"></div>' +
+      '<div style="flex:1"><label class="fl">E-Mail</label><input type="text" class="w-pemail" value="'+esc(personen[i].email||'')+'"></div>' +
+      '<button class="ib" onclick="removeWaechterPerson('+i+')" title="Entfernen" style="margin-bottom:2px">🗑️</button>' +
+      '</div>';
+  }
+  return html;
+}
+
+function collectWaechterPersonenFromDOM() {
+  var rows = document.querySelectorAll('#w-personen [data-wp]');
+  var personen = [];
+  for (var i=0;i<rows.length;i++) {
+    var name = rows[i].querySelector('.w-pname').value.trim();
+    var email = rows[i].querySelector('.w-pemail').value.trim();
+    if (name || email) personen.push({name:name, email:email});
+  }
+  return personen;
+}
+
+function addWaechterPerson() {
+  var cfg = getWaechterConfig();
+  var personen = collectWaechterPersonenFromDOM();
+  personen.push({name:'', email:''});
+  document.getElementById('w-personen').innerHTML = renderWaechterPersonen(personen);
+}
+
+function removeWaechterPerson(idx) {
+  var personen = collectWaechterPersonenFromDOM();
+  personen.splice(idx,1);
+  document.getElementById('w-personen').innerHTML = renderWaechterPersonen(personen);
+}
+
+function doWaechterCheckin() {
+  var cfg = getWaechterConfig();
+  cfg.letzterCheckin = new Date().toISOString();
+  cfg.erinnerungGesendetAm = null;
+  cfg.ausgeloestAm = null;
+  saveWaechterConfig(cfg);
+  showToast('Eingecheckt ✓');
+  renderWaechter();
+}
+
+function saveWaechterSettings() {
+  var cfg = getWaechterConfig();
+  cfg.aktiv = document.getElementById('w-aktiv').value === 'ja';
+  cfg.intervallTage = parseInt(document.getElementById('w-intervall').value, 10);
+  cfg.vorlaufTage = parseInt(document.getElementById('w-vorlauf').value, 10);
+  cfg.vertrauenspersonen = collectWaechterPersonenFromDOM();
+  if (cfg.aktiv && !cfg.letzterCheckin) cfg.letzterCheckin = new Date().toISOString();
+  saveWaechterConfig(cfg);
+  var msg = document.getElementById('waechter-save-msg');
+  if (msg) { msg.textContent = '✓ Gespeichert'; setTimeout(function(){ msg.textContent=''; },2500); }
 }
 
 // ── SAFE ──────────────────────────────────────────────────────────────
