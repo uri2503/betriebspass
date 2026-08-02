@@ -133,6 +133,7 @@ textarea{resize:vertical;min-height:65px}
 .doc-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
 .doc-upload-btn{background:none;border:1px dashed #2a6090;color:#2a6090;padding:7px 14px;font-size:12px;border-radius:4px;cursor:pointer}
 .doc-msg{font-size:11px;color:#999;margin-top:6px;font-style:italic}
+.doc-hint{border-top:1px solid #eee;margin-top:16px;padding-top:14px;font-size:12px;color:#666;display:flex;align-items:center;gap:6px}
 
 /* ── EINSTELLUNGEN ── */
 .sf{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:18px;max-width:480px;margin-bottom:16px}
@@ -324,6 +325,7 @@ textarea{resize:vertical;min-height:65px}
       </div>
       <div class="doc-msg" id="doc-msg"></div>
     </div>
+    <div id="mod-docs-hint" class="doc-hint" style="display:none">📎 Dokumente, Fotos &amp; Verträge können angehängt werden, sobald der Eintrag einmal gespeichert ist.</div>
     <div class="ma">
       <button class="mbtn" id="bSav" onclick="saveEntry()">Speichern</button>
       <button class="mbtn" id="bWtr" onclick="saveAndNext()" style="background:#2a6090">Speichern &amp; Weiter</button>
@@ -943,8 +945,15 @@ function openModal(modul, id) {
   document.getElementById('mod-fields').innerHTML = html;
   // Dokumente nur im Vollzugang + Edit-Modus
   var docSec = document.getElementById('mod-docs');
-  if (!DEMO_MODE && isEdit && entry) { docSec.style.display='block'; renderDocList(entry.data.dokumente||[]); }
-  else docSec.style.display='none';
+  var docHint = document.getElementById('mod-docs-hint');
+  if (!DEMO_MODE && isEdit && entry) {
+    docSec.style.display='block'; docHint.style.display='none';
+    renderDocList(entry.data.dokumente||[]);
+  } else if (!DEMO_MODE && !isEdit) {
+    docSec.style.display='none'; docHint.style.display='flex';
+  } else {
+    docSec.style.display='none'; docHint.style.display='none';
+  }
   document.getElementById('ov').className = 'show';
 }
 
@@ -1014,6 +1023,7 @@ function saveEntry() {
       mState.mode='edit'; mState.id=ne.id; mState.entry=ne;
       document.getElementById('mod-title').textContent = 'Bearbeiten – '+F[mState.modul].label;
       document.getElementById('mod-docs').style.display='block';
+      document.getElementById('mod-docs-hint').style.display='none';
       renderDocList([]);
       // Nach erstem Speichern: Buttons anpassen
       document.getElementById('bSav').textContent = 'Erneut speichern';
@@ -1942,6 +1952,7 @@ function openSafeModal(id) {
   if (id) { for(var i=0;i<entries.length;i++){if(entries[i].id===id){entry=entries[i];break;}} }
   document.getElementById('mod-title').textContent = id ? 'Safe – Eintrag bearbeiten' : 'Safe – Neuer Eintrag';
   document.getElementById('mod-docs').style.display = 'none';
+  document.getElementById('mod-docs-hint').style.display = 'none';
   document.getElementById('mod-fields').innerHTML =
     '<div class="fr"><label class="fl">Bezeichnung *</label><input type="text" id="safe-titel" value="'+esc(entry?entry.titel:'')+'"></div>' +
     '<div class="fr"><label class="fl">Geheimer Inhalt</label><textarea id="safe-inhalt" style="min-height:120px">'+esc(entry?entry.inhalt:'')+'</textarea></div>' +
