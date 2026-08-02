@@ -456,6 +456,7 @@ var F = {
     {k:'notiz',l:'Notiz',a:true}]},
   wissen:{label:'Betriebswissen',icon:'💡',f:[
     {k:'titel',l:'Titel',r:true},{k:'kategorie',l:'Kategorie'},
+    {k:'prioritaet',l:'Priorität',s:['Kritisch – sofort nötig','Wichtig','Hintergrundwissen']},
     {k:'verantwortlich',l:'Verantwortlich / macht das normalerweise'},
     {k:'inhalt',l:'Inhalt',a:true,r:true}]},
   fuhrpark:{label:'Fuhrpark / Fahrzeuge',icon:'🚗',f:[
@@ -488,7 +489,9 @@ var F = {
     {k:'mieteinnahmen',l:'Mieteinnahmen/Monat (€)'},
     {k:'notiz',l:'Notiz',a:true}]},
   notizen:{label:'Notizen',icon:'📝',f:[
-    {k:'titel',l:'Titel',r:true},{k:'inhalt',l:'Inhalt',a:true}]}
+    {k:'titel',l:'Titel',r:true},{k:'kategorie',l:'Kategorie'},
+    {k:'wichtig',l:'Wichtig für Notfall',s:['ja','nein']},
+    {k:'inhalt',l:'Inhalt',a:true}]}
 };
 // Testament ist kein Standard-Modul – eigene Render-Logik
 var MODS = ['auftraege','kunden','lieferanten','inventar','fuhrpark','immobilien','finanzen','vertraege','versicherungen','rechtliches','behoerden','zugaenge','kontakte','wissen','notizen'];
