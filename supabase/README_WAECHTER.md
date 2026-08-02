@@ -10,9 +10,17 @@
 - **Cron-Job** `betriebspass-waechter-daily-check`: aktiv, läuft täglich 06:00 UTC
   (`select * from cron.job where jobname = 'betriebspass-waechter-daily-check'`).
 - **Checkout-Bug behoben**: `betriebspass-checkout` fiel bei unbekannten Addons (wie
-  `waechter`, für das noch kein Stripe-Preis existiert) bisher still auf den Basic-Preis
-  zurück – ein Nutzer hätte also versehentlich Basic statt Wächter bezahlt. Jetzt liefert
-  ein unbekanntes Addon einen klaren 400-Fehler statt einer Fehlbuchung (getestet).
+  `waechter`, für das damals noch kein Stripe-Preis existierte) bisher still auf den
+  Basic-Preis zurück – ein Nutzer hätte also versehentlich Basic statt Wächter bezahlt.
+  Jetzt liefert ein unbekanntes Addon einen klaren 400-Fehler statt einer Fehlbuchung
+  (getestet).
+- **Stripe-Preis für `waechter` angelegt**: 10,00 € einmalig (identisch zum
+  Testament-Preis, per Setup-Funktion aus dessen Werten übernommen).
+  `product_id: prod_V05LW8rfusmB2Q`, `price_id: price_1U05AkDWofgqLQp3mufsPKrR`.
+  In `betriebspass-checkout/index.ts` hinterlegt und per Live-Checkout-Session-Test
+  verifiziert (Session wurde nur erzeugt, nicht abgeschlossen – keine echte Zahlung).
+  Die dafür verwendete Einweg-Funktion `betriebspass-setup-waechter-price` ist danach
+  stillgelegt (liefert nur noch 410), damit nicht versehentlich weitere Produkte entstehen.
 
 ## Noch offen
 
@@ -28,12 +36,7 @@
    in diesem Repo) wurde separat mitgeteilt – **muss exakt übereinstimmen**, sonst schlägt
    die Auth-Prüfung fehl.
 
-2. **Stripe-Preis für das Addon `waechter` anlegen** – erst danach kann der
-   „Jetzt freischalten"-Button in der App tatsächlich einen Kauf abschließen. Sobald ein
-   Preis existiert, in `betriebspass-checkout/index.ts` bei `PRICES` und `PRODUCTS`
-   ergänzen und neu deployen.
-
-3. **Echter End-to-End-Test** mit einer Testperson: Wächter aktivieren, `letzterCheckin`
+2. **Echter End-to-End-Test** mit einer Testperson: Wächter aktivieren, `letzterCheckin`
    künstlich weit in die Vergangenheit setzen (z.B. per SQL-Update auf
    `betriebspass_einstellungen`), Cron-Aufruf manuell auslösen, prüfen ob Erinnerungs- bzw.
    Notfall-Mail tatsächlich ankommt.
