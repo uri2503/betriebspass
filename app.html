@@ -760,7 +760,7 @@ function loadSettings(cb) {
   });
 }
 function saveSettings() {
-  var keys = ['firma','inhaber','branche','adresse','telefon','email','stb','anwalt','anweisung'];
+  var keys = ['firma','inhaber','branche','adresse','telefon','email','stb','anwalt','anweisung','safehinweis'];
   for (var i=0;i<keys.length;i++) {
     var el = document.getElementById('s'+keys[i]);
     if (el) userSettings[keys[i]] = el.value;
@@ -790,6 +790,7 @@ function renderSettings() {
       fr('sstb','Steuerberater',s.stb||'') + fr('sanwalt','Anwalt / Kanzlei',s.anwalt||'') +
       '<div class="sec-lbl">Im Notfall</div>' +
       '<div class="fr"><label class="fl">Besondere Anweisung</label><textarea id="sanweisung">' + esc(s.anweisung||'') + '</textarea></div>' +
+      '<div class="fr"><label class="fl">Wo ist der Safe-PIN hinterlegt?</label><input type="text" id="ssafehinweis" value="' + esc(s.safehinweis||'') + '" placeholder="z.B. beim Notar, im Bankschließfach – NICHT der PIN selbst"></div>' +
       '<button class="abtn" onclick="saveSettings()">Speichern</button> &nbsp;' +
       '<button class="abtn" onclick="doBackup()" style="background:#2a6090">💾 Backup erstellen</button> &nbsp;' +
       '<button class="abtn" onclick="doRestore()" style="background:#666">📥 Backup importieren</button>' +
@@ -1420,6 +1421,9 @@ function printReport() {
     if (s.anweisung) {
       html += '<div class="cover-inst"><p>📋 <strong>Persönliche Anweisung des Inhabers:</strong><br>' + esc(s.anweisung) + '</p></div>';
     }
+    if (s.safehinweis) {
+      html += '<div class="cover-inst" style="border-color:#c0392b;background:#fdecea"><p>🔒 <strong>Hinweis zum Safe-PIN:</strong><br>' + esc(s.safehinweis) + '</p></div>';
+    }
     html += '<div class="cover-meta" style="margin-top:40px;color:#bbb;font-size:9pt">Erstellt am ' + dateStr + ' um ' + timeStr + ' Uhr · Betriebspass digitales Betriebshandbuch</div>';
     html += '</div>';
 
@@ -1434,7 +1438,13 @@ function printReport() {
       html += '<div class="toc-item"><span>' + esc(cfg.icon) + ' ' + esc(cfg.label) + '</span><span>' + count + ' Einträge</span></div>';
       if (count > 0) hasAny = true;
     }
+    var safeCount = getSafeEntries().length;
+    html += '<div class="toc-item"><span>🔒 Safe – Geheime Daten</span><span>' + safeCount + ' Einträge</span></div>';
+    if (safeCount > 0) hasAny = true;
     if (!hasAny) html += '<p style="color:#999;font-style:italic;margin-top:12px">Noch keine Einträge vorhanden.</p>';
+    if (safeCount > 0) {
+      html += '<p style="color:#999;font-style:italic;font-size:9pt;margin-top:8px">🔒 Der Safe ist PIN-geschützt – seine Inhalte sind aus Sicherheitsgründen nicht in diesem Bericht enthalten.</p>';
+    }
     html += '</div>';
 
     // ── MODULE
@@ -1920,7 +1930,7 @@ function renderSafeContent() {
     for (var i=0;i<entries.length;i++) {
       var e=entries[i];
       html += '<div class="safe-card">' +
-        '<div class="chd"><div class="safe-card-title">'+esc(e.titel||'(kein Titel)')+'</div>' +
+        '<div class="chd"><div class="safe-card-title">'+esc(e.titel||'(kein Titel)')+(e.kategorie?' <span class="bdg bx">'+esc(e.kategorie)+'</span>':'')+'</div>' +
         '<div class="ca">' +
         '<button class="ib" onclick="openSafeModal(\''+e.id+'\')">✏️</button>' +
         '<button class="ib" onclick="deleteSafeEntry(\''+e.id+'\')">🗑️</button>' +
@@ -1956,8 +1966,14 @@ function openSafeModal(id) {
   document.getElementById('mod-title').textContent = id ? 'Safe – Eintrag bearbeiten' : 'Safe – Neuer Eintrag';
   document.getElementById('mod-docs').style.display = 'none';
   document.getElementById('mod-docs-hint').style.display = 'none';
+  var safeKat = entry ? (entry.kategorie||'') : '';
+  var safeKats = ['Zugangsdaten','Bankgeheimnis','Tresor-/Schließfachcode','Rechtliches','Sonstiges'];
+  var safeKatHtml = '<select id="safe-kategorie"><option value="">— Auswählen —</option>';
+  for (var sk=0; sk<safeKats.length; sk++) safeKatHtml += '<option value="'+esc(safeKats[sk])+'"'+(safeKat===safeKats[sk]?' selected':'')+'>'+esc(safeKats[sk])+'</option>';
+  safeKatHtml += '</select>';
   document.getElementById('mod-fields').innerHTML =
     '<div class="fr"><label class="fl">Bezeichnung *</label><input type="text" id="safe-titel" value="'+esc(entry?entry.titel:'')+'"></div>' +
+    '<div class="fr"><label class="fl">Kategorie</label>'+safeKatHtml+'</div>' +
     '<div class="fr"><label class="fl">Geheimer Inhalt</label><textarea id="safe-inhalt" style="min-height:120px">'+esc(entry?entry.inhalt:'')+'</textarea></div>' +
     '<div class="fr"><label class="fl">Notiz (optional)</label><input type="text" id="safe-notiz" value="'+esc(entry?entry.notiz:'')+'"></div>';
   // Buttons anpassen
@@ -1972,13 +1988,14 @@ function saveSafeEntry(id) {
   var titel = document.getElementById('safe-titel').value.trim();
   if (!titel) { document.getElementById('safe-titel').style.borderColor='#c0392b'; return; }
   document.getElementById('safe-titel').style.borderColor='';
+  var kategorie = document.getElementById('safe-kategorie').value;
   var inhalt = document.getElementById('safe-inhalt').value.trim();
   var notiz  = document.getElementById('safe-notiz').value.trim();
   var entries = getSafeEntries();
   if (id) {
-    for(var i=0;i<entries.length;i++){if(entries[i].id===id){entries[i].titel=titel;entries[i].inhalt=inhalt;entries[i].notiz=notiz;break;}}
+    for(var i=0;i<entries.length;i++){if(entries[i].id===id){entries[i].titel=titel;entries[i].kategorie=kategorie;entries[i].inhalt=inhalt;entries[i].notiz=notiz;break;}}
   } else {
-    entries.unshift({id:'safe_'+Date.now(),titel:titel,inhalt:inhalt,notiz:notiz,created_at:new Date().toISOString()});
+    entries.unshift({id:'safe_'+Date.now(),titel:titel,kategorie:kategorie,inhalt:inhalt,notiz:notiz,created_at:new Date().toISOString()});
   }
   saveSafeEntries(entries);
   closeModal();
