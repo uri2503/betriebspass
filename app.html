@@ -1441,6 +1441,11 @@ function printReport() {
     var safeCount = getSafeEntries().length;
     html += '<div class="toc-item"><span>🔒 Safe – Geheime Daten</span><span>' + safeCount + ' Einträge</span></div>';
     if (safeCount > 0) hasAny = true;
+    var testamentData = getTestamentData();
+    var testamentFilled = false;
+    for (var tk in testamentData) { if (testamentData[tk]) { testamentFilled = true; break; } }
+    html += '<div class="toc-item"><span>📜 Digitales Testament</span><span>' + (testamentFilled ? 'hinterlegt' : 'keine Angaben') + '</span></div>';
+    if (testamentFilled) hasAny = true;
     if (!hasAny) html += '<p style="color:#999;font-style:italic;margin-top:12px">Noch keine Einträge vorhanden.</p>';
     if (safeCount > 0) {
       html += '<p style="color:#999;font-style:italic;font-size:9pt;margin-top:8px">🔒 Der Safe ist PIN-geschützt – seine Inhalte sind aus Sicherheitsgründen nicht in diesem Bericht enthalten.</p>';
@@ -1485,6 +1490,23 @@ function printReport() {
         }
       }
       html += '</div>';
+    }
+
+    // ── DIGITALES TESTAMENT
+    if (testamentFilled) {
+      html += '<div class="section">';
+      html += '<div class="sec-header"><h2>📜 Digitales Testament</h2><span>Wegweiser für Angehörige</span></div>';
+      html += '<div class="entry">';
+      for (var ti = 0; ti < TESTAMENT_FIELDS.length; ti++) {
+        var tf = TESTAMENT_FIELDS[ti];
+        var tval = testamentData[tf.k] || '';
+        if (!tval) continue;
+        html += '<div class="field">';
+        html += '<span class="field-label">' + esc(tf.l) + '</span>';
+        html += '<span class="field-value' + (tf.a ? ' area' : '') + '">' + esc(tval) + '</span>';
+        html += '</div>';
+      }
+      html += '</div></div>';
     }
 
     html += '<div class="footer">VERTRAULICH · Betriebspass · ' + esc(firma) + ' · Seite <span class="page-num"></span></div>';
@@ -1664,6 +1686,8 @@ function importBackup(bk) {
 var TESTAMENT_FIELDS = [
   {k:'testament_ort',     l:'Wo liegt das offizielle Testament?', s:['Beim Notar','Amtsgericht','Zuhause (Tresor)','Beim Anwalt','Keines vorhanden']},
   {k:'notar_kontakt',    l:'Notar / Anwalt – Name & Kontakt',    a:false},
+  {k:'vorsorge_ort',     l:'Vorsorgevollmacht / Patientenverfügung – wo hinterlegt?', s:['Beim Notar','Zuhause (Tresor)','Beim Anwalt','Bevollmächtigte Person hat Kopie','Keine vorhanden']},
+  {k:'vollstrecker',     l:'Testamentsvollstrecker / Nachlassverwalter – Kontakt', a:false},
   {k:'erben',            l:'Gewünschte Erben – Zusammenfassung', a:true},
   {k:'digitale_konten',  l:'Digitale Konten & Abos – was soll passieren?', a:true,
    hint:'z.B. E-Mail löschen, Netflix kündigen, PayPal an Erben übertragen…'},
