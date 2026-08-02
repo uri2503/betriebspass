@@ -969,7 +969,13 @@ function closeModal() {
   var bd = document.getElementById('bDone');
   if (bd) bd.parentNode.removeChild(bd);
   var bs = document.getElementById('bSav');
-  if (bs) { bs.textContent = 'Speichern'; bs.disabled = false; }
+  // Safe (und potenziell andere Sonder-Formulare) belegen bSav/bWtr temporär um –
+  // beim Schließen IMMER auf die Standard-Belegung zurücksetzen, sonst bleibt z.B.
+  // "Speichern" nach dem Safe an saveSafeEntry() hängen und andere Module lassen
+  // sich nicht mehr speichern.
+  if (bs) { bs.textContent = 'Speichern'; bs.disabled = false; bs.onclick = saveEntry; }
+  var bw = document.getElementById('bWtr');
+  if (bw) { bw.textContent = 'Speichern & Weiter'; bw.disabled = false; bw.style.display = ''; bw.onclick = saveAndNext; }
 }
 
 // ── EINTRAG SPEICHERN ─────────────────────────────────────────────────
@@ -2175,10 +2181,7 @@ function saveSafeEntry(id) {
     entries.unshift({id:'safe_'+Date.now(),titel:titel,kategorie:kategorie,inhalt:inhalt,notiz:notiz,created_at:new Date().toISOString()});
   }
   saveSafeEntries(entries);
-  closeModal();
-  // Weiter-Button zurücksetzen
-  document.getElementById('bWtr').style.display = '';
-  document.getElementById('bSav').onclick = saveEntry;
+  closeModal(); // setzt bSav/bWtr bereits auf Standard zurück
   showToast('Gespeichert ✓');
   renderSafeContent();
 }
