@@ -6,15 +6,18 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 
 const PRICE_BASIC     = "price_1TmZK1DWofgqLQp3dHw5Vpja";
 const PRICE_TESTAMENT = "price_1TmZK5DWofgqLQp3y8pWLnTU";
+const PRICE_WAECHTER  = "price_1U05AkDWofgqLQp3mufsPKrR";
 
 const PRICES = {
   basic:      PRICE_BASIC,
   testament:  PRICE_TESTAMENT,
+  waechter:   PRICE_WAECHTER,
 };
 
 const PRODUCTS = {
   basic:      "betriebspass_basic",
   testament:  "betriebspass_testament",
+  waechter:   "betriebspass_waechter",
 };
 
 const CORS = {
