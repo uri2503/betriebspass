@@ -361,11 +361,13 @@ var modCache     = {};     // Cache Einträge pro Modul
 var F = {
   vertraege:{label:'Verträge',icon:'📄',f:[
     {k:'titel',l:'Vertragsbezeichnung',r:true},{k:'partner',l:'Vertragspartner',r:true},
+    {k:'vertragsnr',l:'Vertrags-/Kundennummer'},
     {k:'typ',l:'Vertragstyp',s:['Dienstleistung','Leasing','Kredit','Wartung','Miet/Pacht','Lizenz','Sonstiges']},
     {k:'beginn',l:'Laufzeit ab',t:'date'},{k:'ende',l:'Laufzeit bis',t:'date'},
     {k:'kuendigung',l:'Kündigungsfrist'},{k:'betrag',l:'Betrag (€)'},
     {k:'zahlungsintervall',l:'Zahlungsintervall',s:['monatlich','vierteljährlich','halbjährlich','jährlich']},
     {k:'verlaengerung',l:'Automatische Verlängerung',s:['ja','nein']},
+    {k:'ansprechpartner',l:'Ansprechpartner'},{k:'telefon',l:'Telefon'},{k:'email',l:'E-Mail'},
     {k:'status',l:'Status',s:['aktiv','ausgelaufen','gekündigt']},{k:'notiz',l:'Notiz',a:true}]},
   versicherungen:{label:'Versicherungen',icon:'🛡️',f:[
     {k:'art',l:'Versicherungsart',r:true},{k:'gesellschaft',l:'Gesellschaft',r:true},
