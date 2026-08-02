@@ -398,13 +398,19 @@ var F = {
     {k:'status',l:'Status',s:['offen','in Bearbeitung','abgeschlossen','storniert']},
     {k:'faellig',l:'Fällig am',t:'date'},{k:'wert',l:'Auftragswert (€)'},{k:'notiz',l:'Notiz',a:true}]},
   kunden:{label:'Kundenliste',icon:'🏠',f:[
-    {k:'name',l:'Name / Firma',r:true},{k:'kundennr',l:'Kundennummer'},{k:'telefon',l:'Telefon'},
-    {k:'email',l:'E-Mail'},{k:'adresse',l:'Adresse'},{k:'notiz',l:'Notiz',a:true}]},
+    {k:'name',l:'Name / Firma',r:true},{k:'kundennr',l:'Kundennummer'},
+    {k:'kategorie',l:'Kundentyp',s:['Privatkunde','Gewerbekunde','Stammkunde','Sonstiges']},
+    {k:'ansprechpartner',l:'Ansprechpartner'},{k:'telefon',l:'Telefon'},
+    {k:'email',l:'E-Mail'},{k:'adresse',l:'Adresse'},
+    {k:'offeneForderungen',l:'Offene Forderungen (€)'},
+    {k:'notiz',l:'Notiz',a:true}]},
   lieferanten:{label:'Lieferanten',icon:'🚚',f:[
     {k:'name',l:'Lieferant',r:true},{k:'lieferantennr',l:'Lieferantennummer'},
     {k:'produkte',l:'Produkte / Leistungen'},
     {k:'ansprechpartner',l:'Ansprechpartner'},{k:'telefon',l:'Telefon'},
-    {k:'email',l:'E-Mail'},{k:'konditionen',l:'Konditionen'},{k:'notiz',l:'Notiz',a:true}]},
+    {k:'email',l:'E-Mail'},{k:'konditionen',l:'Konditionen'},
+    {k:'offeneVerbindlichkeiten',l:'Offene Verbindlichkeiten (€)'},
+    {k:'notiz',l:'Notiz',a:true}]},
   inventar:{label:'Inventar / Maschinen',icon:'⚙️',f:[
     {k:'bezeichnung',l:'Bezeichnung',r:true},
     {k:'kategorie',l:'Kategorie',s:['Maschine','Werkzeug','IT/Elektronik','Büroausstattung','Sonstiges']},
